@@ -1,15 +1,12 @@
 export type CarApplication = {
-  id: string; // Car ID
-  driver_id: string;
-  license_plate: string;
-  color?: string;
-  carYear: number;
-  tech_passport_front?: string;
-  tech_passport_back?: string;
-  documentFront?: string;
-  documentBack?: string;
-  status: "PENDING" | "VERIFIED" | "REJECTED";
-  rejectionReason?: string | null;
+  id: string;
+  user_id: string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  licensePinfl: string;
+  licenseFrontPath: string;
+  status: "PENDING" | "VERIFIED" | "REJECTED" | "FAILED_DIDOX";
   createdAt: string;
   updatedAt: string;
   driver: {
@@ -28,30 +25,33 @@ export type CarApplication = {
   };
 };
 
-export type Report = {
-  id: string;
-  reportingUser: { id: string; firstName: string };
-  reportedUser: { id: string; firstName: string };
-  reason: string;
-  status: "PENDING" | "RESOLVED" | "REJECTED";
-  createdAt: string;
+export type Region = {
+  id: number;
+  nameRu: string;
+  nameUz: string;
 };
 
 export type Trip = {
   id: string;
+  status: string;
   driver: {
+    id: string;
     firstName: string;
     lastName: string;
     phoneNumber: string;
+    avatar?: string;
+    rating?: number;
   };
-  fromVillage: {
-    nameRu: string;
-  };
-  toVillage: {
-    nameRu: string;
-  };
+  fromRegion?: Region;
+  toRegion?: Region;
+  from_address: string;
+  to_address: string;
   departure_ts: string;
+  seats_available: number;
+  price_per_person: number;
+  createdAt: string;
 };
+
 
 export type User = {
   id: string;

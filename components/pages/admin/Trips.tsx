@@ -190,14 +190,18 @@ export const Trips = () => {
                           <MapPin className="size-4 text-green-500" />
                           <div className="flex flex-col gap-1">
                             <span className="text-muted-foreground text-sm">Откуда:</span>
-                            <span className="font-thin">{trip.fromVillage?.nameRu}</span>
+                            <span className="font-thin">
+                              {trip.fromRegion?.nameRu || trip.from_address || "Неизвестно"}
+                            </span>
                           </div>
                         </div>
                         <div className="flex flex-row gap-2">
                           <MapPin className="size-4 text-red-500" />
                           <div className="flex flex-col gap-1">
                             <span className="text-muted-foreground text-sm">Куда:</span>
-                            <span className="font-thin">{trip.toVillage?.nameRu}</span>
+                            <span className="font-thin">
+                              {trip.toRegion?.nameRu || trip.to_address || "Неизвестно"}
+                            </span>
                           </div>
                         </div>
                       </div>

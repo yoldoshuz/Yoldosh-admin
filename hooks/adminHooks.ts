@@ -79,7 +79,7 @@ export const useGetCarApplications = (filters: { [key: string]: any }) => {
     queryKey: queryKeys.admin.carApplications(filters),
     queryFn: async ({ pageParam = 1 }) => {
       // Endpoint remains the same but returns Car data now
-      const { data } = await api.get("/admin/driver-applications", {
+      const { data } = await api.get("/admin/applications", {
         params: { ...filters, page: pageParam, limit: 9 }, // Adjust limit as needed for card layout
       });
       // Assuming backend returns { data: { applications: [], total: number, ... } }
@@ -109,7 +109,7 @@ export const useUpdateCarApplicationStatus = () => {
     mutationFn: async (values: z.infer<typeof updateCarStatusSchema>) => {
       const { carId, status, rejectionReason } = values;
       // Call the updated backend endpoint with carId
-      const { data } = await api.patch(`/admin/driver-applications/${carId}/status`, {
+      const { data } = await api.patch(`/admin/applications/${carId}/status`, {
         status: status,
         ...(rejectionReason && { rejectionReason: rejectionReason }), // Only include reason if provided
       });

@@ -79,7 +79,6 @@ export const AdminPermission = {
   REPORTS: "reports",
   TRIPS: "trips",
   NOTIFICATIONS: "notifications",
-  CAR_MODELS: "car_models",
   PROMOCODES: "promocodes",
   MODERATION: "moderation",
 } as const;
@@ -89,7 +88,6 @@ export const adminPermissionLabels: { [key in (typeof AdminPermission)[keyof typ
   [AdminPermission.REPORTS]: "Жалобы",
   [AdminPermission.TRIPS]: "Поездки",
   [AdminPermission.NOTIFICATIONS]: "Уведомления",
-  [AdminPermission.CAR_MODELS]: "Модели машин",
   [AdminPermission.PROMOCODES]: "Промокоды",
   [AdminPermission.MODERATION]: "Модерация",
 };

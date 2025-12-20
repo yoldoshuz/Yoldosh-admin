@@ -44,12 +44,6 @@ export const adminItems = [
     permission: AdminPermission.NOTIFICATIONS,
   },
   {
-    title: "Модели машин",
-    url: "/admin/car-models",
-    icon: CarFront,
-    permission: AdminPermission.CAR_MODELS,
-  },
-  {
     title: "Промокоды",
     url: "/admin/promocodes",
     icon: TicketPercent,

@@ -307,61 +307,6 @@ export const useCreateGlobalNotification = () => {
   });
 };
 
-// --- Car Models Hooks (Keep as is) ---
-export const useGetCarModels = (filters: { [key: string]: any }) => {
-  return useInfiniteQuery({
-    queryKey: queryKeys.admin.carModels(filters),
-    queryFn: async ({ pageParam = 1 }) => {
-      const { data } = await api.get("/admin/car-models", { params: { ...filters, page: pageParam } });
-      return data.data;
-    },
-    initialPageParam: 1,
-    getNextPageParam: (lastPage) => {
-      return lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined;
-    },
-  });
-};
-
-export const useCreateCarModel = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (values: z.infer<typeof carModelSchema>) => {
-      await api.post("/admin/car-models", values);
-    },
-    onSuccess: () => {
-      toast.success("Модель машины успешно создана");
-      queryClient.invalidateQueries({ queryKey: queryKeys.admin.carModels({}) });
-    },
-  });
-};
-
-export const useUpdateCarModel = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ id, ...values }: z.infer<typeof carModelSchema> & { id: number }) => {
-      await api.patch(`/admin/car-models/${id}`, values);
-    },
-    onSuccess: () => {
-      toast.success("Модель машины успешно обновлена");
-      queryClient.invalidateQueries({ queryKey: queryKeys.admin.carModels({}) });
-    },
-  });
-};
-
-export const useDeleteCarModel = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string | number) => {
-      // Accept string or number
-      await api.delete(`/admin/car-models/${id}`);
-    },
-    onSuccess: () => {
-      toast.success("Модель машины успешно удалена.");
-      queryClient.invalidateQueries({ queryKey: queryKeys.admin.carModels({}) });
-    },
-  });
-};
-
 // --- Word Moderation Hooks (Keep as is) ---
 export const useGetRestrictedWords = (filters: { [key: string]: any }) => {
   return useInfiniteQuery({

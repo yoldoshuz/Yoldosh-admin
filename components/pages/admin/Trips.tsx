@@ -234,9 +234,10 @@ export const Trips = () => {
               <span className="subtitle-text">Поездки не найдены.</span>
             </div>
           )}
+          
           {hasNextPage && (
             <div className="mt-4 flex justify-center">
-              <Button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+              <Button onClick={() => fetchNextPage()} disabled={isFetchingNextPage} className="btn-primary shadow-glow">
                 {isFetchingNextPage ? "Загрузка..." : "Загрузить еще"}
               </Button>
             </div>

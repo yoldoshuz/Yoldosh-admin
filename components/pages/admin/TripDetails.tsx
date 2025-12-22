@@ -1,18 +1,16 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import Image from "next/image";
-
+import Link from "next/link";
 import { format } from "date-fns";
-import { useGetTripDetails } from "@/hooks/adminHooks";
-import { ChevronLeft, Loader2, MapPin } from "lucide-react";
+import { ChevronLeft, ImageIcon, Loader2, MapPin } from "lucide-react";
 
-import { ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatDocUrl, getStatusColor } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useGetTripDetails } from "@/hooks/adminHooks";
+import { formatDocUrl, getStatusColor } from "@/lib/utils";
 
 export const TripDetails = ({ tripId }: { tripId: string }) => {
   const { data, isLoading, isError } = useGetTripDetails(tripId);
@@ -23,11 +21,11 @@ export const TripDetails = ({ tripId }: { tripId: string }) => {
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
-  };
+  }
 
   if (isError || !data?.trip) {
     return <div className="text-center text-muted-foreground py-12">Не удалось загрузить данные о поездке</div>;
-  };
+  }
 
   const trip = data.trip;
   const { driver, car, fromVillage, toVillage } = trip;
@@ -233,15 +231,16 @@ export const TripDetails = ({ tripId }: { tripId: string }) => {
         <CardHeader>
           <CardTitle className="title-text">Бронирования</CardTitle>
         </CardHeader>
-        <CardContent className="text-sm">
+        <CardContent className="grid-2 text-sm">
           {trip.bookings?.length ? (
-            trip.bookings.map((b: any) => (
-              <div key={b.id} className="border-b py-2 space-y-1">
+            trip.bookings.map((b: any, i: number) => (
+              <div key={i} className="component-dark border rounded-2xl p-6 space-y-1">
                 <p>
                   <span className="text-muted-foreground">ID:</span> {b.passenger.id}
                 </p>
                 <p>
-                  <span className="text-muted-foreground">Полное имя:</span> {b.passenger.lastName} {b.passenger.firstName}
+                  <span className="text-muted-foreground">Полное имя:</span> {b.passenger.lastName}{" "}
+                  {b.passenger.firstName}
                 </p>
                 <p>
                   <span className="text-muted-foreground">Рейтинг:</span> {b.passenger.rating}

@@ -49,8 +49,8 @@ export const TripCard = ({ trip }: { trip: any }) => (
       <p className="text-sm text-muted-foreground">{formatDate(trip.departure_ts)}</p>
     </CardHeader>
     <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <InfoItem label="Откуда" value={trip.fromVillage?.nameRu ?? "N/A"} />
-      <InfoItem label="Куда" value={trip.toVillage?.nameRu ?? "N/A"} />
+      <InfoItem label="Откуда" value={trip.from_address ?? "N/A"} />
+      <InfoItem label="Куда" value={trip.to_address ?? "N/A"} />
       <InfoItem label="Стоимость" value={`${parseFloat(trip.price_per_person).toLocaleString("ru-RU")} UZS`} />
     </CardContent>
   </Card>
@@ -79,57 +79,23 @@ export const CarCard = ({ car }: { car: any }) => (
   <Card className="component">
     <CardHeader>
       <div className="flex justify-between items-center">
-        <CardTitle className="text-base">
-          {car.modelDetails?.make} {car.modelDetails?.model}
+        <CardTitle className="text-xl font-bold">
+          {car.make} {car.model}
         </CardTitle>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(car.status)}`}>{car.status}</span>
       </div>
-      <p className="text-sm text-muted-foreground font-mono">Номер машины: {car.license_plate}</p>
+      <p className="text-sm text-muted-foreground font-mono">Номер машины: {car.govNumber}</p>
       <p className="text-sm text-muted-foreground font-mono">Id машины: {car.id}</p>
     </CardHeader>
     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <InfoItem label="Цвет" value={car.color} />
-      <InfoItem label="Год" value={car.carYear} />
+      <InfoItem label="Дата выдачи" value={car.issueDate} />
       <InfoItem label="Причина отклонения" value={car.rejectionReason ?? "—"} />
       <InfoItem label="Создано" value={formatDate(car.createdAt)} />
+      <InfoItem label="Места в машине" value={car.seats} />
+      <InfoItem label="Серийный номер тех. пасспорта" value={car.techPassportSerial} />
 
-      {/* Documents */}
-      <div className="flex gap-2 items-center justify-start flex-wrap">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="text-xs">
-              <ImageIcon className="mr-1 h-3 w-3" /> Документ Спереди
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md p-0">
-            <DialogTitle className="sr-only">Передняя часть документа</DialogTitle>
-            <Image
-              src={formatDocUrl(car.documentFront)}
-              alt="Document Front"
-              className="rounded-lg w-full max-h-[80vh] object-contain"
-              width={2048}
-              height={2048}
-            />
-          </DialogContent>
-        </Dialog>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="text-xs">
-              <ImageIcon className="mr-1 h-3 w-3" /> Документ Сзади
-            </Button>
-          </DialogTrigger>
-          <DialogTitle className="sr-only">Задняя часть документа</DialogTitle>
-          <DialogContent className="max-w-md p-0">
-            <Image
-              src={formatDocUrl(car.documentBack)}
-              alt="Document Back"
-              className="rounded-lg w-full max-h-[80vh] object-contain"
-              width={2048}
-              height={2048}
-            />
-          </DialogContent>
-        </Dialog>
-        {/* Tech passport */}
+      {/* Tech passport */}
+      <div className="flex flex-row w-full gap-2 items-center justify-start flex-wrap">
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm" className="text-xs">
@@ -140,7 +106,7 @@ export const CarCard = ({ car }: { car: any }) => (
           <DialogContent className="max-w-md p-0">
             <DialogTitle className="sr-only">Тех пасспорт Спереди</DialogTitle>
             <Image
-              src={formatDocUrl(car.tech_passport_front)}
+              src={formatDocUrl(car.techPassportFrontPath)}
               alt="Document Front"
               className="rounded-lg w-full max-h-[80vh] object-contain"
               width={2048}
@@ -158,7 +124,7 @@ export const CarCard = ({ car }: { car: any }) => (
           <DialogTitle className="sr-only">Тех пасспорт Сзади</DialogTitle>
           <DialogContent className="max-w-md p-0">
             <Image
-              src={formatDocUrl(car.tech_passport_back)}
+              src={formatDocUrl(car.techPassportBackPath)}
               alt="Document Back"
               className="rounded-lg w-full max-h-[80vh] object-contain"
               width={2048}

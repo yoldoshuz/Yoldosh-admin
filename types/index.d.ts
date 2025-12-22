@@ -3,26 +3,14 @@ export type CarApplication = {
   user_id: string;
   first_name: string;
   last_name: string;
+  middle_name: string;
   phone: string;
-  licensePinfl: string;
   licenseFrontPath: string;
-  status: "PENDING" | "VERIFIED" | "REJECTED" | "FAILED_DIDOX";
+  licensePinfl: string;
+  typeOfLicence: string;
+  status: "PENDING" | "VERIFIED" | "REJECTED";
   createdAt: string;
   updatedAt: string;
-  driver: {
-    // Included driver details
-    id: string;
-    firstName: string;
-    lastName: string;
-    phoneNumber: string;
-    avatar?: string;
-    role: string;
-  };
-  modelDetails: {
-    // Included model details
-    make: string;
-    model: string;
-  };
 };
 
 export type Region = {
@@ -52,7 +40,6 @@ export type Trip = {
   createdAt: string;
 };
 
-
 export type User = {
   id: string;
   firstName: string;
@@ -70,4 +57,13 @@ export type Admin = {
   lastName: string;
   role: "Admin" | "SuperAdmin";
   permissions: Partial<Record<(typeof AdminPermission)[keyof typeof AdminPermission], boolean>>;
+};
+
+export type Report = {
+  id: string;
+  reportingUser: { id: string; firstName: string };
+  reportedUser: { id: string; firstName: string };
+  reason: string;
+  status: "PENDING" | "RESOLVED" | "REJECTED";
+  createdAt: string;
 };

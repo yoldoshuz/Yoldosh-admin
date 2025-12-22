@@ -44,6 +44,7 @@ export const getStatusColor = (status: string): string => {
     RESOLVED: "bg-blue-200/20 text-blue-800 dark:bg-blue-800/20 dark:text-blue-400",
     CONFIRMED: "bg-green-200/20 text-green-800 dark:bg-green-800/20 dark:text-green-400",
     CANCELLED: "bg-red-200/20 text-red-800 dark:bg-red-800/20 dark:text-red-400",
+    CANCELED: "bg-red-200/20 text-red-800 dark:bg-red-800/20 dark:text-red-400",
     COMPLETED: "bg-green-200/20 text-green-800 dark:bg-green-800/20 dark:text-green-400",
     // Notification Types from enum
     trips: "bg-sky-200/20 text-sky-800 dark:bg-sky-800/20 dark:text-sky-400",

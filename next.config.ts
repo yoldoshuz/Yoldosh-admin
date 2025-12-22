@@ -10,6 +10,12 @@ const nextConfig: NextConfig = {
         port: "5000",
         pathname: "**",
       },
+      {
+        protocol: "https",
+        hostname: "api.yoldosh.uz",
+        port: "",
+        pathname: "**",
+      },
     ],
   },
 };

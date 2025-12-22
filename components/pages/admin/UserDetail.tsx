@@ -4,16 +4,23 @@ import { useState } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  AirVent,
   Ban,
   Calendar,
   Car,
   ChevronLeft,
+  Cigarette,
+  Dog,
+  IdCard,
   Info,
   Mail,
-  MapPin,
+  Megaphone,
   MessageSquare,
+  Music,
   Phone,
   ShieldAlert,
+  ShieldCheck,
+  Ticket,
   User,
   Wallet,
 } from "lucide-react";
@@ -166,7 +173,7 @@ export const UserDetail = ({ userId }: { userId: string }) => {
             icon={<ShieldAlert />}
             label="Статус"
             value={user.isBanned ? "Заблокирован" : "Активен"}
-            valueClassName={user.isBanned ? "text-destructive" : "text-green-500"}
+            valueClassName={user.isBanned ? "text-red-500" : "text-green-500"}
           />
           <InfoItem icon={<Phone />} label="Телефон" value={user.phoneNumber} />
           <InfoItem
@@ -183,15 +190,41 @@ export const UserDetail = ({ userId }: { userId: string }) => {
             value={user.role === "Driver" ? user.drivenTrips?.length || 0 : user.bookingsAsPassenger?.length || 0}
           />
           <InfoItem icon={<Info />} label="Рейтинг" value={user.rating ? user.rating.toFixed(1) : "—"} />
-          <InfoItem icon={<Ban />} label="Причина блокировки" value={user.banReason || "—"} />
-          <InfoItem
-            icon={<Calendar />}
-            label="Блокировка до"
-            value={user.banExpiresAt ? formatDate(user.banExpiresAt) : "Не установлено"}
-          />
           <InfoItem icon={<MessageSquare />} label="Биография" value={user.bio || "—"} />
+          <InfoItem
+            icon={<Ticket />}
+            label="Промокод"
+            value={user.isHavePromocode ? "Есть" : "Нет"}
+            valueClassName={user.isHavePromocode ? "text-green-500" : "text-red-500"}
+          />
+          <InfoItem
+            icon={<ShieldCheck />}
+            label="Верифицирован"
+            value={user.verified ? "Верифицирован" : "Не верифицирован"}
+            valueClassName={user.verified ? "text-green-500" : "text-red-500"}
+          />
+          <InfoItem
+            icon={<IdCard />}
+            label="Водительское удовостоверние"
+            value={user.passport_verified ? "Верифицирован" : "Не верифицирован"}
+            valueClassName={user.passport_verified ? "text-green-500" : "text-red-500"}
+          />
         </CardContent>
       </Card>
+
+      {user.isBanned ? (
+        <Card className="component shadow-none">
+          <CardTitle className="px-6">Информация о блокировке</CardTitle>
+          <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <InfoItem
+              icon={<Calendar />}
+              label="Блокировка до"
+              value={user.banExpiresAt ? formatDate(user.banExpiresAt) : "Не установлено"}
+            />
+            <InfoItem icon={<Ban />} label="Причина блокировки" value={user.banReason || "—"} />
+          </CardContent>
+        </Card>
+      ) : null}
 
       {/* NOTIFICATION SETTINGS */}
       {user.notificationPreferences && (
@@ -204,12 +237,49 @@ export const UserDetail = ({ userId }: { userId: string }) => {
                 icon={<Mail />}
                 label={key}
                 value={value ? "Вкл." : "Выкл."}
-                valueClassName={value ? "text-green-500" : "text-muted-foreground"}
+                valueClassName={value ? "text-green-500" : "text-red-500"}
               />
             ))}
           </CardContent>
         </Card>
       )}
+
+      {/* PREFERENSES */}
+      <Card className="component shadow-none">
+        <CardTitle className="px-6">Предпочтения</CardTitle>
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <InfoItem
+            icon={<Music />}
+            label="Музыка"
+            value={user.music_allowed ? "Можно" : "Нельзя"}
+            valueClassName={user.music_allowed ? "text-green-500" : "text-red-500"}
+          />
+          <InfoItem
+            icon={<AirVent />}
+            label="Кондиционер"
+            value={user.conditioner ? "Можно" : "Нельзя"}
+            valueClassName={user.conditioner ? "text-green-500" : "text-red-500"}
+          />
+          <InfoItem
+            icon={<Dog />}
+            label="Питомцы"
+            value={user.pets_allowed ? "Можно" : "Нельзя"}
+            valueClassName={user.pets_allowed ? "text-green-500" : "text-red-500"}
+          />
+          <InfoItem
+            icon={<Megaphone />}
+            label="Общительность"
+            value={user.talkative ? "Общительный" : "Не общительный"}
+            valueClassName={user.talkative ? "text-green-500" : "text-red-500"}
+          />
+          <InfoItem
+            icon={<Cigarette />}
+            label="Курение"
+            value={user.smoking_allowed ? "Можно" : "Нельзя"}
+            valueClassName={user.smoking_allowed ? "text-green-500" : "text-red-500"}
+          />
+        </CardContent>
+      </Card>
 
       {/* TABS */}
       <Tabs defaultValue="trips">

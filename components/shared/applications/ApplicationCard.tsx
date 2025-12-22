@@ -20,7 +20,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import {
   Dialog,
   DialogClose,
@@ -65,25 +65,12 @@ export const ApplicationCard = ({
     <Card className="component border hover:border-emerald-500 dark:hover:border-emerald-600 transition rounded-xl shadow-md overflow-hidden w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <Link
-          href={`/admin/users-search/${application.driver.id}`}
-          className="flex flex-row items-center justify-start space-y-0 pb-2 gap-4"
+          href={`/admin/users-search/${application.user_id}`}
+          className="flex flex-row items-center justify-start space-y-0 pb-2 gap-4 link-text"
         >
-          <div>
-            {application.driver.avatar ? (
-              <Image
-                src={application.driver.avatar}
-                alt={`${application.driver.firstName} ${application.driver.lastName}`}
-                className="w-12 h-12 rounded-full object-cover"
-              />
-            ) : (
-              <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center">
-                <UserRound className="w-6 h-6 text-white" />
-              </div>
-            )}
-          </div>
           <div className="flex flex-col items-start justify-center">
             <h1 className="font-bold text-lg md:text-xl">
-              {application.driver.firstName} {application.driver.lastName}
+              {application.first_name} {application.last_name} {application.middle_name}
             </h1>
             <time className="text-xs text-muted-foreground">{formatDate(application.createdAt)}</time>
           </div>
@@ -163,15 +150,21 @@ export const ApplicationCard = ({
           {/* Driver Info */}
           <div className="flex items-center justify-start gap-2">
             <Phone className="size-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Номер телефона:</span>
             <span className="text-sm">
-              {application.driver.phoneNumber.replace(/^\+?(\d{3})(\d{2})(\d{3})(\d{2})(\d{2})$/, "+$1 $2 $3 $4 $5")}
+              {application.phone.replace(/^\+?(\d{3})(\d{2})(\d{3})(\d{2})(\d{2})$/, "+$1 $2 $3 $4 $5")}
             </span>
           </div>
 
           {/* Licence plate */}
           <div className="flex items-center justify-start gap-2">
-            <span className="text-sm text-muted-foreground">Номерной знак:</span>
-            <span className="text-sm">{application.license_plate || "N/A"}</span>
+            <span className="text-sm text-muted-foreground">PINFL:</span>
+            <span className="text-sm">{application.licensePinfl || "N/A"}</span>
+          </div>
+          {/* Licence plate */}
+          <div className="flex items-center justify-start gap-2">
+            <span className="text-sm text-muted-foreground">Тип водительского удостоверения:</span>
+            <span className="text-sm">{application.typeOfLicence || "N/A"}</span>
           </div>
 
           {/* Documents */}
@@ -179,90 +172,14 @@ export const ApplicationCard = ({
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="text-xs">
-                  <ImageIcon className="mr-1 h-3 w-3" /> Документ Спереди
+                  <ImageIcon className="mr-1 h-3 w-3" /> Водительские права
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-md p-0">
-                <DialogTitle className="sr-only">Передняя часть документа</DialogTitle>
+                <DialogTitle className="sr-only">Водительские права</DialogTitle>
                 <Image
-                  src={formatDocUrl(application.documentFront)}
+                  src={formatDocUrl(application.licenseFrontPath)}
                   alt="Document Front"
-                  className="rounded-lg w-full max-h-[80vh] object-contain"
-                  width={2048}
-                  height={2048}
-                />
-              </DialogContent>
-            </Dialog>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="text-xs">
-                  <ImageIcon className="mr-1 h-3 w-3" /> Документ Сзади
-                </Button>
-              </DialogTrigger>
-              <DialogTitle className="sr-only">Задняя часть документа</DialogTitle>
-              <DialogContent className="max-w-md p-0">
-                <Image
-                  src={formatDocUrl(application.documentBack)}
-                  alt="Document Back"
-                  className="rounded-lg w-full max-h-[80vh] object-contain"
-                  width={2048}
-                  height={2048}
-                />
-              </DialogContent>
-            </Dialog>
-          </div>
-        </div>
-
-        <div className="flex flex-col items-start space-y-4">
-          {/* Color */}
-          <div className="flex items-center justify-start gap-2">
-            <PaintbrushVertical className="size-4 text-muted-foreground" />
-            <span className="text-sm">{application.color || "N/A"}</span>
-          </div>
-          {/* Year */}
-          <div className="flex items-center justify-start gap-2">
-            <span className="text-sm text-muted-foreground">Год:</span>
-            <span className="text-sm">{application.carYear || "N/A"}</span>
-          </div>
-          {/* Model */}
-          <div className="flex items-center justify-start gap-2">
-            <span className="text-sm text-muted-foreground">Модель:</span>
-            <span className="text-sm">
-              {application.modelDetails.make || "N/A"} - {application.modelDetails.model || "N/A"}
-            </span>
-          </div>
-          {/* Tech Passport */}
-          <div className="flex gap-2 items-center justify-start flex-wrap mt-2">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="text-xs">
-                  <ImageIcon className="mr-1 h-3 w-3" />
-                  Тех пасспорт Спереди
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-md p-0">
-                <DialogTitle className="sr-only">Тех пасспорт Спереди</DialogTitle>
-                <Image
-                  src={formatDocUrl(application.tech_passport_front)}
-                  alt="Document Front"
-                  className="rounded-lg w-full max-h-[80vh] object-contain"
-                  width={2048}
-                  height={2048}
-                />
-              </DialogContent>
-            </Dialog>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="text-xs">
-                  <ImageIcon className="mr-1 h-3 w-3" />
-                  Тех пасспорт Сзади
-                </Button>
-              </DialogTrigger>
-              <DialogTitle className="sr-only">Тех пасспорт Сзади</DialogTitle>
-              <DialogContent className="max-w-md p-0">
-                <Image
-                  src={formatDocUrl(application.tech_passport_back)}
-                  alt="Document Back"
                   className="rounded-lg w-full max-h-[80vh] object-contain"
                   width={2048}
                   height={2048}
@@ -273,10 +190,10 @@ export const ApplicationCard = ({
         </div>
 
         {/* Rejection Reason */}
-        {application.status === "REJECTED" && application.rejectionReason && (
+        {application.status === "REJECTED" && application.licenseFrontPath && (
           <div className="text-xs text-red-600 dark:text-red-400 bg-red-100/50 dark:bg-red-900/20 p-2 rounded-md flex items-start gap-2">
             <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
-            <span>Причина: {application.rejectionReason}</span>
+            <span>Причина: {application.licenseFrontPath}</span>
           </div>
         )}
       </CardContent>

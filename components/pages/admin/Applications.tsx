@@ -62,7 +62,7 @@ export const Applications = () => {
   return (
     <div>
       <Toaster richColors />
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
         <div>
           <h1 className="title-text">Заявки водителей</h1>
           <p className="subtitle-text">Управление заявками на регистрацию водителей.</p>
@@ -83,7 +83,7 @@ export const Applications = () => {
         </TabsList>
 
         {/* Filters Section */}
-        <div className="flex flex-col component border rounded-2xl mt-4 px-6 py-4">
+        <div className="flex flex-col component border rounded-2xl mt-1 px-6 py-4">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-2 my-4 px-1">
             <div className="relative w-full">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />

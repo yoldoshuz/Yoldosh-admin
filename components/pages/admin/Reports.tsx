@@ -1,34 +1,67 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon, Filter, Search } from "lucide-react";
-import { DateRange } from "react-day-picker";
-import { useForm } from "react-hook-form";
-import { useDebounceValue } from "usehooks-ts";
-import { z } from "zod";
 
+import { z } from "zod";
+import { Report } from "@/types";
+import { format } from "date-fns";
+import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { DateRange } from "react-day-picker";
+import { banUserSchema } from "@/lib/schemas";
+import { useDebounceValue } from "usehooks-ts";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { formatDate, getStatusColor } from "@/lib/utils";
+import {
+  useBanUser,
+  useGetReports,
+  useUpdateReportStatus
+} from "@/hooks/adminHooks";
+
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Toaster } from "@/components/ui/sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar } from "@/components/ui/calendar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from "@/components/ui/popover";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Toaster } from "@/components/ui/sonner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useBanUser, useGetReports, useUpdateReportStatus } from "@/hooks/adminHooks";
-import { banUserSchema } from "@/lib/schemas";
-import { formatDate, getStatusColor } from "@/lib/utils";
-import { Report } from "@/types";
+import {
+  Calendar as CalendarIcon,
+  Filter,
+  Search
+} from "lucide-react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from "@/components/ui/form";
+
 
 const ReportsTable = ({ status }: { status: "PENDING" | "RESOLVED" | "REJECTED" }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -73,7 +106,7 @@ const ReportsTable = ({ status }: { status: "PENDING" | "RESOLVED" | "REJECTED" 
 
   return (
     <Dialog onOpenChange={(isOpen) => !isOpen && setSelectedReport(null)}>
-      <div className="flex flex-col component border rounded-2xl mt-4 px-6 py-4">
+      <div className="flex flex-col component border rounded-2xl mt-1 px-6 py-4">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-2 my-4">
           <div className="relative flex w-full">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />

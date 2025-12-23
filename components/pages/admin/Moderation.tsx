@@ -129,7 +129,7 @@ export const Moderation = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center h-24">
+                  <TableCell colSpan={3} className="text-center h-24 text-muted-foreground text-base">
                     Запрещенные слова не найдены.
                   </TableCell>
                 </TableRow>

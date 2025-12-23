@@ -9,7 +9,6 @@ import { DateRange } from "react-day-picker";
 import { useForm } from "react-hook-form";
 import { useDebounceValue, useIntersectionObserver } from "usehooks-ts";
 import z from "zod";
-
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -24,12 +23,24 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/sonner";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDeleteTrip, useEditTrip, useGetTrips } from "@/hooks/adminHooks";
 import { editTripSchema } from "@/lib/schemas";
 import { formatDate, getStatusColor } from "@/lib/utils";
 import { Trip } from "@/types";
 
+// Enum как в запросе
+enum TripStatus {
+   Created = 'CREATED',
+   InProgress = 'IN_PROGRESS',
+   Completed = 'COMPLETED',
+   Canceled = 'CANCELED',
+}
+
 export const Trips = () => {
+  // State для табов
+  const [activeTab, setActiveTab] = useState<TripStatus | "ALL">("ALL");
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [sort, setSort] = useState({ sortBy: "departure_ts", sortOrder: "DESC" });
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
@@ -40,6 +51,8 @@ export const Trips = () => {
     search: debouncedSearch,
     sortBy: sort.sortBy,
     sortOrder: sort.sortOrder,
+    // Передаем статус, если не выбрано "ВСЕ"
+    status: activeTab === "ALL" ? undefined : activeTab,
     startDate: dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined,
     endDate: dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined,
   };
@@ -48,7 +61,7 @@ export const Trips = () => {
   const { mutate: deleteTrip, isPending: isDeleting } = useDeleteTrip();
   const { mutate: editTrip, isPending: isEditing } = useEditTrip();
 
-  const { ref, isIntersecting } = useIntersectionObserver({ threshold: 0.5 });
+  const { ref, isIntersecting } = useIntersectionObserver({ threshold: 0.1 });
 
   useEffect(() => {
     if (isIntersecting && hasNextPage && !isFetchingNextPage) {
@@ -65,10 +78,11 @@ export const Trips = () => {
     form.reset({
       tripId: trip.id,
       departure_ts: trip.departure_ts ? new Date(trip.departure_ts).toISOString().slice(0, 16) : undefined,
-      seats_available: 4,
-      price_per_person: 50000,
+      seats_available: trip.seats_available,
+      price_per_person: trip.price_per_person,
     });
   };
+
   const onEditSubmit = (values: z.infer<typeof editTripSchema>) => {
     if (!selectedTrip) return;
     const submissionData = {
@@ -92,14 +106,30 @@ export const Trips = () => {
     <div>
       <Toaster richColors />
       <h1 className="title-text">Поездки</h1>
-      <p className="subtitle-text mb-6">Мониторинг всех поездок в системе</p>
+      <p className="subtitle-text mb-4">Мониторинг всех поездок в системе</p>
 
-      <div className="flex flex-col component border rounded-2xl mt-4 px-6 py-4">
+      {/* Tabs Selector */}
+      <Tabs 
+        value={activeTab} 
+        onValueChange={(val) => setActiveTab(val as TripStatus | "ALL")} 
+        className="w-full mb-4"
+      >
+        <TabsList className="w-64 sm:w-96 px-1">
+            <TabsTrigger value="ALL" className="w-4 text-xs sm:text-md">Все</TabsTrigger>
+            <TabsTrigger value={TripStatus.Created} className="text-xs sm:text-md">Созданные</TabsTrigger>
+            <TabsTrigger value={TripStatus.InProgress} className="text-xs sm:text-md">В пути</TabsTrigger>
+            <TabsTrigger value={TripStatus.Completed} className="text-xs sm:text-md">Завершенные</TabsTrigger>
+            <TabsTrigger value={TripStatus.Canceled} className="text-xs sm:text-md">Отмененные</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      <div className="flex flex-col component border rounded-2xl px-6 py-4">
+        {/* Filters */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-2 my-4">
           <div className="relative w-full">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Поиск по маршруту, номеру водителя и по имени водителя..."
+              placeholder="Поиск по маршруту, ID, имени водителя..."
               className="pl-8 w-full component-dark"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -112,9 +142,9 @@ export const Trips = () => {
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {dateRange?.from ? (
                     dateRange.to ? (
-                      `${format(dateRange.from, "LLL dd, y")} - ${format(dateRange.to, "LLL dd, y")}`
+                      `${format(dateRange.from, "dd.MM.yyyy")} - ${format(dateRange.to, "dd.MM.yyyy")}`
                     ) : (
-                      format(dateRange.from, "LLL dd, y")
+                      format(dateRange.from, "dd.MM.yyyy")
                     )
                   ) : (
                     <span>Выбрать дату</span>
@@ -159,7 +189,7 @@ export const Trips = () => {
             </div>
           ) : allTrips.length > 0 ? (
             <div className="grid-default">
-              {allTrips.map((trip: any, i: number) => (
+              {allTrips.map((trip: any) => (
                 <div
                   className="flex flex-col gap-4 component border hover:border-emerald-500 dark:hover:border-emerald-600 transition rounded-xl p-6"
                   key={trip.id}
@@ -171,7 +201,7 @@ export const Trips = () => {
                     <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${getStatusColor(trip.status)}`}>
                       {trip.status}
                     </span>
-                    <time className="text-sm text-muted-foreground">{formatDate(trip.createdAt)}</time>
+                    <time className="text-sm text-muted-foreground">{formatDate(trip.departure_ts)}</time>
                   </div>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-4">
                     <div className="flex flex-col space-y-4 text-sm">
@@ -235,11 +265,12 @@ export const Trips = () => {
             </div>
           )}
 
+          {/* Infinite Scroll Trigger */}
           {hasNextPage && (
-            <div className="mt-4 flex justify-center">
-              <Button onClick={() => fetchNextPage()} disabled={isFetchingNextPage} className="btn-primary shadow-glow">
-                {isFetchingNextPage ? "Загрузка..." : "Загрузить еще"}
-              </Button>
+            <div className="mt-4 flex justify-center w-full" ref={ref}>
+               <Button onClick={() => fetchNextPage()} disabled={isFetchingNextPage} className="btn-primary shadow-glow">
+                 {isFetchingNextPage ? "Загрузка..." : "Загрузить еще"}
+               </Button>
             </div>
           )}
 
@@ -263,7 +294,6 @@ export const Trips = () => {
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control}
                     name="seats_available"
@@ -277,7 +307,6 @@ export const Trips = () => {
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control}
                     name="price_per_person"
@@ -291,7 +320,6 @@ export const Trips = () => {
                       </FormItem>
                     )}
                   />
-
                   <Button type="submit" disabled={isEditing}>
                     {isEditing ? "Сохранение..." : "Сохранить"}
                   </Button>

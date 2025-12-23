@@ -9,6 +9,7 @@ import { DateRange } from "react-day-picker";
 import { useForm } from "react-hook-form";
 import { useDebounceValue, useIntersectionObserver } from "usehooks-ts";
 import z from "zod";
+
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -31,16 +32,16 @@ import { Trip } from "@/types";
 
 // Enum как в запросе
 enum TripStatus {
-   Created = 'CREATED',
-   InProgress = 'IN_PROGRESS',
-   Completed = 'COMPLETED',
-   Canceled = 'CANCELED',
+  Created = "CREATED",
+  InProgress = "IN_PROGRESS",
+  Completed = "COMPLETED",
+  Canceled = "CANCELED",
 }
 
 export const Trips = () => {
   // State для табов
   const [activeTab, setActiveTab] = useState<TripStatus | "ALL">("ALL");
-  
+
   const [searchTerm, setSearchTerm] = useState("");
   const [sort, setSort] = useState({ sortBy: "departure_ts", sortOrder: "DESC" });
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
@@ -109,17 +110,23 @@ export const Trips = () => {
       <p className="subtitle-text mb-4">Мониторинг всех поездок в системе</p>
 
       {/* Tabs Selector */}
-      <Tabs 
-        value={activeTab} 
-        onValueChange={(val) => setActiveTab(val as TripStatus | "ALL")} 
-        className="w-full mb-4"
-      >
+      <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as TripStatus | "ALL")} className="w-full mb-4">
         <TabsList className="w-64 sm:w-96 px-1">
-            <TabsTrigger value="ALL" className="w-4 text-xs sm:text-md">Все</TabsTrigger>
-            <TabsTrigger value={TripStatus.Created} className="text-xs sm:text-md">Созданные</TabsTrigger>
-            <TabsTrigger value={TripStatus.InProgress} className="text-xs sm:text-md">В пути</TabsTrigger>
-            <TabsTrigger value={TripStatus.Completed} className="text-xs sm:text-md">Завершенные</TabsTrigger>
-            <TabsTrigger value={TripStatus.Canceled} className="text-xs sm:text-md">Отмененные</TabsTrigger>
+          <TabsTrigger value="ALL" className="w-4 text-xs sm:text-md">
+            Все
+          </TabsTrigger>
+          <TabsTrigger value={TripStatus.Created} className="text-xs sm:text-md">
+            Созданные
+          </TabsTrigger>
+          <TabsTrigger value={TripStatus.InProgress} className="text-xs sm:text-md">
+            В пути
+          </TabsTrigger>
+          <TabsTrigger value={TripStatus.Completed} className="text-xs sm:text-md">
+            Завершенные
+          </TabsTrigger>
+          <TabsTrigger value={TripStatus.Canceled} className="text-xs sm:text-md">
+            Отмененные
+          </TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -268,9 +275,9 @@ export const Trips = () => {
           {/* Infinite Scroll Trigger */}
           {hasNextPage && (
             <div className="mt-4 flex justify-center w-full" ref={ref}>
-               <Button onClick={() => fetchNextPage()} disabled={isFetchingNextPage} className="btn-primary shadow-glow">
-                 {isFetchingNextPage ? "Загрузка..." : "Загрузить еще"}
-               </Button>
+              <Button onClick={() => fetchNextPage()} disabled={isFetchingNextPage} className="btn-primary shadow-glow">
+                {isFetchingNextPage ? "Загрузка..." : "Загрузить еще"}
+              </Button>
             </div>
           )}
 

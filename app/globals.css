@@ -154,11 +154,11 @@
   }
 
   .btn-danger {
-    @apply !bg-red-200/50 !text-red-800 hover:!bg-red-200;
+    @apply bg-red-200/50! text-red-800! hover:bg-red-200!;
   }
 
   .btn-primary {
-    @apply bg-gradient-to-br from-emerald-400 to-teal-600 text-white cursor-pointer;
+    @apply bg-linear-to-br from-emerald-400 to-teal-600 text-white cursor-pointer;
   }
 
   .shadow-glow {
@@ -183,5 +183,9 @@
   
   .link-text {
     @apply text-emerald-500 cursor-pointer;
+  }
+
+  .stats-card {
+    @apply bg-gray-100 dark:bg-gray-900 border-gray-200 dark:border-gray-700 border hover:border-emerald-500 dark:hover:border-emerald-600 transition rounded-xl shadow-xl;
   }
 }

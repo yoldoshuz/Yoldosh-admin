@@ -67,3 +67,25 @@ export type Report = {
   status: "PENDING" | "RESOLVED" | "REJECTED";
   createdAt: string;
 };
+
+export type ChartData = {
+  date: string;
+  count?: number;
+  amount?: number;
+};
+
+export type DashboardStats = {
+  range: 'day' | 'week' | 'month';
+  users: { totalNew: number; graph: ChartData[] };
+  drivers: { totalNew: number; graph: ChartData[] };
+  guests: { total: number; graph: ChartData[] };
+  trips: {
+    published: { total: number; graph: ChartData[] };
+    completed: { total: number; graph: ChartData[] };
+    activeCount: number;
+  };
+  reports: { total: number; graph: ChartData[] };
+  wallet: { totalSum: number; graph: ChartData[] };
+  searches: { top: { city: string; count: number }[] };
+  bookings: { total: number; graph: ChartData[] };
+};

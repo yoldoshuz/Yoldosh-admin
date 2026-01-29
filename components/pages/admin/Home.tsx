@@ -1,6 +1,6 @@
 "use client";
 
-import { Car, ShieldAlert, Users } from "lucide-react";
+import { Activity, Car, CreditCard, ShieldAlert, Users } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,38 +26,30 @@ export const Home = () => {
         <div className="p-8 text-red-500">Ошибка загрузки статистики. Попробуйте обновить страницу.</div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Card className="component-2 border hover:border-emerald-500 dark:hover:border-emerald-600 transition rounded-xl shadow-xl">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0">
-              <CardTitle className="text-sm font-medium">Новые пользователи</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+          <Card className="stats-card">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Активные поездки</CardTitle>
+              <Activity className="h-4 w-4 text-emerald-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.newUsers}</div>
-              <p className="text-xs text-muted-foreground">за последние 30 дней</p>
+              <div className="text-2xl font-bold">{stats.trips.activeCount}</div>
+              <p className="text-xs text-muted-foreground">Сейчас в пути</p>
             </CardContent>
           </Card>
-          <Card className="component-2 border hover:border-emerald-500 dark:hover:border-emerald-600 transition rounded-xl shadow-xl">
+
+          <Card className="stats-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Новые поездки</CardTitle>
-              <Car className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Завершено поездок</CardTitle>
+              <Car className="h-4 w-4 text-purple-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.newTrips}</div>
-              <p className="text-xs text-muted-foreground">за последние 30 дней</p>
-            </CardContent>
-          </Card>
-          <Card className="component-2 border hover:border-emerald-500 dark:hover:border-emerald-600 transition rounded-xl shadow-xl">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Новые жалобы</CardTitle>
-              <ShieldAlert className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.newReports}</div>
-              <p className="text-xs text-muted-foreground">за последние 30 дней</p>
+              <div className="text-2xl font-bold">{stats.trips.completed.total}</div>
+              <p className="text-xs text-muted-foreground">Успешные поездки</p>
             </CardContent>
           </Card>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 };

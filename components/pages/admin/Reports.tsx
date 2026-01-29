@@ -154,14 +154,14 @@ const ReportsTable = ({ status }: { status: "PENDING" | "RESOLVED" | "REJECTED" 
                     <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-4">
                       <div className="flex flex-col space-y-4 text-sm">
                         <Link
-                          href={`/admin/users-search/${report.reportingUser.id}`}
+                          href={`/admin/users-search/`} //${report.reportingUser.id}
                           className="flex flex-col link-text"
                         >
                           <span className="text-muted-foreground">От:</span>
                           <span className="font-semibold">{report.reportingUser?.firstName || "N/A"}</span>
                         </Link>
                         <Link
-                          href={`/admin/users-search/${report.reportedUser.id}`}
+                          href={`/admin/users-search/`} // ${report.reportedUser.id}
                           className="flex flex-col link-text"
                         >
                           <span className="text-muted-foreground">На:</span>

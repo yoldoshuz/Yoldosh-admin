@@ -5,6 +5,7 @@ import { z } from "zod";
 import api from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 import { createAdminSchema } from "@/lib/schemas";
+import { DashboardStats } from "@/types";
 
 export const useGetSuperAdminProfile = (enabled: boolean = true) => {
   return useQuery({
@@ -29,8 +30,8 @@ export const useGetAllAdmins = (filters: any) => {
       return data.data; // FIX: Return the nested data object
     },
     // FIX: Correctly calculate the next page based on backend response
-    getNextPageParam: (lastPage: any) => {
-      return lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined;
+    getNextPageParam: (lastPage: any, allPages: any, lastPageParam: number) => {
+      return lastPage.rows.length === 10 ? lastPageParam + 1 : undefined;
     },
     initialPageParam: 1,
   });
@@ -88,8 +89,8 @@ export const useGetAdminLogs = (adminId: string, filters: any) => {
       return data.data; // FIX: Return the nested data object
     },
     // FIX: Correctly calculate the next page
-    getNextPageParam: (lastPage: any) => {
-      return lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined;
+    getNextPageParam: (lastPage: any, allPages: any, lastPageParam: number) => {
+      return lastPage.logs.length === 20 ? lastPageParam + 1 : undefined;
     },
     initialPageParam: 1,
     enabled: !!adminId,
@@ -97,12 +98,12 @@ export const useGetAdminLogs = (adminId: string, filters: any) => {
 };
 
 // Stats
-export const useGetSuperAdminStats = () => {
+export const useGetSuperAdminStats = (range: 'day' | 'week' | 'month' = 'month') => {
   return useQuery({
-    queryKey: queryKeys.superAdmin.stats(),
+    queryKey: [...queryKeys.superAdmin.stats(), range], // Include range in key
     queryFn: async () => {
-      const { data } = await api.get("/super-admin/stats");
-      return data.data;
+      const { data } = await api.get("/super-admin/stats", { params: { range } });
+      return data.data as DashboardStats;
     },
   });
 };

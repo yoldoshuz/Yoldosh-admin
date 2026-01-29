@@ -1,156 +1,189 @@
 "use client";
 
-import { BookUser, Car, FileText, ShieldAlert, Users } from "lucide-react";
-import { useTheme } from "next-themes";
-import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-
+import { useState } from "react";
+import { Activity, Car, CreditCard, Download, Search, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetSuperAdminProfile, useGetSuperAdminStats } from "@/hooks/superAdminHooks";
+import { StatsChart } from "@/components/shared/layout/StatsChart";
+import Link from "next/link";
 
 export const Home = () => {
-  const { theme } = useTheme();
-  const { data: superAdmin, isLoading: isAdminLoading, isError: isAdminError } = useGetSuperAdminProfile();
-  const { data: stats, isLoading: isStatsLoading, isError: isStatsError } = useGetSuperAdminStats();
+  const [range, setRange] = useState<'day' | 'week' | 'month'>('month');
+  const { data: superAdmin } = useGetSuperAdminProfile();
+  const { data: stats, isLoading, isError } = useGetSuperAdminStats(range);
 
-  if (isAdminLoading || isStatsLoading) {
+  if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <Skeleton className="h-8 w-72" />
-          <Skeleton className="h-6 w-48" />
+      <div className="space-y-6 p-4">
+        <Skeleton className="h-8 w-64" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 w-full rounded-xl" />)}
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-32 w-full" />
-          ))}
-        </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <Skeleton className="h-80 w-full" />
-          <Skeleton className="h-80 w-full" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Skeleton className="h-80 w-full rounded-xl" />
+          <Skeleton className="h-80 w-full rounded-xl" />
         </div>
       </div>
     );
   }
 
-  if (isAdminError || !superAdmin || isStatsError || !stats) {
-    return <div className="text-red-500">Ошибка загрузки данных. Попробуйте обновить страницу.</div>;
-  }
-
-  const chartColor = theme === "dark" ? "#A1A1AA" : "#334155"; // zinc-400 and slate-700
-  const barFill = theme === "dark" ? "#22c55e" : "#16a34a"; // green-500 and green-600
-  const lineStroke = theme === "dark" ? "#38bdf8" : "#0ea5e9"; // sky-400 and sky-500
+  if (isError || !stats) return <div className="text-destructive p-8">Ошибка загрузки статистики.</div>;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h2 className="title-text">
-          Добро пожаловать {superAdmin.firstName} {superAdmin.lastName}!
-        </h2>
+    <div className="flex flex-col gap-6 animate-in fade-in duration-500">
+      <div className="flex flex-col sm:flex-row justify-between items-end gap-4">
+        <div>
+          <h2 className="title-text">
+            Привет, {superAdmin?.firstName}!
+          </h2>
+          <p className="subtitle-text">Обзор метрик платформы Yoldosh.</p>
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        <Card>
+      {/* Top Cards Row */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="stats-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Всего Пользователей</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Активные поездки</CardTitle>
+            <Activity className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.users.total}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.users.drivers} водителей, {stats.users.passengers} пассажиров
-            </p>
+            <div className="text-2xl font-bold">{stats.trips.activeCount}</div>
+            <p className="text-xs text-muted-foreground">Сейчас в пути</p>
           </CardContent>
         </Card>
-        <Card>
+
+        <Card className="stats-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Всего Поездок</CardTitle>
-            <Car className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Пополнения кошелька</CardTitle>
+            <CreditCard className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.trips.total}</div>
-            <p className="text-xs text-muted-foreground">{stats.trips.completed} завершено</p>
+            <div className="text-2xl font-bold">{stats.wallet.totalSum.toLocaleString()} UZS</div>
+            <p className="text-xs text-muted-foreground">За выбранный период</p>
           </CardContent>
         </Card>
-        <Card>
+
+        <Card className="stats-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Всего Бронирований</CardTitle>
-            <BookUser className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Guest Аккаунты</CardTitle>
+            <Users className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.bookings.total}</div>
-            <p className="text-xs text-muted-foreground">Всего активных и завершенных</p>
+            <div className="text-2xl font-bold">{stats.guests.total}</div>
+            <p className="text-xs text-muted-foreground">Потенциальные регистрации</p>
           </CardContent>
         </Card>
-        <Card>
+
+        <Card className="stats-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Всего Жалоб</CardTitle>
-            <ShieldAlert className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Завершено поездок</CardTitle>
+            <Car className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.reports.total}</div>
-            <p className="text-xs text-muted-foreground">Требуют рассмотрения</p>
+            <div className="text-2xl font-bold">{stats.trips.completed.total}</div>
+            <p className="text-xs text-muted-foreground">Успешные поездки</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Заявки Водителей</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.applications.total}</div>
-            <p className="text-xs text-muted-foreground">Всего подано заявок</p>
-          </CardContent>
-        </Card>
+      </div>
+
+      {/* Task 1 & 2: User/Driver Growth */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <StatsChart
+          title="Новые пользователи"
+          total={stats.users.totalNew}
+          data={stats.users.graph}
+          dataKey="count"
+          range={range}
+          onRangeChange={(v) => setRange(v as any)}
+          color="#3b82f6"
+        />
+        <StatsChart
+          title="Новые водители"
+          total={stats.drivers.totalNew}
+          data={stats.drivers.graph}
+          dataKey="count"
+          range={range}
+          onRangeChange={(v) => setRange(v as any)}
+          color="#f59e0b"
+        />
+        <StatsChart
+          title="Гостевые аккаунты"
+          total={stats.guests.total}
+          data={stats.drivers.graph}
+          dataKey="count"
+          range={range}
+          onRangeChange={(v) => setRange(v as any)}
+          color="#f59e0b"
+        />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+        <StatsChart
+          title="Опубликованные поездки"
+          data={stats.trips.published.graph}
+          dataKey="count"
+          range={range}
+          onRangeChange={(v) => setRange(v as any)}
+          type="bar"
+          color="#8b5cf6"
+        />
+        <StatsChart
+          title="Бронирования"
+          data={stats.bookings.graph}
+          dataKey="count"
+          range={range}
+          onRangeChange={(v) => setRange(v as any)}
+          color="#ec4899"
+        />
+        <StatsChart
+          title="Жалобы"
+          data={stats.reports.graph}
+          dataKey="count"
+          range={range}
+          onRangeChange={(v) => setRange(v as any)}
+          type="bar"
+          color="#ef4444"
+        />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card>
+        {/* Task 9: Wallet Graph */}
+        <StatsChart
+          title="Сумма пополнений (UZS)"
+          data={stats.wallet.graph}
+          dataKey="amount"
+          range={range}
+          onRangeChange={(v) => setRange(v as any)}
+          color="#10b981"
+        />
+
+        {/* Task 10: Top Searches */}
+        <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle>Рост пользователей (за последний год)</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Search className="h-5 w-5" /> Топ поисков маршрутов
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={stats.users.growth}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke={theme === "dark" ? "hsl(var(--border))" : "hsl(var(--border))"}
-                />
-                <XAxis dataKey="date" stroke={chartColor} />
-                <YAxis stroke={chartColor} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: theme === "dark" ? "hsl(var(--background))" : "hsl(var(--background))",
-                    borderColor: theme === "dark" ? "hsl(var(--border))" : "hsl(var(--border))",
-                  }}
-                />
-                <Bar dataKey="count" fill={barFill} name="Новые пользователи" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Созданные поездки (за последний год)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={stats.trips.growth}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke={theme === "dark" ? "hsl(var(--border))" : "hsl(var(--border))"}
-                />
-                <XAxis dataKey="date" stroke={chartColor} />
-                <YAxis stroke={chartColor} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: theme === "dark" ? "hsl(var(--background))" : "hsl(var(--background))",
-                    borderColor: theme === "dark" ? "hsl(var(--border))" : "hsl(var(--border))",
-                  }}
-                />
-                <Line type="monotone" dataKey="count" stroke={lineStroke} name="Новые поездки" />
-              </LineChart>
-            </ResponsiveContainer>
+            <div className="space-y-4">
+              {stats.searches.top.length > 0 ? (
+                stats.searches.top.map((search, i) => (
+                  <div key={i} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-secondary text-xs font-bold">
+                        {i + 1}
+                      </span>
+                      <span className="font-medium text-sm">{search.city || "Не указано"}</span>
+                    </div>
+                    <span className="text-sm font-bold text-muted-foreground">{search.count} раз</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted-foreground text-sm text-center py-4">Нет данных</p>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>

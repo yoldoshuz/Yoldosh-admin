@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetAllUsers } from "@/hooks/adminHooks";
 import { User } from "@/types";
+import { baseUrl } from "@/lib/api";
 
 export const UsersSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -72,8 +73,10 @@ export const UsersSearch = () => {
                     <div className="relative">
                       {user.avatar ? (
                         <Image
-                          src={user.avatar}
+                          src={baseUrl+user.avatar}
                           alt={`${user.firstName} ${user.lastName}`}
+                          width={48}
+                          height={48}
                           className="w-16 h-16 rounded-full object-cover"
                         />
                       ) : (

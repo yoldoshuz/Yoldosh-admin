@@ -46,7 +46,7 @@ export const Logs = () => {
     isFetchingNextPage,
   } = useGetAdminLogs(selectedAdminId!, filters);
 
-  const allLogs = logsData?.pages.flatMap((page: any) => page) ?? [];
+  const allLogs = logsData?.pages.flatMap((page: any) => page.logs) ?? [];
   const allAdmins = adminsData?.pages.flatMap((page: any) => page.rows) ?? [];
 
   return (
@@ -151,7 +151,7 @@ export const Logs = () => {
                     </TableRow>
                   ))
                 ) : (
-                  <TableRow>
+                  <TableRow key="empty">
                     <TableCell colSpan={3} className="text-center h-48">
                       {selectedAdminId
                         ? "Логи не найдены."

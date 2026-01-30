@@ -126,15 +126,15 @@
   .grid-default {
     @apply grid grid-cols-1 gap-4;
   }
-  
+
   .grid-2 {
     @apply grid grid-cols-1 lg:grid-cols-2 gap-4;
   }
-  
+
   .grid-3 {
     @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
   }
-  
+
   .grid-4 {
     @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4;
   }
@@ -176,11 +176,11 @@
   .component-dark-2 {
     @apply bg-gray-50 dark:bg-gray-950 border-gray-200  dark:border-gray-800;
   }
-  
+
   .skeleton {
     @apply bg-gray-300 dark:bg-gray-700;
   }
-  
+
   .link-text {
     @apply text-emerald-500 cursor-pointer;
   }

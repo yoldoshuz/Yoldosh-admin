@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Activity, Car, CreditCard, Download, Search, Users } from "lucide-react";
+
+import { StatsChart } from "@/components/shared/layout/StatsChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetSuperAdminProfile, useGetSuperAdminStats } from "@/hooks/superAdminHooks";
-import { StatsChart } from "@/components/shared/layout/StatsChart";
-import Link from "next/link";
 
 export const Home = () => {
-  const [range, setRange] = useState<'day' | 'week' | 'month'>('month');
+  const [range, setRange] = useState<"day" | "week" | "month">("month");
   const { data: superAdmin } = useGetSuperAdminProfile();
   const { data: stats, isLoading, isError } = useGetSuperAdminStats(range);
 
@@ -18,7 +19,9 @@ export const Home = () => {
       <div className="space-y-6 p-4">
         <Skeleton className="h-8 w-64" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 w-full rounded-xl" />)}
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-32 w-full rounded-xl" />
+          ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <Skeleton className="h-80 w-full rounded-xl" />
@@ -34,9 +37,7 @@ export const Home = () => {
     <div className="flex flex-col gap-6 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-end gap-4">
         <div>
-          <h2 className="title-text">
-            Привет, {superAdmin?.firstName}!
-          </h2>
+          <h2 className="title-text">Привет, {superAdmin?.firstName}!</h2>
           <p className="subtitle-text">Обзор метрик платформы Yoldosh.</p>
         </div>
       </div>

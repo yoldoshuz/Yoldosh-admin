@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Activity, Car, CreditCard, Download, Search, Users } from "lucide-react";
+import { Activity, Car, CreditCard, Download, Flag, Search, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetSuperAdminProfile, useGetSuperAdminStats } from "@/hooks/superAdminHooks";
@@ -42,50 +42,74 @@ export const Home = () => {
       </div>
 
       {/* Top Cards Row */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="stats-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Активные поездки</CardTitle>
-            <Activity className="h-4 w-4 text-emerald-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.trips.activeCount}</div>
-            <p className="text-xs text-muted-foreground">Сейчас в пути</p>
-          </CardContent>
-        </Card>
+      {/* Cards Row (Links to details) */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        <Link href="/super-admin/active-trips">
+          <Card className="stats-card">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Активные поездки</CardTitle>
+              <Activity className="h-4 w-4 text-emerald-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.trips.activeCount}</div>
+              <p className="text-xs text-muted-foreground">Сейчас в пути</p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card className="stats-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Пополнения кошелька</CardTitle>
-            <CreditCard className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.wallet.totalSum.toLocaleString()} UZS</div>
-            <p className="text-xs text-muted-foreground">За выбранный период</p>
-          </CardContent>
-        </Card>
+        <Link href="/super-admin/wallets">
+          <Card className="stats-card">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Кошелек</CardTitle>
+              <CreditCard className="h-4 w-4 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold truncate" title={stats.wallet.totalSum.toLocaleString()}>
+                {stats.wallet.totalSum.toLocaleString()} UZS
+              </div>
+              <p className="text-xs text-muted-foreground">Пополнения</p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card className="stats-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Guest Аккаунты</CardTitle>
-            <Users className="h-4 w-4 text-orange-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.guests.total}</div>
-            <p className="text-xs text-muted-foreground">Потенциальные регистрации</p>
-          </CardContent>
-        </Card>
+        <Link href="/super-admin/guests">
+          <Card className="stats-card">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Guest Аккаунты</CardTitle>
+              <Users className="h-4 w-4 text-orange-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.guests.total}</div>
+              <p className="text-xs text-muted-foreground">Потенциальные</p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card className="stats-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Завершено поездок</CardTitle>
-            <Car className="h-4 w-4 text-purple-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.trips.completed.total}</div>
-            <p className="text-xs text-muted-foreground">Успешные поездки</p>
-          </CardContent>
-        </Card>
+        <Link href="/super-admin/finished-trips">
+          <Card className="stats-card">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Завершено</CardTitle>
+              <Car className="h-4 w-4 text-purple-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.trips.completed.total}</div>
+              <p className="text-xs text-muted-foreground">Успешные поездки</p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/super-admin/reports">
+          <Card className="stats-card">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Жалобы</CardTitle>
+              <Flag className="h-4 w-4 text-red-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.reports.total}</div>
+              <p className="text-xs text-muted-foreground">Всего за период</p>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       {/* Task 1 & 2: User/Driver Growth */}
@@ -111,7 +135,7 @@ export const Home = () => {
         <StatsChart
           title="Гостевые аккаунты"
           total={stats.guests.total}
-          data={stats.drivers.graph}
+          data={stats.guests.graph}
           dataKey="count"
           range={range}
           onRangeChange={(v) => setRange(v as any)}
@@ -138,6 +162,15 @@ export const Home = () => {
           color="#ec4899"
         />
         <StatsChart
+          title="Завершенные поездки"
+          total={stats.trips.completed.total}
+          data={stats.trips.completed.graph}
+          dataKey="count"
+          range={range}
+          onRangeChange={(v) => setRange(v as any)}
+          color="#f59e0b"
+        />
+        <StatsChart
           title="Жалобы"
           data={stats.reports.graph}
           dataKey="count"
@@ -148,8 +181,7 @@ export const Home = () => {
         />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Task 9: Wallet Graph */}
+      <div className="grid gap-4 md:grid-cols-3">
         <StatsChart
           title="Сумма пополнений (UZS)"
           data={stats.wallet.graph}
@@ -159,7 +191,17 @@ export const Home = () => {
           color="#10b981"
         />
 
-        {/* Task 10: Top Searches */}
+        <StatsChart
+          title="Активные водители (>1 поездки)"
+          total={stats.activeDrivers?.total || 0}
+          data={stats.activeDrivers?.graph || []}
+          dataKey="count"
+          range={range}
+          onRangeChange={(v) => setRange(v as any)}
+          color="#8b5cf6"
+          type="line"
+        />
+
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

@@ -88,4 +88,25 @@ export type DashboardStats = {
   wallet: { totalSum: number; graph: ChartData[] };
   searches: { top: { city: string; count: number }[] };
   bookings: { total: number; graph: ChartData[] };
+  activeDrivers: { total: number; graph: ChartData[] };
+};
+
+export type Transaction = {
+  id: string;
+  amount: number;
+  type: string;
+  status: string;
+  createdAt: string;
+  wallet?: {
+    user?: {
+      firstName: string;
+      lastName: string;
+      phoneNumber: string;
+    }
+  }
+};
+
+export type Guest = {
+  guestId: string;
+  lastActive: string;
 };

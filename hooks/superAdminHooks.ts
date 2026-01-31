@@ -98,7 +98,7 @@ export const useGetAdminLogs = (adminId: string, filters: any) => {
 };
 
 // Stats
-export const useGetSuperAdminStats = (range: 'day' | 'week' | 'month' = 'month') => {
+export const useGetSuperAdminStats = (range: "day" | "week" | "month" = "month") => {
   return useQuery({
     queryKey: [...queryKeys.superAdmin.stats(), range], // Include range in key
     queryFn: async () => {

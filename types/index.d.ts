@@ -75,7 +75,7 @@ export type ChartData = {
 };
 
 export type DashboardStats = {
-  range: 'day' | 'week' | 'month';
+  range: "day" | "week" | "month";
   users: { totalNew: number; graph: ChartData[] };
   drivers: { totalNew: number; graph: ChartData[] };
   guests: { total: number; graph: ChartData[] };

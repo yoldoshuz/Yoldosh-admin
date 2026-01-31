@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -45,10 +46,9 @@ import { Toaster } from "@/components/ui/sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useBanUser, useGetUserDetails } from "@/hooks/adminHooks";
+import { baseUrl } from "@/lib/api";
 import { banUserSchema } from "@/lib/schemas";
 import { formatDate } from "@/lib/utils";
-import Image from "next/image";
-import { baseUrl } from "@/lib/api";
 
 export const UserDetail = ({ userId }: { userId: string }) => {
   const [isBanDialogOpen, setIsBanDialogOpen] = useState(false);
@@ -93,7 +93,7 @@ export const UserDetail = ({ userId }: { userId: string }) => {
         <div className="flex items-center gap-4">
           {user.avatar ? (
             <Image
-              src={baseUrl+user.avatar}
+              src={baseUrl + user.avatar}
               alt={`${user.firstName} ${user.lastName}`}
               width={64}
               height={64}

@@ -1,12 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
+import Link from "next/link";
 import { Activity, Car, CreditCard, Download, Flag, Search, Users } from "lucide-react";
+
+import { StatsChart } from "@/components/shared/layout/StatsChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetSuperAdminProfile, useGetSuperAdminStats } from "@/hooks/superAdminHooks";
-import { StatsChart } from "@/components/shared/layout/StatsChart";
 
 export const Home = () => {
   const [range, setRange] = useState<"day" | "week" | "month">("month");

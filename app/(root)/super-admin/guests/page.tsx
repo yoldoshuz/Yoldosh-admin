@@ -1,7 +1,7 @@
-import { Guests } from '@/components/pages/super-admin/Guests';
+import { Guests } from "@/components/pages/super-admin/Guests";
 
 const Page = () => {
-    return <Guests />
+  return <Guests />;
 };
 
 export default Page;

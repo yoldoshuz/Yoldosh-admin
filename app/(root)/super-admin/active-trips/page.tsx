@@ -1,7 +1,7 @@
-import { ActiveTrips } from '@/components/pages/super-admin/ActiveTrips';
+import { ActiveTrips } from "@/components/pages/super-admin/ActiveTrips";
 
 const Page = () => {
-    return <ActiveTrips />
+  return <ActiveTrips />;
 };
 
 export default Page;

@@ -1,7 +1,7 @@
-import { FinishedTrips } from '@/components/pages/super-admin/FinishedTrips';
+import { FinishedTrips } from "@/components/pages/super-admin/FinishedTrips";
 
 const Page = () => {
-    return <FinishedTrips />
+  return <FinishedTrips />;
 };
 
 export default Page;

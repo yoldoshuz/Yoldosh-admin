@@ -1,7 +1,7 @@
-import { Reports } from '@/components/pages/super-admin/Reports';
+import { Reports } from "@/components/pages/super-admin/Reports";
 
 const Page = () => {
-    return <Reports />
+  return <Reports />;
 };
 
 export default Page;

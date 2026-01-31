@@ -110,14 +110,15 @@ export const useGetSuperAdminStats = (range: "day" | "week" | "month" = "month")
 
 export const useGetSuperAdminActiveTrips = (filters: any) => {
   return useInfiniteQuery({
-    queryKey: ['super-admin', 'active-trips', filters],
+    queryKey: ["super-admin", "active-trips", filters],
     queryFn: async ({ pageParam = 1 }) => {
       const { data } = await api.get("/super-admin/active-trips", {
         params: { ...filters, page: pageParam, limit: 10 },
       });
       return data.data;
     },
-    getNextPageParam: (lastPage: any) => lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined,
+    getNextPageParam: (lastPage: any) =>
+      lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined,
     initialPageParam: 1,
   });
 };
@@ -125,14 +126,15 @@ export const useGetSuperAdminActiveTrips = (filters: any) => {
 // Finished Trips
 export const useGetSuperAdminFinishedTrips = (filters: any) => {
   return useInfiniteQuery({
-    queryKey: ['super-admin', 'finished-trips', filters],
+    queryKey: ["super-admin", "finished-trips", filters],
     queryFn: async ({ pageParam = 1 }) => {
       const { data } = await api.get("/super-admin/finished-trips", {
         params: { ...filters, page: pageParam, limit: 10 },
       });
       return data.data;
     },
-    getNextPageParam: (lastPage: any) => lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined,
+    getNextPageParam: (lastPage: any) =>
+      lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined,
     initialPageParam: 1,
   });
 };
@@ -140,14 +142,15 @@ export const useGetSuperAdminFinishedTrips = (filters: any) => {
 // Wallets
 export const useGetSuperAdminWallets = (filters: any) => {
   return useInfiniteQuery({
-    queryKey: ['super-admin', 'wallets', filters],
+    queryKey: ["super-admin", "wallets", filters],
     queryFn: async ({ pageParam = 1 }) => {
       const { data } = await api.get("/super-admin/wallets", {
         params: { ...filters, page: pageParam, limit: 10 },
       });
       return data.data;
     },
-    getNextPageParam: (lastPage: any) => lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined,
+    getNextPageParam: (lastPage: any) =>
+      lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined,
     initialPageParam: 1,
   });
 };
@@ -155,14 +158,15 @@ export const useGetSuperAdminWallets = (filters: any) => {
 // Guests
 export const useGetSuperAdminGuests = (filters: any) => {
   return useInfiniteQuery({
-    queryKey: ['super-admin', 'guests', filters],
+    queryKey: ["super-admin", "guests", filters],
     queryFn: async ({ pageParam = 1 }) => {
       const { data } = await api.get("/super-admin/guests", {
         params: { ...filters, page: pageParam, limit: 10 },
       });
       return data.data;
     },
-    getNextPageParam: (lastPage: any) => lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined,
+    getNextPageParam: (lastPage: any) =>
+      lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined,
     initialPageParam: 1,
   });
 };
@@ -170,14 +174,15 @@ export const useGetSuperAdminGuests = (filters: any) => {
 // Reports (Super Admin)
 export const useGetSuperAdminReports = (filters: any) => {
   return useInfiniteQuery({
-    queryKey: ['super-admin', 'reports', filters],
+    queryKey: ["super-admin", "reports", filters],
     queryFn: async ({ pageParam = 1 }) => {
       const { data } = await api.get("/super-admin/reports", {
         params: { ...filters, page: pageParam, limit: 10 },
       });
       return data.data;
     },
-    getNextPageParam: (lastPage: any) => lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined,
+    getNextPageParam: (lastPage: any) =>
+      lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined,
     initialPageParam: 1,
   });
 };

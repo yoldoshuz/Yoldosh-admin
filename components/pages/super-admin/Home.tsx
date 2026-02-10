@@ -115,7 +115,7 @@ export const Home = () => {
 
       {/* Task 1 & 2: User/Driver Growth */}
       <div className="grid gap-4 md:grid-cols-3">
-        <StatsChart
+        <StatsChart       
           title="Новые пользователи"
           total={stats.users.totalNew}
           data={stats.users.graph}

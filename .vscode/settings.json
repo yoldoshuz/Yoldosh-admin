@@ -10,6 +10,17 @@
       "database": "yoldosh_db",
       "username": "postgres",
       "password": "1"
+    },
+    {
+      "ssh": "Disabled",
+      "previewLimit": 50,
+      "server": "test-api.yoldosh.uz",
+      "port": 5431,
+      "driver": "PostgreSQL",
+      "password": "1",
+      "name": "prod",
+      "database": "yoldosh_db",
+      "username": "postgres"
     }
   ]
 }

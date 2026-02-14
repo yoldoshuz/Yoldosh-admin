@@ -52,7 +52,12 @@ export const Notifications = () => {
 
   const form = useForm<z.infer<typeof globalNotificationSchema>>({
     resolver: zodResolver(globalNotificationSchema),
-    defaultValues: { content: "", type: "general", targetAudience: "ALL" },
+    defaultValues: {
+      title: "", // ✅ Added title default
+      content: "",
+      type: "general",
+      targetAudience: "ALL",
+    },
   });
 
   const onSubmit = (values: z.infer<typeof globalNotificationSchema>) => {
@@ -77,6 +82,22 @@ export const Notifications = () => {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="component space-y-6 p-6 rounded-lg border">
               <h1 className="text-xl font-bold">Создать уведомление</h1>
+
+              {/* ✅ Added Title Field */}
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Заголовок</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Заголовок уведомления..." className="component-dark" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="content"
@@ -90,6 +111,7 @@ export const Notifications = () => {
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="type"
@@ -114,6 +136,7 @@ export const Notifications = () => {
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="targetAudience"
@@ -136,19 +159,22 @@ export const Notifications = () => {
                   </FormItem>
                 )}
               />
+
               <Button type="submit" className="w-full btn-primary shadow-glow" disabled={isPending}>
                 {isPending ? "Отправка..." : "Отправить"}
               </Button>
             </form>
           </Form>
         </div>
+
+        {/* Notification History Section */}
         <div className="w-full component border rounded-lg p-6">
           <h1 className="text-xl font-bold">История уведомлений</h1>
           <div className="flex flex-col sm:flex-row justify-between items-center gap-2 my-4">
             <div className="relative w-full">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Поиск по содержанию..."
+                placeholder="Поиск по заголовку или содержанию..."
                 className="pl-8 component-dark"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -214,11 +240,14 @@ export const Notifications = () => {
                     key={notif.createdAt}
                   >
                     <div className="flex flex-row items-start justify-start gap-4">
-                      <div className="bg-gradient-to-br from-emerald-400 to-teal-700 text-white rounded-xl p-2">
+                      <div className="bg-linear-to-br from-emerald-400 to-teal-700 text-white rounded-xl p-2">
                         <Bell className="size-6" />
                       </div>
                       <div className="flex flex-col items-start justify-start gap-2">
-                        <span className="font-bold">{notif.message}</span>
+                        {/* ✅ Display Title */}
+                        <span className="font-bold text-lg">{notif.title}</span>
+                        <span className="text-sm text-muted-foreground">{notif.message}</span>
+
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(notif.type)}`}>
                           {notif.type}
                         </span>

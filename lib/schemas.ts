@@ -32,11 +32,11 @@ export const banUserSchema = z.object({
 
 // Global Notification Schema
 export const globalNotificationSchema = z.object({
+  title: z.string().min(1, "Заголовок обязателен"),
   content: z.string().min(1, "Содержание обязательно"),
   type: z.enum(["general", "trips", "promotionAndDiscounts", "newsAndAgreement", "messages"]),
   targetAudience: z.enum(["ALL", "DRIVERS", "PASSENGERS"]),
 });
-
 // Car Model Schema
 export const carModelSchema = z.object({
   make: z.string().min(1, "Производитель обязателен").max(50),

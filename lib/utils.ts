@@ -10,7 +10,13 @@ export function cn(...inputs: ClassValue[]) {
 // Format document URL
 export const formatDocUrl = (url?: string) => {
   if (!url) return "https://placehold.co/300x200/EEE/AAA?text=No+Image";
-  return `${baseUrl}${url}`;
+
+  let formatted = url;
+  if (formatted.startsWith('/public/')) {
+    formatted = formatted.slice('/public'.length);
+  }
+
+  return `${baseUrl}${formatted}`;
 };
 
 // Utility function to format error messages

@@ -423,3 +423,66 @@ export const useDeletePromoCode = () => {
     },
   });
 };
+
+// --- Blog Hooks ---
+export const useGetBlogsAdmin = (filters: { [key: string]: any }) => {
+  return useQuery({
+    queryKey: ["admin", "blogs", filters],
+    queryFn: async () => {
+      const { data } = await api.get("/admin/blog", { params: filters });
+      return data.data;
+    },
+  });
+};
+
+export const useCreateBlog = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (values: any) => {
+      await api.post("/admin/blog", values);
+    },
+    onSuccess: () => {
+      toast.success("Статья успешно создана");
+      queryClient.invalidateQueries({ queryKey: ["admin", "blogs"] });
+    },
+  });
+};
+
+export const useUpdateBlog = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      await api.put(`/admin/blog/${id}`, data);
+    },
+    onSuccess: () => {
+      toast.success("Статья успешно обновлена");
+      queryClient.invalidateQueries({ queryKey: ["admin", "blogs"] });
+    },
+  });
+};
+
+export const useDeleteBlog = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/admin/blog/${id}`);
+    },
+    onSuccess: () => {
+      toast.success("Статья удалена");
+      queryClient.invalidateQueries({ queryKey: ["admin", "blogs"] });
+    },
+  });
+};
+
+export const useUploadBlogImage = () => {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("uploadBlogImage", file);
+      const { data } = await api.post("/admin/blog/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return data.data.url; // Возвращает URL загруженной картинки
+    },
+  });
+};

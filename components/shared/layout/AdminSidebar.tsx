@@ -35,7 +35,7 @@ export const AdminSidebar = () => {
         <SidebarGroup className="h-full">
           <SidebarGroupLabel>
             <div className="flex flex-row items-center justify-center gap-2 mt-6">
-              <div className="bg-gradient-to-br from-emerald-400 to-teal-700 text-white rounded-xl p-2">
+              <div className="bg-linear-to-br from-emerald-400 to-teal-700 text-white rounded-xl p-2">
                 <CarIcon className="size-5" />
               </div>
               <div className="flex flex-col justify-center">

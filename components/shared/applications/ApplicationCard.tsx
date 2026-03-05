@@ -192,7 +192,7 @@ export const ApplicationCard = ({
         {/* Rejection Reason */}
         {application.status === "REJECTED" && application.licenseFrontPath && (
           <div className="text-xs text-red-600 dark:text-red-400 bg-red-100/50 dark:bg-red-900/20 p-2 rounded-md flex items-start gap-2">
-            <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
+            <Info className="h-3 w-3 mt-0.5 shrink-0" />
             <span>Причина: {application.licenseFrontPath}</span>
           </div>
         )}

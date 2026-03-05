@@ -83,3 +83,26 @@ export const rejectionSchema = z.object({
 
 // Schema for adding restricted words
 export const wordSchema = z.object({ word: z.string().min(2, "Слово должно содержать минимум 2 символа.") });
+
+const langObject = (required = false) =>
+  z.object({
+    ru: required ? z.string().trim().min(3, "Минимум 3 символа") : z.string().trim(),
+    uz: z.string().trim(),
+    en: z.string().trim(),
+  });
+
+export const blogSchema = z.object({
+  title: langObject(true),
+  subtitle: langObject(false),
+  content: z.object({
+    ru: z.string().trim().min(10, "Контент слишком короткий"),
+    uz: z.string().trim(),
+    en: z.string().trim(),
+  }),
+  coverImage: z.string().trim(),
+  isPublished: z.boolean(),
+  seoTitle: langObject(false),
+  seoDescription: langObject(false),
+});
+
+export type BlogFormValues = z.infer<typeof blogSchema>;

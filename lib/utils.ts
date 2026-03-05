@@ -12,8 +12,8 @@ export const formatDocUrl = (url?: string) => {
   if (!url) return "https://placehold.co/300x200/EEE/AAA?text=No+Image";
 
   let formatted = url;
-  if (formatted.startsWith('/public/')) {
-    formatted = formatted.slice('/public'.length);
+  if (formatted.startsWith("/public/")) {
+    formatted = formatted.slice("/public".length);
   }
 
   return `${baseUrl}${formatted}`;
@@ -88,6 +88,7 @@ export const AdminPermission = {
   NOTIFICATIONS: "notifications",
   PROMOCODES: "promocodes",
   MODERATION: "moderation",
+  BLOGS: "blogs",
 } as const;
 
 export const adminPermissionLabels: { [key in (typeof AdminPermission)[keyof typeof AdminPermission]]: string } = {
@@ -97,4 +98,5 @@ export const adminPermissionLabels: { [key in (typeof AdminPermission)[keyof typ
   [AdminPermission.NOTIFICATIONS]: "Уведомления",
   [AdminPermission.PROMOCODES]: "Промокоды",
   [AdminPermission.MODERATION]: "Модерация",
+  [AdminPermission.BLOGS]: "Блоги",
 };

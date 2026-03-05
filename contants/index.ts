@@ -1,7 +1,7 @@
 import {
   Bell,
-  CarFront,
   Flag,
+  GalleryVertical,
   Home,
   Logs,
   Route,
@@ -54,6 +54,12 @@ export const adminItems = [
     url: "/admin/moderation",
     icon: ShieldAlert,
     permission: AdminPermission.MODERATION,
+  },
+  {
+    title: "Блоги",
+    url: "/admin/blogs",
+    icon: GalleryVertical,
+    permission: AdminPermission.BLOGS,
   },
 ];
 

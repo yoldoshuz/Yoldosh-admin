@@ -5,6 +5,7 @@ import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import MDEditor from "@uiw/react-md-editor";
 import { Eye, Image as ImageIcon, Loader2, Pencil, Plus, Trash2, UploadCloud } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useCreateBlog, useDeleteBlog, useGetBlogsAdmin, useUpdateBlog, useUploadBlogImage } from "@/hooks/adminHooks";
 import { BlogFormValues, blogSchema } from "@/lib/schemas";
 import { formatDate, formatDocUrl } from "@/lib/utils";
-import { useTheme } from "next-themes";
 
 const defaultLangState = { ru: "", uz: "", en: "" };
 const languages = ["ru", "uz", "en"] as const;
@@ -31,7 +31,7 @@ export const Blogs = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState<any>(null);
   const [activeLang, setActiveLang] = useState<Lang>("ru");
-  
+
   const { theme } = useTheme();
   const { data, isLoading } = useGetBlogsAdmin({ limit: 50 });
 
@@ -242,20 +242,34 @@ export const Blogs = () => {
 
                       {languages.map((lang) => (
                         <TabsContent key={lang} value={lang} className="space-y-4">
-                          <FormField control={form.control} name={`title.${lang}`} render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Заголовок ({lang.toUpperCase()}) <span className="text-red-500">*</span></FormLabel>
-                              <FormControl><Input placeholder="Введите заголовок..." {...field} /></FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )} />
+                          <FormField
+                            control={form.control}
+                            name={`title.${lang}`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  Заголовок ({lang.toUpperCase()}) <span className="text-red-500">*</span>
+                                </FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Введите заголовок..." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
 
-                          <FormField control={form.control} name={`subtitle.${lang}`} render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Краткое описание / Подзаголовок</FormLabel>
-                              <FormControl><Textarea placeholder="О чем эта статья..." rows={3} {...field} /></FormControl>
-                            </FormItem>
-                          )} />
+                          <FormField
+                            control={form.control}
+                            name={`subtitle.${lang}`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Краткое описание / Подзаголовок</FormLabel>
+                                <FormControl>
+                                  <Textarea placeholder="О чем эта статья..." rows={3} {...field} />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
 
                           <FormField
                             control={form.control}

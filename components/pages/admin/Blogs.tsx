@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useCreateBlog, useDeleteBlog, useGetBlogsAdmin, useUpdateBlog, useUploadBlogImage } from "@/hooks/adminHooks";
 import { BlogFormValues, blogSchema } from "@/lib/schemas";
 import { formatDate, formatDocUrl } from "@/lib/utils";
+import { useTheme } from "next-themes";
 
 const defaultLangState = { ru: "", uz: "", en: "" };
 const languages = ["ru", "uz", "en"] as const;
@@ -30,7 +31,8 @@ export const Blogs = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState<any>(null);
   const [activeLang, setActiveLang] = useState<Lang>("ru");
-
+  
+  const { theme } = useTheme();
   const { data, isLoading } = useGetBlogsAdmin({ limit: 50 });
 
   const createMutation = useCreateBlog();
@@ -147,16 +149,16 @@ export const Blogs = () => {
             </Button>
           </DialogTrigger>
 
-          <DialogContent className="max-w-6xl w-full max-h-[90vh] flex p-0">
-            <DialogHeader className="p-6 pb-2 border-b">
+          <DialogContent className="max-w-6xl w-full max-h-[90vh] flex flex-1 p-0">
+            <DialogHeader className="sr-only">
               <DialogTitle className="text-2xl">{selectedBlog ? "Редактировать статью" : "Новая статья"}</DialogTitle>
             </DialogHeader>
 
-            <ScrollArea className="flex-1 p-6 pt-2">
+            <ScrollArea className="flex-1 p-6">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-4">
                   {/* ГЛОБАЛЬНЫЕ НАСТРОЙКИ (Общие для всех языков) */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="flex flex-col flex-1 gap-6">
                     <FormField
                       control={form.control}
                       name="coverImage"
@@ -230,7 +232,7 @@ export const Blogs = () => {
                   </div>
 
                   {/* ЯЗЫКОВЫЕ ТАБЫ */}
-                  <div className="border rounded-xl p-1 bg-muted/10">
+                  <div className="border rounded-xl p-2 bg-muted/10">
                     <Tabs value={activeLang} onValueChange={(val) => setActiveLang(val as any)} className="w-full">
                       <TabsList className="grid w-full grid-cols-3 mb-6">
                         <TabsTrigger value="ru">🇷🇺 Русский (Основной)</TabsTrigger>
@@ -239,14 +241,29 @@ export const Blogs = () => {
                       </TabsList>
 
                       {languages.map((lang) => (
-                        <TabsContent key={lang} value={lang}>
+                        <TabsContent key={lang} value={lang} className="space-y-4">
+                          <FormField control={form.control} name={`title.${lang}`} render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Заголовок ({lang.toUpperCase()}) <span className="text-red-500">*</span></FormLabel>
+                              <FormControl><Input placeholder="Введите заголовок..." {...field} /></FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )} />
+
+                          <FormField control={form.control} name={`subtitle.${lang}`} render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Краткое описание / Подзаголовок</FormLabel>
+                              <FormControl><Textarea placeholder="О чем эта статья..." rows={3} {...field} /></FormControl>
+                            </FormItem>
+                          )} />
+
                           <FormField
                             control={form.control}
                             name={`content.${lang}`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormControl>
-                                  <div data-color-mode="light">
+                                  <div data-color-mode={theme === "dark" ? "dark" : "light"}>
                                     <MDEditor
                                       value={field.value}
                                       onChange={(val) => field.onChange(val ?? "")}
@@ -263,7 +280,7 @@ export const Blogs = () => {
                     </Tabs>
                   </div>
 
-                  <Button type="submit" className="w-full h-12 text-lg" disabled={isSubmitting}>
+                  <Button type="submit" className="shadow-glow btn-primary w-full" disabled={isSubmitting}>
                     {isSubmitting && <Loader2 className="animate-spin mr-2" />}
                     {selectedBlog ? "Сохранить изменения" : "Опубликовать статью"}
                   </Button>

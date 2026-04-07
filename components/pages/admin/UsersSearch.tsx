@@ -95,14 +95,14 @@ export const UsersSearch = () => {
                         {user.firstName} {user.lastName}
                       </span>
                     </CardTitle>
-                    <p className="font-mono text-xs text-muted-foreground">ID: {user.id.substring(0, 8)}</p>
+                    <p className="font-mono text-xs text-muted-foreground">ID: {user?.id.substring(0, 8)}</p>
                   </CardHeader>
                   <Separator orientation="horizontal" />
-                  <CardContent className="text-center text-sm text-muted-foreground space-y-2 flex-grow flex flex-col justify-center">
+                  <CardContent className="text-center text-sm text-muted-foreground space-y-2 grow flex flex-col justify-center">
                     <div className="flex items-center justify-center gap-2">
                       <Phone className="size-3" />
                       <span>
-                        {user.phoneNumber.replace(/^\+?(\d{3})(\d{2})(\d{3})(\d{2})(\d{2})$/, "+$1 $2 $3 $4 $5")}
+                        {user.phoneNumber?.replace(/^\+?(\d{3})(\d{2})(\d{3})(\d{2})(\d{2})$/, "+$1 $2 $3 $4 $5")}
                       </span>
                     </div>
                     <div className="flex items-center justify-center gap-2">

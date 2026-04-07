@@ -10,8 +10,8 @@ import { toast } from "sonner";
 // https://api.yoldosh.uz
 // https://api.yoldosh.uz/api/v1
 
-export const baseUrl = "https://api.yoldosh.uz";
-export const baseUrlApi = "https://api.yoldosh.uz/api/v1";
+export const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+export const baseUrlApi = process.env.NEXT_PUBLIC_BASE_URL_API;
 
 // A more Vercel-like toast for errors
 const showErrorToast = (message: string) => {

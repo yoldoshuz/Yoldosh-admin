@@ -9,11 +9,13 @@ import { ChevronLeft, ImageIcon, Loader2, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useGetTripDetails } from "@/hooks/adminHooks";
+import { useChangeBookingStatus, useChangeTripStatus, useGetTripDetails } from "@/hooks/adminHooks";
 import { formatDocUrl, getStatusColor } from "@/lib/utils";
 
 export const TripDetails = ({ tripId }: { tripId: string }) => {
   const { data, isLoading, isError } = useGetTripDetails(tripId);
+  const changeBookingStatus = useChangeBookingStatus();
+  const changeTripStatus = useChangeTripStatus();
 
   if (isLoading) {
     return (
@@ -45,6 +47,31 @@ export const TripDetails = ({ tripId }: { tripId: string }) => {
         <ChevronLeft className="size-5" />
         <span>Назад к поездкам</span>
       </Link>
+      <div className="flex gap-2 pt-2">
+        {trip.status !== "CANCELED" && (
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => {
+              if (!confirm("Отменить поездку?")) return;
+
+              changeTripStatus.mutate({
+                tripId: trip.id,
+                status: "CANCELED",
+              });
+            }}
+            className="cursor-pointer"
+            disabled={changeTripStatus.isPending}
+          >
+            Отменить поездку
+          </Button>
+        )}
+        {trip.status == "CANCELED" && (
+          <Button variant="destructive" size="sm" disabled={true}>
+            Отменено
+          </Button>
+        )}
+      </div>
       {/* --- Основная информация --- */}
       <Card className="component shadow-none">
         <CardHeader>
@@ -255,6 +282,29 @@ export const TripDetails = ({ tripId }: { tripId: string }) => {
                   <span className="text-muted-foreground">Статус:</span>
                   <div className={`${getStatusColor(b.status)} py-1 px-1.5  rounded-full`}>{b.status}</div>
                 </div>
+                {b.status !== "CANCELLED" && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => {
+                      if (!confirm("Отменить бронирование?")) return;
+
+                      changeBookingStatus.mutate({
+                        bookingId: b.id,
+                        status: "CANCELLED",
+                      });
+                    }}
+                    disabled={changeBookingStatus.isPending}
+                  >
+                    Отменить
+                  </Button>
+                )}
+
+                {b.status == "CANCELLED" && (
+                  <Button variant="destructive" size="sm" disabled={true}>
+                    Отменено
+                  </Button>
+                )}
               </div>
             ))
           ) : (

@@ -486,3 +486,62 @@ export const useUploadBlogImage = () => {
     },
   });
 };
+
+export const useChangeBookingStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      bookingId,
+      status,
+      reason,
+    }: {
+      bookingId: string;
+      status: "CANCELLED" | "CONFIRMED" | "PENDING";
+      reason?: string;
+    }) => {
+      const { data } = await api.patch(`/admin/bookings/${bookingId}/status`, {
+        status,
+        reason,
+      });
+      return data;
+    },
+    onSuccess: (_, vars) => {
+      toast.success(`Статус брони изменён на ${vars.status}`);
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.trips({}) });
+      // Инвалидируем детали пользователя (там тоже видны брони)
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.all });
+    },
+    onError: () => {
+      toast.error("Не удалось изменить статус брони");
+    },
+  });
+};
+
+export const useChangeTripStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      tripId,
+      status,
+      reason,
+    }: {
+      tripId: string;
+      status: "CREATED" | "CANCELED";
+      reason?: string;
+    }) => {
+      const { data } = await api.patch(`/admin/trips/${tripId}/force-status`, {
+        status,
+        reason,
+      });
+      return data;
+    },
+    onSuccess: (_, vars) => {
+      toast.success(`Статус поездки изменён на ${vars.status}`);
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.trips({}) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.all });
+    },
+    onError: () => {
+      toast.error("Не удалось изменить статус поездки");
+    },
+  });
+};

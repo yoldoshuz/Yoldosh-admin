@@ -240,16 +240,23 @@ export const useGetTrips = (filters: { [key: string]: any }) => {
 
 export const useEditTrip = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (values: z.infer<typeof editTripSchema>) => {
-      // Backend expects updates in the body
-      await api.patch(`/admin/trips/${values.tripId}`, values);
+      const { tripId, departure_ts, ...rest } = values;
+
+      const payload: any = { ...rest };
+
+      if (departure_ts) {
+        payload.departure_ts = new Date(departure_ts).toISOString();
+      }
+
+      await api.patch(`/admin/trips/${tripId}`, payload);
     },
     onSuccess: () => {
       toast.success("Поездка успешно обновлена");
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.trips({}) });
-      // Might need to invalidate specific trip details if you have a query for that
-      // queryClient.invalidateQueries(queryKeys.admin.tripDetails(variables.tripId));
+      queryClient.invalidateQueries({ queryKey: ["trip", "details"] }); // если есть
     },
   });
 };

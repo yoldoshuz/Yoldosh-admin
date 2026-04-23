@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod";
 
 // Admin Login Schema
 export const loginSchema = z.object({
@@ -45,13 +45,53 @@ export const carModelSchema = z.object({
 });
 
 // Trip Edit Schema
+export enum BookingType {
+  instant = "INSTANT",
+  request = "REQUEST",
+}
+
+export enum GarageStatus {
+  Empty = "EMPTY",
+  HalfEmpty = "HALF_EMPTY",
+  Full = "FULL",
+}
+
 export const editTripSchema = z.object({
   tripId: z.string().min(1, "Trip ID is required"),
-  departure_ts: z.string().optional(),
-  seats_available: z.number().int().min(0).max(8).optional(),
-  price_per_person: z.number().positive().optional(),
+
+  // === GEO ===
+  from_latitude: z.coerce.number().optional(),
+  from_longitude: z.coerce.number().optional(),
+  to_latitude: z.coerce.number().optional(),
+  to_longitude: z.coerce.number().optional(),
+
+  // === ROUTE META ===
+  distance: z.coerce.number().positive().optional(),
+  duration: z.coerce.number().positive().optional(),
+
+  // === CORE ===
+  booking_type: z.nativeEnum(BookingType).optional(),
+  departure_ts: z.string().optional(), // datetime-local
+  seats_available: z.coerce.number().int().min(1).optional(),
+  price_per_person: z.coerce.number().positive().optional(),
+
+  // === FEATURES ===
   max_two_back: z.boolean().optional(),
-  comment: z.string().max(500).optional(),
+  conditioner: z.boolean().optional(),
+  smoking_allowed: z.boolean().optional(),
+  door_pickup: z.boolean().optional(),
+  food_stop: z.boolean().optional(),
+
+  garage: z.nativeEnum(GarageStatus).optional(),
+
+  // === OTHER ===
+  comment: z.string().max(500).optional().nullable(),
+
+  // Добавляем то, чего не хватало:
+  from_address: z.string().optional(), // если хочешь позволить вручную
+  to_address: z.string().optional(),
+  from_city: z.string().optional(),
+  to_city: z.string().optional(),
 });
 
 // Super Admin Create Admin Schema

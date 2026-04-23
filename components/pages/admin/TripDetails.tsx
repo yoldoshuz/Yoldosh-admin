@@ -235,8 +235,9 @@ export const TripDetails = ({ tripId }: { tripId: string }) => {
           <div className="flex flex-row gap-2">
             <MapPin className="size-4 text-green-500" />
             <div className="flex flex-col gap-0">
-              <span className="text-muted-foreground text-sm">Откуда:</span>
-              <p>{trip.from_address ?? "—"}</p>
+              <span className="text-muted-foreground text-sm">
+                Откуда: {trip.from_address || trip.from_city || "—"}
+              </span>
               <p className="text-muted-foreground">Долгота: {trip.from_latitude ?? "—"}</p>
               <p className="text-muted-foreground">Широта: {trip.from_longitude ?? "—"}</p>
             </div>
@@ -244,8 +245,7 @@ export const TripDetails = ({ tripId }: { tripId: string }) => {
           <div className="flex flex-row gap-2">
             <MapPin className="size-4 text-red-500" />
             <div className="flex flex-col gap-0">
-              <span className="text-muted-foreground text-sm">Куда:</span>
-              <p>{trip.to_address ?? "—"}</p>
+              <span className="text-muted-foreground text-sm">Куда: {trip.to_address || trip.to_city || "—"}</span>
               <p className="text-muted-foreground">Долгота: {trip.to_latitude ?? "—"}</p>
               <p className="text-muted-foreground">Широта: {trip.to_longitude ?? "—"}</p>
             </div>

@@ -49,8 +49,8 @@ export const TripCard = ({ trip }: { trip: any }) => (
       <p className="text-sm text-muted-foreground">{formatDate(trip.departure_ts)}</p>
     </CardHeader>
     <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <InfoItem label="Откуда" value={trip.from_address ?? "N/A"} />
-      <InfoItem label="Куда" value={trip.to_address ?? "N/A"} />
+      <InfoItem label="Откуда" value={trip.from_address || trip.from_city || "N/A"} />
+      <InfoItem label="Куда" value={trip.to_address || trip.to_city || "N/A"} />
       <InfoItem label="Стоимость" value={`${parseFloat(trip.price_per_person).toLocaleString("ru-RU")} UZS`} />
     </CardContent>
   </Card>

@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Filter, MapPin, Pencil, Search, Trash2 } from "lucide-react";
 import { DateRange } from "react-day-picker";
-import { useForm } from "react-hook-form";
+import { Control, FieldPath, FieldValues, useForm } from "react-hook-form";
 import { useDebounceValue, useIntersectionObserver } from "usehooks-ts";
 import z from "zod";
 
@@ -22,6 +22,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/sonner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,7 +31,10 @@ import { editTripSchema } from "@/lib/schemas";
 import { formatDate, getStatusColor } from "@/lib/utils";
 import { Trip } from "@/types";
 
-// Enum как в запросе
+/* -------------------- FIX ТИПОВ -------------------- */
+type FormValues = z.input<typeof editTripSchema>; // 👈 ключ
+type ApiValues = z.output<typeof editTripSchema>;
+
 enum TripStatus {
   Created = "CREATED",
   InProgress = "IN_PROGRESS",
@@ -38,12 +42,55 @@ enum TripStatus {
   Canceled = "CANCELED",
 }
 
+type Props<T extends FieldValues> = {
+  control: Control<T>;
+  name: FieldPath<T>;
+  label: string;
+  step?: string;
+  min?: number;
+  placeholder?: string;
+};
+
+export function NumberField<T extends FieldValues>({ control, name, label, step = "1", min, placeholder }: Props<T>) {
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>{label}</FormLabel>
+          <FormControl>
+            <Input
+              type="number"
+              step={step}
+              min={min}
+              placeholder={placeholder}
+              value={field.value ?? ""}
+              onChange={(e) => {
+                const val = e.target.value;
+                field.onChange(val === "" ? undefined : Number(val));
+              }}
+              onBlur={field.onBlur}
+              name={field.name}
+              ref={field.ref}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
 export const Trips = () => {
-  // State для табов
   const [activeTab, setActiveTab] = useState<TripStatus | "ALL">("ALL");
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [sort, setSort] = useState({ sortBy: "departure_ts", sortOrder: "DESC" });
+  const [sort, setSort] = useState({
+    sortBy: "departure_ts",
+    sortOrder: "DESC",
+  });
+
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [debouncedSearch] = useDebounceValue(searchTerm, 500);
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
@@ -52,13 +99,13 @@ export const Trips = () => {
     search: debouncedSearch,
     sortBy: sort.sortBy,
     sortOrder: sort.sortOrder,
-    // Передаем статус, если не выбрано "ВСЕ"
     status: activeTab === "ALL" ? undefined : activeTab,
     startDate: dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined,
     endDate: dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined,
   };
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetTrips(filters);
+
   const { mutate: deleteTrip, isPending: isDeleting } = useDeleteTrip();
   const { mutate: editTrip, isPending: isEditing } = useEditTrip();
 
@@ -68,40 +115,73 @@ export const Trips = () => {
     if (isIntersecting && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [isIntersecting, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [isIntersecting, hasNextPage, isFetchingNextPage]);
 
-  const form = useForm<z.infer<typeof editTripSchema>>({
+  /* -------------------- FORM -------------------- */
+  const form = useForm<FormValues>({
     resolver: zodResolver(editTripSchema),
   });
 
-  const handleEditClick = (trip: Trip) => {
+  const handleEditClick = (trip: any) => {
     setSelectedTrip(trip);
+
     form.reset({
       tripId: trip.id,
+
       departure_ts: trip.departure_ts ? new Date(trip.departure_ts).toISOString().slice(0, 16) : undefined,
-      seats_available: trip.seats_available,
-      price_per_person: trip.price_per_person,
+
+      seats_available: trip.seats_available ?? undefined,
+      price_per_person: trip.price_per_person ?? undefined,
+
+      duration: trip.duration ?? undefined,
+      distance: trip.distance ?? undefined,
+
+      booking_type: trip.booking_type ?? undefined,
+
+      from_latitude: trip.from_latitude ?? undefined,
+      from_longitude: trip.from_longitude ?? undefined,
+      to_latitude: trip.to_latitude ?? undefined,
+      to_longitude: trip.to_longitude ?? undefined,
+
+      max_two_back: trip.max_two_back ?? undefined,
+      conditioner: trip.conditioner ?? undefined,
+      smoking_allowed: trip.smoking_allowed ?? undefined,
+      door_pickup: trip.door_pickup ?? undefined,
+      food_stop: trip.food_stop ?? undefined,
+
+      garage: trip.garage ?? undefined,
+      comment: trip.comment ?? undefined,
     });
   };
 
-  const onEditSubmit = (values: z.infer<typeof editTripSchema>) => {
+  const onEditSubmit = (values: FormValues) => {
     if (!selectedTrip) return;
-    const submissionData = {
-      ...values,
-      departure_ts: values.departure_ts ? new Date(values.departure_ts).toISOString() : undefined,
+
+    /* 🔥 ПАРСИМ → ПОЛУЧАЕМ НОРМ ТИПЫ */
+    const parsed: ApiValues = editTripSchema.parse(values);
+
+    const { tripId, departure_ts, ...rest } = parsed;
+
+    const payload = {
+      ...rest,
+      departure_ts: departure_ts ? new Date(departure_ts).toISOString() : undefined,
     };
-    editTrip(submissionData, {
-      onSuccess: () => setSelectedTrip(null),
-    });
+
+    editTrip(
+      { tripId, ...payload },
+      {
+        onSuccess: () => setSelectedTrip(null),
+      }
+    );
   };
 
   const handleDelete = (tripId: string) => {
-    if (window.confirm("Вы уверены удалять данную поездку?")) {
+    if (window.confirm("Удалить поездку?")) {
       deleteTrip(tripId);
     }
   };
 
-  const allTrips = data?.pages.flatMap((page) => page.trips) ?? [];
+  const allTrips = data?.pages.flatMap((p) => p.trips) ?? [];
 
   return (
     <div>
@@ -228,7 +308,7 @@ export const Trips = () => {
                           <div className="flex flex-col gap-1">
                             <span className="text-muted-foreground text-sm">Откуда:</span>
                             <span className="font-thin">
-                              {trip.fromRegion?.nameRu || trip.from_address || "Неизвестно"}
+                              {trip.fromRegion?.nameRu || trip.from_address || trip.from_city || "Неизвестно"}
                             </span>
                           </div>
                         </div>
@@ -237,7 +317,7 @@ export const Trips = () => {
                           <div className="flex flex-col gap-1">
                             <span className="text-muted-foreground text-sm">Куда:</span>
                             <span className="font-thin">
-                              {trip.toRegion?.nameRu || trip.to_address || "Неизвестно"}
+                              {trip.toRegion?.nameRu || trip.to_address || trip.to_city || "Неизвестно"}
                             </span>
                           </div>
                         </div>
@@ -282,54 +362,176 @@ export const Trips = () => {
           )}
 
           {selectedTrip && (
-            <DialogContent>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Редактировать поездку</DialogTitle>
+                <DialogTitle>Редактировать поездку #{selectedTrip.id.substring(0, 8)}</DialogTitle>
               </DialogHeader>
+
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onEditSubmit)} className="space-y-4">
+                <form onSubmit={form.handleSubmit(onEditSubmit)} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Дата и время */}
+                    <FormField
+                      control={form.control}
+                      name="departure_ts"
+                      render={({ field }) => (
+                        <FormItem className="md:col-span-2">
+                          <FormLabel>Дата и время отправления</FormLabel>
+                          <FormControl>
+                            <Input type="datetime-local" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <NumberField control={form.control} name="seats_available" label="Свободные места" min={1} />
+
+                    <NumberField control={form.control} name="price_per_person" label="Цена за место (UZS)" />
+
+                    <NumberField control={form.control} name="duration" label="Длительность (минуты)" />
+
+                    <NumberField control={form.control} name="distance" label="Расстояние (км)" step="0.1" />
+                    {/* Тип бронирования */}
+                    <FormField
+                      control={form.control}
+                      name="booking_type"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Тип бронирования</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Выберите тип" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="INSTANT">Мгновенное</SelectItem>
+                              <SelectItem value="REQUEST">По запросу</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Гараж */}
+                    <FormField
+                      control={form.control}
+                      name="garage"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Гараж / Статус авто</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Не выбран" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="EMPTY">Пустой</SelectItem>
+                              <SelectItem value="HALF_EMPTY">Полупустой</SelectItem>
+                              <SelectItem value="FULL">Полный</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Фичи (чекбоксы) */}
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t">
+                    <FormField
+                      control={form.control}
+                      name="max_two_back"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-3">
+                          <FormControl>
+                            <input type="checkbox" checked={field.value} onChange={field.onChange} />
+                          </FormControl>
+                          <FormLabel>Максимум двое сзади</FormLabel>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      name="conditioner"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-3">
+                          <FormControl>
+                            <input type="checkbox" checked={field.value} onChange={field.onChange} />
+                          </FormControl>
+                          <FormLabel>Кондиционер</FormLabel>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      name="smoking_allowed"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-3">
+                          <FormControl>
+                            <input type="checkbox" checked={field.value} onChange={field.onChange} />
+                          </FormControl>
+                          <FormLabel>Курение разрешено</FormLabel>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      name="door_pickup"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-3">
+                          <FormControl>
+                            <input type="checkbox" checked={field.value} onChange={field.onChange} />
+                          </FormControl>
+                          <FormLabel>Посадка у двери</FormLabel>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      name="food_stop"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-3">
+                          <FormControl>
+                            <input type="checkbox" checked={field.value} onChange={field.onChange} />
+                          </FormControl>
+                          <FormLabel>Остановка на еду</FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Комментарий */}
                   <FormField
                     control={form.control}
-                    name="departure_ts"
+                    name="comment"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Дата и время отправления</FormLabel>
+                        <FormLabel>Комментарий к поездке</FormLabel>
                         <FormControl>
-                          <Input type="datetime-local" {...field} />
+                          <textarea
+                            {...field}
+                            value={field.value || ""}
+                            className="w-full min-h-[100px] p-3 border rounded-md resize-y"
+                            placeholder="Дополнительная информация..."
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="seats_available"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Свободные места</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} onChange={(e) => field.onChange(parseInt(e.target.value))} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="price_per_person"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Цена за место</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} onChange={(e) => field.onChange(parseInt(e.target.value))} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" disabled={isEditing}>
-                    {isEditing ? "Сохранение..." : "Сохранить"}
-                  </Button>
+
+                  <div className="flex justify-end gap-3 pt-4">
+                    <Button type="button" variant="outline" onClick={() => setSelectedTrip(null)}>
+                      Отмена
+                    </Button>
+                    <Button type="submit" disabled={isEditing}>
+                      {isEditing ? "Сохранение..." : "Сохранить изменения"}
+                    </Button>
+                  </div>
                 </form>
               </Form>
             </DialogContent>

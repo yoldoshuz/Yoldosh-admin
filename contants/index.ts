@@ -1,5 +1,6 @@
 import {
   Activity,
+  BarChart3,
   Bell,
   CircleDollarSign,
   Flag,
@@ -56,6 +57,7 @@ export const adminItems: NavItem[] = [
 // =========== SuperAdmin sidebar items ===========
 export const superAdminItems: NavItem[] = [
   { title: "Главная", url: "/super-admin", icon: Home, exactMatch: true, group: "OVERVIEW" },
+  { title: "AppMetrica", url: "/super-admin/appmetrica", icon: BarChart3, group: "OVERVIEW" },
 
   { title: "Пользователи", url: "/super-admin/stats/users", icon: Users, group: "АНАЛИТИКА" },
   { title: "Поездки", url: "/super-admin/stats/trips", icon: Route, group: "АНАЛИТИКА" },

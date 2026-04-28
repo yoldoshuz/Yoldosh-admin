@@ -35,18 +35,17 @@ api.interceptors.request.use((config) => {
     const isAdminRoute = window.location.pathname.startsWith("/admin");
     const isSuperAdminRoute = window.location.pathname.startsWith("/super-admin");
 
-    let token = null;
-    let tokenKey = null;
+    let token: string | null = null;
 
     if (isSuperAdminRoute) {
-      tokenKey = "super-admin-token";
-      token = localStorage.getItem(tokenKey);
+      // SuperAdmin token is valid for both /admin/* and /super-admin/* endpoints.
+      token = localStorage.getItem("super-admin-token") || localStorage.getItem("admin-token");
     } else if (isAdminRoute) {
-      // Для обычных админов используем старый ключ или новый, если он есть
-      tokenKey = "admin-token";
-      token = localStorage.getItem(tokenKey);
+      // Admin pages should use admin-token first, fall back to super-admin-token
+      // (so a SuperAdmin can also legitimately browse /admin/* during impersonation).
+      token = localStorage.getItem("admin-token") || localStorage.getItem("super-admin-token");
     } else {
-      // Если мы на странице логина "/", пробуем найти любой токен для AuthGuard
+      // Login page: try whichever exists.
       token = localStorage.getItem("super-admin-token") || localStorage.getItem("admin-token");
     }
     if (token) {

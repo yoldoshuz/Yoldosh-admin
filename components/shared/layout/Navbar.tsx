@@ -15,12 +15,6 @@ export const Navbar = () => {
           <ThemeSwitcher />
           <Moon className="size-4 text-secondary-foreground" />
         </div>
-        <div className="flex items-center justify-center gap-2 ">
-          <div className="p-2 rounded-full bg-emerald-500">
-            <UserRound className="size-5 text-white" />
-          </div>
-          <span className="hidden sm:flex text-base font-semibold">Администратор</span>
-        </div>
       </div>
     </nav>
   );

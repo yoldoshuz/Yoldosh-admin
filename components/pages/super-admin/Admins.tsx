@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Edit } from "lucide-react";
+import { Edit, ExternalLink } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useIntersectionObserver } from "usehooks-ts";
 import { z } from "zod";
@@ -180,6 +181,12 @@ export const Admins = () => {
                   <TableCell>{admin.email}</TableCell>
                   <TableCell>{admin.role}</TableCell>
                   <TableCell className="space-x-2">
+                    <Button asChild size="sm" variant="outline">
+                      <Link href={`/super-admin/admins/${admin.id}`} className="gap-1">
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        Профиль
+                      </Link>
+                    </Button>
                     {admin.role === "Admin" && (
                       <Button
                         size="sm"

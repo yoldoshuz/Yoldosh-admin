@@ -45,15 +45,18 @@ import { Separator } from "@/components/ui/separator";
 import { Toaster } from "@/components/ui/sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { useBanUser, useGetUserDetails } from "@/hooks/adminHooks";
+import { useBanUser, useGetUserDetails, useUnbanUser } from "@/hooks/adminHooks";
+import { useBasePath } from "@/hooks/useBasePath";
 import { baseUrl } from "@/lib/api";
 import { banUserSchema } from "@/lib/schemas";
 import { formatDate } from "@/lib/utils";
 
 export const UserDetail = ({ userId }: { userId: string }) => {
+  const base = useBasePath();
   const [isBanDialogOpen, setIsBanDialogOpen] = useState(false);
   const { data: user, isLoading, isError } = useGetUserDetails(userId);
   const { mutate: banUser, isPending: isBanning } = useBanUser();
+  const { mutate: unbanUser, isPending: isUnbanning } = useUnbanUser();
 
   const form = useForm<z.infer<typeof banUserSchema>>({
     resolver: zodResolver(banUserSchema),
@@ -83,7 +86,7 @@ export const UserDetail = ({ userId }: { userId: string }) => {
   return (
     <div className="flex flex-col gap-6">
       <Toaster richColors />
-      <Link href="/admin/users-search" className="flex items-center gap-2 w-full text-emerald-500 hover:underline">
+      <Link href={`/${base}/users-search`} className="flex items-center gap-2 w-full text-emerald-500 hover:underline">
         <ChevronLeft className="size-5" />
         <span>Назад к пользователям</span>
       </Link>
@@ -114,7 +117,20 @@ export const UserDetail = ({ userId }: { userId: string }) => {
           </div>
         </div>
 
-        {/* BAN BUTTON */}
+        {/* BAN / UNBAN */}
+        {user.isBanned && (
+          <Button
+            variant="outline"
+            disabled={isUnbanning}
+            onClick={() => {
+              if (window.confirm("Снять блокировку с этого пользователя?")) unbanUser(userId);
+            }}
+            className="gap-2"
+          >
+            <ShieldCheck className="h-4 w-4" />
+            {isUnbanning ? "Разбан..." : "Разбанить"}
+          </Button>
+        )}
         <Dialog open={isBanDialogOpen} onOpenChange={setIsBanDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="destructive" disabled={user.isBanned}>

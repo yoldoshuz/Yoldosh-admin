@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CarIcon, LogOut, Search } from "lucide-react";
 
-import { Separator } from "@/components/ui/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -15,100 +14,99 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { adminItems } from "@/contants";
-import { useAdminLogout, useGetAdminProfile } from "@/hooks/adminHooks";
+import { adminItems, NavItem } from "@/contants";
+import { useAdminLogout } from "@/hooks/adminHooks";
+import { usePermission } from "@/hooks/usePermission";
+import { cn } from "@/lib/utils";
+
+const isActive = (pathname: string, item: NavItem): boolean => {
+  if (item.exactMatch) return pathname === item.url;
+  if (pathname === item.url) return true;
+  return pathname.startsWith(`${item.url}/`);
+};
 
 export const AdminSidebar = () => {
   const pathname = usePathname();
   const { mutate: logout, isPending } = useAdminLogout();
+  const { hasPermission, profile } = usePermission();
 
-  const { data: profile } = useGetAdminProfile();
-  const permissions = profile?.permissions ?? {};
+  const handleLogout = () => logout();
 
-  const handleLogout = () => {
-    logout();
-  };
+  const allowedItems = adminItems.filter((i) => !i.permission || hasPermission(i.permission));
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarContent className="bg-gray-50 dark:bg-gray-950">
-        <SidebarGroup className="h-full">
-          <SidebarGroupLabel>
-            <div className="flex flex-row items-center justify-center gap-2 mt-6">
-              <div className="bg-linear-to-br from-emerald-400 to-teal-700 text-white rounded-xl p-2">
+      <SidebarContent className="bg-sidebar">
+        <SidebarGroup className="h-full px-3 py-4">
+          <SidebarGroupLabel asChild>
+            <div className="flex items-center gap-3 px-1 mt-2 pb-3 mb-3">
+              <div className="rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 p-2 text-white shadow-md shadow-emerald-500/25">
                 <CarIcon className="size-5" />
               </div>
-              <div className="flex flex-col justify-center">
-                <h1 className="text-lg font-bold text-black dark:text-white">Yoldosh</h1>
-                <p>Admin</p>
+              <div className="flex flex-col leading-none">
+                <h1 className="text-base font-semibold text-foreground">Yoldosh</h1>
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Admin</p>
               </div>
             </div>
           </SidebarGroupLabel>
-          <SidebarGroupContent className="mt-8 h-full">
-            <Separator orientation="horizontal" />
-            <SidebarMenu className="flex flex-col h-full py-4">
-              <div>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    className="w-full bg-gray-100 hover:bg-gray-200 border border-gray-200 dark:bg-gray-900 dark:hover:bg-gray-800 dark:border-gray-700 cursor-pointer"
-                  >
-                    <Link href="/admin/users-search">
-                      <button className="flex items-center justify-center py-4 gap-2 w-full">
-                        <Search className="ml-2 size-4" />
-                        <span>Поиск пользователя</span>
-                      </button>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <Separator orientation="horizontal" className="mt-4" />
-              </div>
 
-              <div className="mt-2 space-y-1">
-                {adminItems.map((item) => {
-                  const allowed = !item.permission || permissions[item.permission] === true;
+          <SidebarGroupContent className="h-full pt-2">
+            <SidebarMenu className="flex h-full flex-col gap-0.5">
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className="h-10 border border-border bg-card px-3 hover:bg-muted">
+                  <Link href="/admin/users-search" className="flex items-center gap-2.5">
+                    <Search className="size-4 shrink-0" />
+                    <span>Поиск пользователя</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
 
+              <div className="my-3 h-px bg-border" />
+
+              <div className="space-y-1">
+                {allowedItems.map((item) => {
+                  const active = isActive(pathname, item);
                   return (
-                    <SidebarMenuItem key={item.title}>
+                    <SidebarMenuItem key={`${item.url}-${item.title}`}>
                       <SidebarMenuButton
                         asChild
-                        disabled={!allowed}
-                        className={`${
-                          allowed
-                            ? "hover:bg-emerald-700/40 text-emerald-950 dark:text-emerald-500 dark:hover:bg-gray-50/10 dark:hover:text-white"
-                            : "opacity-50 pointer-events-none"
-                        }`}
-                      >
-                        {allowed ? (
-                          <Link
-                            href={item.url}
-                            className={`${
-                              pathname === item.url ? "bg-emerald-800/20 text-emerald-900" : "text-emerald-800"
-                            } flex items-center gap-2`}
-                          >
-                            <item.icon />
-                            <span>{item.title}</span>
-                          </Link>
-                        ) : (
-                          <div className="flex items-center gap-2 px-2">
-                            <item.icon />
-                            <span>{item.title}</span>
-                          </div>
+                        className={cn(
+                          "h-9 px-2.5 text-sm transition",
+                          active
+                            ? "bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 hover:bg-emerald-500/15"
+                            : "hover:bg-muted text-muted-foreground hover:text-foreground"
                         )}
+                      >
+                        <Link href={item.url} className="flex items-center gap-2.5">
+                          <item.icon className="size-4 shrink-0" />
+                          <span>{item.title}</span>
+                        </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );
                 })}
               </div>
 
-              <div className="flex justify-center items-end h-full w-full">
-                <SidebarMenuItem className="w-full">
+              <div className="mt-auto pt-3 space-y-2">
+                {profile && (
+                  <div className="rounded-lg border bg-card px-3 py-2 text-xs">
+                    <p className="font-medium truncate">
+                      {profile.firstName} {profile.lastName}
+                    </p>
+                    <p className="text-muted-foreground truncate">{profile.email}</p>
+                  </div>
+                )}
+                <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
-                    className="hover:text-red-800 dark:hover:bg-gray-50/10 dark:hover:text-white transition"
+                    className="h-9 px-2.5 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/20"
                   >
-                    <button onClick={handleLogout} disabled={isPending} className="text-red-500 cursor-pointer">
-                      <LogOut />
+                    <button
+                      onClick={handleLogout}
+                      disabled={isPending}
+                      className="flex items-center gap-2.5 cursor-pointer"
+                    >
+                      <LogOut className="size-4 shrink-0" />
                       {isPending ? "Завершаем сессию..." : "Завершить сессию"}
                     </button>
                   </SidebarMenuButton>

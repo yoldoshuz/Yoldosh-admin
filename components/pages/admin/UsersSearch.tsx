@@ -12,10 +12,12 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetAllUsers } from "@/hooks/adminHooks";
+import { useBasePath } from "@/hooks/useBasePath";
 import { baseUrl } from "@/lib/api";
 import { User } from "@/types";
 
 export const UsersSearch = () => {
+  const base = useBasePath();
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounceValue(searchTerm, 500);
 
@@ -67,7 +69,7 @@ export const UsersSearch = () => {
           </div>
           <div className="grid-4 mt-4">
             {users.map((user: User) => (
-              <Link href={`/admin/users-search/${user.id}`} key={user.id}>
+              <Link href={`/${base}/users-search/${user.id}`} key={user.id}>
                 <Card className="flex flex-col gap-4 component border hover:border-emerald-500 dark:hover:border-emerald-600 transition rounded-xl p-6 shadow-lg">
                   <CardHeader className="flex flex-col justify-center items-center text-center">
                     <div className="relative">

@@ -61,11 +61,86 @@ export const useGetAdminProfile = (enabled: boolean = true) => {
   });
 };
 
-export const useGetAdminStats = () => {
+type RangeParams = {
+  range?: "day" | "week" | "month" | "year" | "custom";
+  from?: string;
+  to?: string;
+};
+
+const stripEmpty = (params: Record<string, any>) => {
+  const out: Record<string, any> = {};
+  for (const k of Object.keys(params)) {
+    if (params[k] !== undefined && params[k] !== null && params[k] !== "") out[k] = params[k];
+  }
+  return out;
+};
+
+export const useGetAdminStats = (params: RangeParams = {}) => {
   return useQuery({
-    queryKey: queryKeys.admin.stats(),
+    queryKey: queryKeys.admin.stats(params),
     queryFn: async () => {
-      const { data } = await api.get("/admin/stats");
+      const { data } = await api.get("/admin/stats/overview", { params: stripEmpty(params) });
+      return data.data;
+    },
+  });
+};
+
+export const useGetUsersStats = (params: RangeParams = {}) => {
+  return useQuery({
+    queryKey: queryKeys.admin.statsUsers(params),
+    queryFn: async () => {
+      const { data } = await api.get("/admin/stats/users", { params: stripEmpty(params) });
+      return data.data;
+    },
+  });
+};
+
+export const useGetTripsStats = (params: RangeParams = {}) => {
+  return useQuery({
+    queryKey: queryKeys.admin.statsTrips(params),
+    queryFn: async () => {
+      const { data } = await api.get("/admin/stats/trips", { params: stripEmpty(params) });
+      return data.data;
+    },
+  });
+};
+
+export const useGetWalletStats = (params: RangeParams = {}) => {
+  return useQuery({
+    queryKey: queryKeys.admin.statsWallet(params),
+    queryFn: async () => {
+      const { data } = await api.get("/admin/stats/wallet", { params: stripEmpty(params) });
+      return data.data;
+    },
+  });
+};
+
+export const useGetActiveTripsStats = (params: RangeParams = {}) => {
+  return useQuery({
+    queryKey: queryKeys.admin.statsActiveTrips(params),
+    queryFn: async () => {
+      const { data } = await api.get("/admin/stats/active-trips", { params: stripEmpty(params) });
+      return data.data;
+    },
+    refetchInterval: 30_000,
+  });
+};
+
+export const useGetReportsStats = (params: RangeParams = {}) => {
+  return useQuery({
+    queryKey: queryKeys.admin.statsReports(params),
+    queryFn: async () => {
+      const { data } = await api.get("/admin/stats/reports", { params: stripEmpty(params) });
+      return data.data;
+    },
+  });
+};
+
+export const useGetAdminsStats = (params: RangeParams = {}) => {
+  return useQuery({
+    queryKey: queryKeys.admin.statsAdmins(params),
+    queryFn: async () => {
+      const { data } = await api.get("/admin/stats/admins", { params: stripEmpty(params) });
       return data.data;
     },
   });
@@ -207,7 +282,6 @@ export const useBanUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (values: z.infer<typeof banUserSchema>) => {
-      // Backend expects reason and optional durationInDays in the body
       await api.post(`/admin/users/${values.userId}/ban`, {
         reason: values.reason,
         durationInDays: values.durationInDays,
@@ -215,11 +289,40 @@ export const useBanUser = () => {
     },
     onSuccess: (_, variables) => {
       toast.success("Пользователь успешно забанен");
-      // Invalidate the specific user's details and potentially the list of all users/banned users
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.userDetails(variables.userId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.admin.users({}) }); // Invalidate general user list
-      // queryClient.invalidateQueries(queryKeys.admin.bannedUsers({})); // If you have a separate query for banned users
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.users({}) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.bannedUsers({}) });
     },
+  });
+};
+
+export const useUnbanUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (userId: string) => {
+      await api.patch(`/admin/users/${userId}/unban`);
+    },
+    onSuccess: (_, userId) => {
+      toast.success("Пользователь успешно разбанен");
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.userDetails(userId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.users({}) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.bannedUsers({}) });
+    },
+  });
+};
+
+export const useGetBannedUsers = (filters: { [key: string]: any } = {}) => {
+  return useInfiniteQuery({
+    queryKey: queryKeys.admin.bannedUsers(filters),
+    queryFn: async ({ pageParam = 1 }) => {
+      const { data } = await api.get("/admin/users/banned", {
+        params: { ...filters, page: pageParam, limit: 12 },
+      });
+      return data.data;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage: any) =>
+      lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined,
   });
 };
 

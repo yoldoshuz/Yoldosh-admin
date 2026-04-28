@@ -78,7 +78,7 @@ export const useUpdateAdminPermissions = () => {
   });
 };
 
-// Logs
+// Per-admin logs
 export const useGetAdminLogs = (adminId: string, filters: any) => {
   return useInfiniteQuery({
     queryKey: queryKeys.superAdmin.logs(adminId, filters),
@@ -86,13 +86,50 @@ export const useGetAdminLogs = (adminId: string, filters: any) => {
       const { data } = await api.get(`/super-admin/admins/${adminId}/logs`, {
         params: { ...filters, page: pageParam, limit: 20 },
       });
-      return data.data; // FIX: Return the nested data object
+      return data.data;
     },
-    // FIX: Correctly calculate the next page
-    getNextPageParam: (lastPage: any, allPages: any, lastPageParam: number) => {
-      return lastPage.logs.length === 20 ? lastPageParam + 1 : undefined;
+    getNextPageParam: (lastPage: any, _all: any, lastPageParam: number) => {
+      return lastPage.logs?.length === 20 ? lastPageParam + 1 : undefined;
     },
     initialPageParam: 1,
+    enabled: !!adminId,
+  });
+};
+
+// Global logs across all admins
+export const useGetGlobalLogs = (filters: any) => {
+  const cleaned: any = {};
+  for (const k of Object.keys(filters || {})) {
+    const v = filters[k];
+    if (v === undefined || v === null || v === "") continue;
+    cleaned[k] = Array.isArray(v) ? v.join(",") : v;
+  }
+  return useInfiniteQuery({
+    queryKey: queryKeys.superAdmin.globalLogs(cleaned),
+    queryFn: async ({ pageParam = 1 }) => {
+      const { data } = await api.get(`/super-admin/logs`, {
+        params: { ...cleaned, page: pageParam, limit: 25 },
+      });
+      return data.data;
+    },
+    getNextPageParam: (lastPage: any, _all: any, lastPageParam: number) => {
+      return lastPage.logs?.length === 25 ? lastPageParam + 1 : undefined;
+    },
+    initialPageParam: 1,
+  });
+};
+
+// Detailed profile of a single admin (sessions timeline + stats + recent actions)
+export const useGetAdminProfileById = (adminId: string, range?: { from?: string; to?: string }) => {
+  const params: any = {};
+  if (range?.from) params.from = range.from;
+  if (range?.to) params.to = range.to;
+  return useQuery({
+    queryKey: queryKeys.superAdmin.adminProfile(adminId, params),
+    queryFn: async () => {
+      const { data } = await api.get(`/super-admin/admins/${adminId}`, { params });
+      return data.data;
+    },
     enabled: !!adminId,
   });
 };

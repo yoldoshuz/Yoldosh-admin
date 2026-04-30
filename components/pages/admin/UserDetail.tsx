@@ -86,13 +86,13 @@ export const UserDetail = ({ userId }: { userId: string }) => {
   return (
     <div className="flex flex-col gap-6">
       <Toaster richColors />
-      <Link href={`/${base}/users-search`} className="flex items-center gap-2 w-full text-emerald-500 hover:underline">
+      <Link href={`/${base}/users-search`} className="flex w-full items-center gap-2 text-emerald-500 hover:underline">
         <ChevronLeft className="size-5" />
         <span>Назад к пользователям</span>
       </Link>
 
       {/* HEADER */}
-      <div className="flex justify-between items-start">
+      <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
           {user.avatar ? (
             <Image
@@ -100,11 +100,11 @@ export const UserDetail = ({ userId }: { userId: string }) => {
               alt={`${user.firstName} ${user.lastName}`}
               width={64}
               height={64}
-              className="w-20 h-20 rounded-full object-cover"
+              className="h-20 w-20 rounded-full object-cover"
             />
           ) : (
-            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
-              <User className="w-10 h-10 text-muted-foreground" />
+            <div className="bg-muted flex h-20 w-20 items-center justify-center rounded-full">
+              <User className="text-muted-foreground h-10 w-10" />
             </div>
           )}
           <div>
@@ -112,8 +112,8 @@ export const UserDetail = ({ userId }: { userId: string }) => {
               {user.firstName} {user.lastName || ""}
             </h1>
             <p className="subtitle-text font-mono">ID: {user.id}</p>
-            <p className="text-sm text-muted-foreground">Регистрация: {formatDate(user.createdAt)}</p>
-            <p className="text-sm text-muted-foreground">Роль: {user.role || "—"}</p>
+            <p className="text-muted-foreground text-sm">Регистрация: {formatDate(user.createdAt)}</p>
+            <p className="text-muted-foreground text-sm">Роль: {user.role || "—"}</p>
           </div>
         </div>
 
@@ -188,7 +188,7 @@ export const UserDetail = ({ userId }: { userId: string }) => {
       {/* USER INFO */}
       <Card className="component shadow-none">
         <CardTitle className="px-6">Общая информация</CardTitle>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <CardContent className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           <InfoItem
             icon={<ShieldAlert />}
             label="Статус"
@@ -235,7 +235,7 @@ export const UserDetail = ({ userId }: { userId: string }) => {
       {user.isBanned ? (
         <Card className="component shadow-none">
           <CardTitle className="px-6">Информация о блокировке</CardTitle>
-          <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
             <InfoItem
               icon={<Calendar />}
               label="Блокировка до"
@@ -250,7 +250,7 @@ export const UserDetail = ({ userId }: { userId: string }) => {
       {user.notificationPreferences && (
         <Card className="component shadow-none">
           <CardTitle className="px-6">Настройки уведомлений</CardTitle>
-          <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
             {Object.entries(user.notificationPreferences).map(([key, value]) => (
               <InfoItem
                 key={key}
@@ -267,7 +267,7 @@ export const UserDetail = ({ userId }: { userId: string }) => {
       {/* PREFERENSES */}
       <Card className="component shadow-none">
         <CardTitle className="px-6">Предпочтения</CardTitle>
-        <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           <InfoItem
             icon={<Music />}
             label="Музыка"
@@ -309,7 +309,7 @@ export const UserDetail = ({ userId }: { userId: string }) => {
           <TabsTrigger value="reports">Жалобы</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="trips" className="space-y-4 mt-4">
+        <TabsContent value="trips" className="mt-4 space-y-4">
           {user.role === "Driver" ? (
             user.drivenTrips?.length ? (
               user.drivenTrips.map((trip: any) => <TripCard key={trip.id} trip={trip} />)
@@ -323,7 +323,7 @@ export const UserDetail = ({ userId }: { userId: string }) => {
           )}
         </TabsContent>
 
-        <TabsContent value="cars" className="space-y-4 mt-4">
+        <TabsContent value="cars" className="mt-4 space-y-4">
           {user.cars?.length ? (
             user.cars.map((car: any) => <CarCard key={car.id} car={car} />)
           ) : (
@@ -331,7 +331,7 @@ export const UserDetail = ({ userId }: { userId: string }) => {
           )}
         </TabsContent>
 
-        <TabsContent value="reports" className="space-y-4 mt-4">
+        <TabsContent value="reports" className="mt-4 space-y-4">
           {user.receivedReports?.length ? (
             user.receivedReports.map((report: any) => <ReportCard key={report.id} report={report} />)
           ) : (

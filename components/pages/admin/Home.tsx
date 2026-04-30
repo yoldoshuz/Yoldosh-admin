@@ -118,16 +118,16 @@ export const Home = () => {
 
       {/* Status distribution chips */}
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-xl border bg-card p-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Поездки по статусам</p>
+        <div className="bg-card rounded-xl border p-4">
+          <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Поездки по статусам</p>
           <StatusChips data={stats?.trips?.byStatus} />
         </div>
-        <div className="rounded-xl border bg-card p-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Бронирования</p>
+        <div className="bg-card rounded-xl border p-4">
+          <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Бронирования</p>
           <StatusChips data={stats?.bookings?.byStatus} />
         </div>
-        <div className="rounded-xl border bg-card p-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Жалобы</p>
+        <div className="bg-card rounded-xl border p-4">
+          <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Жалобы</p>
           <StatusChips data={stats?.reports?.byStatus} />
         </div>
       </div>

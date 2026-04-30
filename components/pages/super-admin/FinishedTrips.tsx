@@ -21,7 +21,7 @@ export const FinishedTrips = () => {
   const trips = data?.pages.flatMap((page: any) => page.trips) ?? [];
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6 p-6 md:p-8">
       <div>
         <h1 className="title-text">Завершенные поездки</h1>
         <p className="subtitle-text">История успешно завершенных маршрутов.</p>
@@ -48,9 +48,9 @@ export const FinishedTrips = () => {
         </div>
 
         {hasNextPage && (
-          <div ref={ref} className="py-8 flex justify-center w-full">
+          <div ref={ref} className="flex w-full justify-center py-8">
             {isFetchingNextPage && (
-              <div className="text-muted-foreground text-sm animate-pulse">Загрузка данных...</div>
+              <div className="text-muted-foreground animate-pulse text-sm">Загрузка данных...</div>
             )}
           </div>
         )}

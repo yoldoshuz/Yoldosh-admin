@@ -3,15 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon, Filter, MapPin, Pencil, Search, Trash2 } from "lucide-react";
-import { DateRange } from "react-day-picker";
+import { Filter, MapPin, Pencil, Search, Trash2 } from "lucide-react";
 import { Control, FieldPath, FieldValues, useForm } from "react-hook-form";
 import { useDebounceValue, useIntersectionObserver } from "usehooks-ts";
 import z from "zod";
 
+import { DateRangePicker, DateRangeValue, rangeToQuery } from "@/components/shared/DateRangePicker";
+import { PageHeader, PageShell } from "@/components/shared/layout/PageShell";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -21,7 +20,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/sonner";
@@ -91,7 +89,7 @@ export const Trips = () => {
     sortOrder: "DESC",
   });
 
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [range, setRange] = useState<DateRangeValue>({ preset: "month" });
   const [debouncedSearch] = useDebounceValue(searchTerm, 500);
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
 
@@ -100,8 +98,7 @@ export const Trips = () => {
     sortBy: sort.sortBy,
     sortOrder: sort.sortOrder,
     status: activeTab === "ALL" ? undefined : activeTab,
-    startDate: dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined,
-    endDate: dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined,
+    ...rangeToQuery(range),
   };
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetTrips(filters);
@@ -184,87 +181,58 @@ export const Trips = () => {
   const allTrips = data?.pages.flatMap((p) => p.trips) ?? [];
 
   return (
-    <div>
+    <PageShell>
       <Toaster richColors />
-      <h1 className="title-text">Поездки</h1>
-      <p className="subtitle-text mb-4">Мониторинг всех поездок в системе</p>
+      <PageHeader title="Поездки" subtitle="Мониторинг всех поездок в системе" range={range} onRangeChange={setRange} />
 
       {/* Tabs Selector */}
-      <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as TripStatus | "ALL")} className="w-full mb-4">
-        <TabsList className="w-64 sm:w-96 px-1">
-          <TabsTrigger value="ALL" className="w-4 text-xs sm:text-md">
+      <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as TripStatus | "ALL")} className="w-full">
+        <TabsList className="w-full overflow-x-auto px-1 sm:w-auto">
+          <TabsTrigger value="ALL" className="text-xs sm:text-sm">
             Все
           </TabsTrigger>
-          <TabsTrigger value={TripStatus.Created} className="text-xs sm:text-md">
+          <TabsTrigger value={TripStatus.Created} className="text-xs sm:text-sm">
             Созданные
           </TabsTrigger>
-          <TabsTrigger value={TripStatus.InProgress} className="text-xs sm:text-md">
+          <TabsTrigger value={TripStatus.InProgress} className="text-xs sm:text-sm">
             В пути
           </TabsTrigger>
-          <TabsTrigger value={TripStatus.Completed} className="text-xs sm:text-md">
+          <TabsTrigger value={TripStatus.Completed} className="text-xs sm:text-sm">
             Завершенные
           </TabsTrigger>
-          <TabsTrigger value={TripStatus.Canceled} className="text-xs sm:text-md">
+          <TabsTrigger value={TripStatus.Canceled} className="text-xs sm:text-sm">
             Отмененные
           </TabsTrigger>
         </TabsList>
       </Tabs>
 
-      <div className="flex flex-col component border rounded-2xl px-6 py-4">
+      <div className="component flex flex-col rounded-2xl border px-4 py-3 sm:px-6 sm:py-4">
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-2 my-4">
-          <div className="relative w-full">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <div className="my-2 flex flex-col gap-2 sm:my-4 sm:flex-row sm:items-center">
+          <div className="relative min-w-0 flex-1">
+            <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
             <Input
               placeholder="Поиск по маршруту, ID, имени водителя..."
-              className="pl-8 w-full component-dark"
+              className="component-dark w-full pl-8"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="flex items-center gap-2">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant={"outline"} className="component-dark">
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dateRange?.from ? (
-                    dateRange.to ? (
-                      `${format(dateRange.from, "dd.MM.yyyy")} - ${format(dateRange.to, "dd.MM.yyyy")}`
-                    ) : (
-                      format(dateRange.from, "dd.MM.yyyy")
-                    )
-                  ) : (
-                    <span>Выбрать дату</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <Calendar
-                  autoFocus
-                  mode="range"
-                  defaultMonth={dateRange?.from}
-                  selected={dateRange}
-                  onSelect={setDateRange}
-                  numberOfMonths={2}
-                />
-              </PopoverContent>
-            </Popover>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="component-dark">
-                  <Filter className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setSort({ sortBy: "departure_ts", sortOrder: "DESC" })}>
-                  Сначала новые
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSort({ sortBy: "departure_ts", sortOrder: "ASC" })}>
-                  Сначала старые
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon" className="component-dark">
+                <Filter className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setSort({ sortBy: "departure_ts", sortOrder: "DESC" })}>
+                Сначала новые
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSort({ sortBy: "departure_ts", sortOrder: "ASC" })}>
+                Сначала старые
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <Dialog onOpenChange={(isOpen) => !isOpen && setSelectedTrip(null)}>
@@ -278,23 +246,23 @@ export const Trips = () => {
             <div className="grid-default">
               {allTrips.map((trip: any) => (
                 <div
-                  className="flex flex-col gap-4 component border hover:border-emerald-500 dark:hover:border-emerald-600 transition rounded-xl p-6"
+                  className="component flex flex-col gap-4 rounded-xl border p-6 transition hover:border-emerald-500 dark:hover:border-emerald-600"
                   key={trip.id}
                 >
-                  <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <Link href={`/admin/trips/${trip.id}`} className="font-bold text-lg link-text">
+                  <div className="flex flex-col items-center gap-4 sm:flex-row">
+                    <Link href={`/admin/trips/${trip.id}`} className="link-text text-lg font-bold">
                       #{trip.id.substring(0, 6)}
                     </Link>
-                    <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${getStatusColor(trip.status)}`}>
+                    <span className={`rounded-full px-3 py-1.5 text-xs font-medium ${getStatusColor(trip.status)}`}>
                       {trip.status}
                     </span>
-                    <time className="text-sm text-muted-foreground">{formatDate(trip.departure_ts)}</time>
+                    <time className="text-muted-foreground text-sm">{formatDate(trip.departure_ts)}</time>
                   </div>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-4">
+                  <div className="flex w-full flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                     <div className="flex flex-col space-y-4 text-sm">
                       <Link href={`/admin/users-search/${trip.driver.id}`} className="flex flex-col gap-1">
                         <span className="text-muted-foreground link-text">Водитель:</span>
-                        <span className="font-semibold link-text">
+                        <span className="link-text font-semibold">
                           {trip.driver.firstName} {trip.driver.lastName}
                         </span>
                       </Link>
@@ -323,13 +291,13 @@ export const Trips = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex flex-col items-center justify-between gap-4 h-full">
-                      <div className="w-full h-full text-xl font-bold">
+                    <div className="flex h-full flex-col items-center justify-between gap-4">
+                      <div className="h-full w-full text-xl font-bold">
                         <h1 className="text-center sm:text-right">
                           {Intl.NumberFormat("fr-FR").format(trip.price_per_person)} UZS
                         </h1>
                       </div>
-                      <div className="flex flex-col sm:flex-row gap-2 space-x-2">
+                      <div className="flex flex-col gap-2 space-x-2 sm:flex-row">
                         <DialogTrigger asChild>
                           <Button variant="outline" onClick={() => handleEditClick(trip)}>
                             Редактировать
@@ -347,14 +315,14 @@ export const Trips = () => {
               ))}
             </div>
           ) : (
-            <div className="flex items-center justify-center w-full mt-8">
+            <div className="mt-8 flex w-full items-center justify-center">
               <span className="subtitle-text">Поездки не найдены.</span>
             </div>
           )}
 
           {/* Infinite Scroll Trigger */}
           {hasNextPage && (
-            <div className="mt-4 flex justify-center w-full" ref={ref}>
+            <div className="mt-4 flex w-full justify-center" ref={ref}>
               <Button onClick={() => fetchNextPage()} disabled={isFetchingNextPage} className="btn-primary shadow-glow">
                 {isFetchingNextPage ? "Загрузка..." : "Загрузить еще"}
               </Button>
@@ -362,14 +330,14 @@ export const Trips = () => {
           )}
 
           {selectedTrip && (
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Редактировать поездку #{selectedTrip.id.substring(0, 8)}</DialogTitle>
               </DialogHeader>
 
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onEditSubmit)} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     {/* Дата и время */}
                     <FormField
                       control={form.control}
@@ -441,7 +409,7 @@ export const Trips = () => {
                   </div>
 
                   {/* Фичи (чекбоксы) */}
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t">
+                  <div className="grid grid-cols-2 gap-4 border-t pt-4 md:grid-cols-3">
                     <FormField
                       control={form.control}
                       name="max_two_back"
@@ -515,7 +483,7 @@ export const Trips = () => {
                           <textarea
                             {...field}
                             value={field.value || ""}
-                            className="w-full min-h-[100px] p-3 border rounded-md resize-y"
+                            className="min-h-[100px] w-full resize-y rounded-md border p-3"
                             placeholder="Дополнительная информация..."
                           />
                         </FormControl>
@@ -538,6 +506,6 @@ export const Trips = () => {
           )}
         </Dialog>
       </div>
-    </div>
+    </PageShell>
   );
 };

@@ -48,7 +48,7 @@ export const Moderation = () => {
   return (
     <div>
       <Toaster richColors />
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="title-text">Модерация чата</h1>
           <p className="text-muted-foreground">Управление списком запрещенных слов</p>
@@ -87,12 +87,12 @@ export const Moderation = () => {
           </DialogContent>
         </Dialog>
       </div>
-      <div className="flex flex-col p-6 rounded-2xl w-full component">
-        <div className="relative flex w-full mb-4">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+      <div className="component flex w-full flex-col rounded-2xl p-6">
+        <div className="relative mb-4 flex w-full">
+          <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
           <Input
             placeholder="Поиск слов..."
-            className="pl-8 component-dark w-full border-none"
+            className="component-dark w-full border-none pl-8"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -103,7 +103,7 @@ export const Moderation = () => {
               <TableRow>
                 <TableHead className="text-muted-foreground">Слово</TableHead>
                 <TableHead className="text-muted-foreground">Дата добавления</TableHead>
-                <TableHead className="text-right text-muted-foreground">Действия</TableHead>
+                <TableHead className="text-muted-foreground text-right">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -129,7 +129,7 @@ export const Moderation = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center h-24 text-muted-foreground text-base">
+                  <TableCell colSpan={3} className="text-muted-foreground h-24 text-center text-base">
                     Запрещенные слова не найдены.
                   </TableCell>
                 </TableRow>

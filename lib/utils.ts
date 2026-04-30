@@ -119,6 +119,7 @@ export const AdminPermission = {
   DRIVER_APPLICATIONS: "driver_applications",
   REPORTS: "reports",
   TRIPS: "trips",
+  BOOKINGS: "bookings",
   NOTIFICATIONS: "notifications",
   PROMOCODES: "promocodes",
   MODERATION: "moderation",
@@ -132,11 +133,54 @@ export const adminPermissionLabels: Record<AdminPermissionKey, string> = {
   [AdminPermission.DRIVER_APPLICATIONS]: "Заявки водителей",
   [AdminPermission.REPORTS]: "Жалобы",
   [AdminPermission.TRIPS]: "Поездки",
+  [AdminPermission.BOOKINGS]: "Бронирования",
   [AdminPermission.NOTIFICATIONS]: "Уведомления",
   [AdminPermission.PROMOCODES]: "Промокоды",
   [AdminPermission.MODERATION]: "Модерация",
   [AdminPermission.BLOGS]: "Блоги",
   [AdminPermission.USERS]: "Пользователи",
+};
+
+// ============================================================
+// Registration source (matches backend enum on User model)
+// ============================================================
+export const RegistrationSource = {
+  USER: "user",
+  FROM_BOT: "from_bot",
+  REG_BOT: "reg_bot",
+} as const;
+
+export type RegistrationSourceKey = (typeof RegistrationSource)[keyof typeof RegistrationSource];
+
+export const registrationSourceLabels: Record<RegistrationSourceKey, string> = {
+  [RegistrationSource.USER]: "Сам зарегистрировался",
+  [RegistrationSource.FROM_BOT]: "Импорт из бота",
+  [RegistrationSource.REG_BOT]: "Через reg-бота",
+};
+
+export const registrationSourceShortLabels: Record<RegistrationSourceKey, string> = {
+  [RegistrationSource.USER]: "Сам",
+  [RegistrationSource.FROM_BOT]: "Бот-импорт",
+  [RegistrationSource.REG_BOT]: "Reg-бот",
+};
+
+// ============================================================
+// Booking status
+// ============================================================
+export const BookingStatus = {
+  PENDING: "PENDING",
+  CONFIRMED: "CONFIRMED",
+  CANCELLED: "CANCELLED",
+  FAILED: "FAILED",
+} as const;
+
+export type BookingStatusKey = (typeof BookingStatus)[keyof typeof BookingStatus];
+
+export const bookingStatusLabels: Record<BookingStatusKey, string> = {
+  [BookingStatus.PENDING]: "Ожидает",
+  [BookingStatus.CONFIRMED]: "Подтверждено",
+  [BookingStatus.CANCELLED]: "Отменено",
+  [BookingStatus.FAILED]: "Сбой",
 };
 
 // Log category metadata: label, color tone, icon (icon name from lucide-react)
@@ -168,7 +212,7 @@ export const entityTypeToPath = (
     case "TRIP":
       return `${root}/trips/${id}`;
     case "BOOKING":
-      return `${root}/trips?booking=${id}`;
+      return `${root}/bookings/${id}`;
     case "REPORT":
       return `${root}/reports?focus=${id}`;
     case "DRIVER_APPLICATION":

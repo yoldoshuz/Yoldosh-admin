@@ -19,7 +19,7 @@ export const StatsSection = ({
   <Card className={cn("stats-card", className)}>
     <CardHeader className="pb-3">
       <CardTitle className="text-sm font-semibold">{title}</CardTitle>
-      {description && <p className="text-xs text-muted-foreground">{description}</p>}
+      {description && <p className="text-muted-foreground text-xs">{description}</p>}
     </CardHeader>
     <CardContent>{children}</CardContent>
   </Card>
@@ -46,7 +46,7 @@ export const DistributionList = ({
       </div>
     );
   const items = (data ?? []).filter((x) => x && x.label != null);
-  if (items.length === 0) return <p className="text-sm text-muted-foreground">Нет данных</p>;
+  if (items.length === 0) return <p className="text-muted-foreground text-sm">Нет данных</p>;
   const max = Math.max(...items.map((x) => x.count), 1);
   const fmt = formatter ?? formatCompactNumber;
   return (
@@ -55,9 +55,9 @@ export const DistributionList = ({
         <li key={`${it.label}-${i}`} className="space-y-1">
           <div className="flex items-center justify-between gap-2 text-sm">
             <span className="truncate capitalize">{String(it.label).replace(/_/g, " ").toLowerCase()}</span>
-            <span className="tabular-nums text-muted-foreground">{fmt(it.count)}</span>
+            <span className="text-muted-foreground tabular-nums">{fmt(it.count)}</span>
           </div>
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+          <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
             <div
               className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500"
               style={{ width: `${Math.max(2, (it.count / max) * 100)}%` }}
@@ -98,22 +98,22 @@ export const TopList = ({
       </div>
     );
   const items = (data ?? []).filter((x) => x && x.label);
-  if (!items.length) return <p className="text-sm text-muted-foreground">{emptyText ?? "Нет данных"}</p>;
+  if (!items.length) return <p className="text-muted-foreground text-sm">{emptyText ?? "Нет данных"}</p>;
 
   const fmt = (v: number) => (format === "money" ? `${formatNumber(v)} UZS` : formatCompactNumber(v));
 
   return (
     <ol className="space-y-1.5">
       {items.slice(0, limit).map((it, i) => (
-        <li key={i} className="flex items-center gap-3 rounded-lg border bg-card px-3 py-1.5 text-sm">
-          <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-semibold tabular-nums">
+        <li key={i} className="bg-card flex items-center gap-3 rounded-lg border px-3 py-1.5 text-sm">
+          <span className="bg-muted flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold tabular-nums">
             {i + 1}
           </span>
           <div className="min-w-0 flex-1">
             <p className="truncate font-medium">{it.label}</p>
-            {it.sub && <p className="truncate text-xs text-muted-foreground">{it.sub}</p>}
+            {it.sub && <p className="text-muted-foreground truncate text-xs">{it.sub}</p>}
           </div>
-          <span className="tabular-nums text-muted-foreground">{fmt(Number(it.count))}</span>
+          <span className="text-muted-foreground tabular-nums">{fmt(Number(it.count))}</span>
         </li>
       ))}
     </ol>

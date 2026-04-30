@@ -8,8 +8,10 @@ import {
   Home,
   Logs,
   Route,
+  Search,
   ShieldAlert,
   ShieldUser,
+  Ticket,
   TicketPercent,
   TrendingUp,
   UserRoundCheck,
@@ -40,6 +42,7 @@ export const adminItems: NavItem[] = [
   { title: "Забаненные", url: "/admin/users-banned", icon: UserX, permission: AdminPermission.USERS },
 
   { title: "Поездки", url: "/admin/trips", icon: Route, permission: AdminPermission.TRIPS },
+  { title: "Бронирования", url: "/admin/bookings", icon: Ticket, permission: AdminPermission.BOOKINGS },
   { title: "Жалобы", url: "/admin/reports", icon: Flag, permission: AdminPermission.REPORTS },
   {
     title: "Заявки",
@@ -61,6 +64,8 @@ export const superAdminItems: NavItem[] = [
 
   { title: "Пользователи", url: "/super-admin/stats/users", icon: Users, group: "АНАЛИТИКА" },
   { title: "Поездки", url: "/super-admin/stats/trips", icon: Route, group: "АНАЛИТИКА" },
+  { title: "Бронирования", url: "/super-admin/bookings", icon: Ticket, group: "АНАЛИТИКА" },
+  { title: "Маршруты поиска", url: "/super-admin/searches", icon: Search, group: "АНАЛИТИКА" },
   { title: "Кошельки", url: "/super-admin/stats/wallet", icon: Wallet, group: "АНАЛИТИКА" },
   { title: "Активные сейчас", url: "/super-admin/stats/active-trips", icon: Activity, group: "АНАЛИТИКА" },
   { title: "Жалобы", url: "/super-admin/stats/reports", icon: Flag, group: "АНАЛИТИКА" },

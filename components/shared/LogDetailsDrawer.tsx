@@ -15,15 +15,15 @@ interface Props {
 }
 
 const InfoRow = ({ icon: Icon, label, children }: { icon: any; label: string; children: React.ReactNode }) => (
-  <div className="grid grid-cols-[20px_110px_1fr] items-start gap-3 border-b py-2.5 last:border-b-0 text-sm">
-    <Icon className="mt-0.5 size-4 text-muted-foreground" />
+  <div className="grid grid-cols-[20px_110px_1fr] items-start gap-3 border-b py-2.5 text-sm last:border-b-0">
+    <Icon className="text-muted-foreground mt-0.5 size-4" />
     <span className="text-muted-foreground">{label}</span>
     <div className="min-w-0 break-words">{children}</div>
   </div>
 );
 
 const Json = ({ value }: { value: any }) => (
-  <pre className="max-h-64 overflow-auto rounded-lg border bg-muted/50 p-3 font-mono text-xs leading-relaxed">
+  <pre className="bg-muted/50 max-h-64 overflow-auto rounded-lg border p-3 font-mono text-xs leading-relaxed">
     {JSON.stringify(value, null, 2)}
   </pre>
 );
@@ -38,9 +38,9 @@ const renderChanges = (log: AdminLog) => {
     const keys = Array.from(new Set([...Object.keys(before), ...Object.keys(changes)]));
     return (
       <div className="space-y-1">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Изменения</p>
+        <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Изменения</p>
         <div className="overflow-hidden rounded-lg border">
-          <div className="grid grid-cols-3 border-b bg-muted/40 px-3 py-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          <div className="bg-muted/40 text-muted-foreground grid grid-cols-3 border-b px-3 py-2 text-xs font-medium tracking-wider uppercase">
             <span>Поле</span>
             <span>Было</span>
             <span>Стало</span>
@@ -49,7 +49,7 @@ const renderChanges = (log: AdminLog) => {
             {keys.map((k) => (
               <div key={k} className="grid grid-cols-3 px-3 py-2 text-xs">
                 <span className="font-medium">{k}</span>
-                <span className="break-words text-red-600 dark:text-red-400 line-through opacity-80">
+                <span className="break-words text-red-600 line-through opacity-80 dark:text-red-400">
                   {before[k] != null ? String(before[k]) : "—"}
                 </span>
                 <span className="break-words text-emerald-600 dark:text-emerald-400">
@@ -64,7 +64,7 @@ const renderChanges = (log: AdminLog) => {
   }
   return (
     <div className="space-y-1">
-      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Metadata</p>
+      <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Metadata</p>
       <Json value={meta} />
     </div>
   );
@@ -73,24 +73,24 @@ const renderChanges = (log: AdminLog) => {
 export const LogDetailsDrawer = ({ log, open, onOpenChange }: Props) => {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto p-0">
+      <SheetContent side="right" className="w-full overflow-y-auto p-0 sm:max-w-xl">
         {!log ? null : (
           <>
-            <SheetHeader className="border-b px-6 py-5 space-y-2">
+            <SheetHeader className="space-y-2 border-b px-6 py-5">
               <div className="flex items-center gap-2">
                 <CategoryBadge category={log.category} />
-                <span className="text-xs text-muted-foreground">{formatRelativeTime(log.timestamp)}</span>
+                <span className="text-muted-foreground text-xs">{formatRelativeTime(log.timestamp)}</span>
               </div>
-              <SheetTitle className="text-lg pr-8">{log.action}</SheetTitle>
-              {log.details && <p className="text-sm text-muted-foreground">{log.details}</p>}
+              <SheetTitle className="pr-8 text-lg">{log.action}</SheetTitle>
+              {log.details && <p className="text-muted-foreground text-sm">{log.details}</p>}
             </SheetHeader>
 
             <div className="space-y-5 px-6 py-5">
-              <div className="rounded-xl border bg-card px-4 py-2">
+              <div className="bg-card rounded-xl border px-4 py-2">
                 <InfoRow icon={Clock} label="Время">
                   <div className="flex flex-col">
                     <span>{formatDate(log.timestamp)}</span>
-                    <span className="text-xs text-muted-foreground">{formatRelativeTime(log.timestamp)}</span>
+                    <span className="text-muted-foreground text-xs">{formatRelativeTime(log.timestamp)}</span>
                   </div>
                 </InfoRow>
                 <InfoRow icon={User} label="Админ">
@@ -120,7 +120,7 @@ export const LogDetailsDrawer = ({ log, open, onOpenChange }: Props) => {
 
               {log.entitySnapshot?.meta && (
                 <div className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                     Снапшот сущности
                   </p>
                   <Json value={log.entitySnapshot.meta} />
@@ -130,7 +130,7 @@ export const LogDetailsDrawer = ({ log, open, onOpenChange }: Props) => {
               {renderChanges(log)}
 
               {log.sessionId && (
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-muted-foreground text-[11px]">
                   Session: <span className="font-mono">{log.sessionId.slice(0, 8)}…</span>
                 </p>
               )}

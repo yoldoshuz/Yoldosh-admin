@@ -135,7 +135,7 @@ export const Blogs = () => {
     <div className="w-full">
       <Toaster richColors />
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="title-text">Блог</h1>
           <p className="text-muted-foreground">Управление статьями и публикациями.</p>
@@ -149,16 +149,16 @@ export const Blogs = () => {
             </Button>
           </DialogTrigger>
 
-          <DialogContent className="max-w-6xl w-full max-h-[90vh] flex flex-1 p-0">
+          <DialogContent className="flex max-h-[90vh] w-full max-w-6xl flex-1 p-0">
             <DialogHeader className="sr-only">
               <DialogTitle className="text-2xl">{selectedBlog ? "Редактировать статью" : "Новая статья"}</DialogTitle>
             </DialogHeader>
 
             <ScrollArea className="flex-1 p-6">
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-4">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="mt-4 space-y-8">
                   {/* ГЛОБАЛЬНЫЕ НАСТРОЙКИ (Общие для всех языков) */}
-                  <div className="flex flex-col flex-1 gap-6">
+                  <div className="flex flex-1 flex-col gap-6">
                     <FormField
                       control={form.control}
                       name="coverImage"
@@ -167,7 +167,7 @@ export const Blogs = () => {
                           <FormLabel>Обложка (Preview Photo)</FormLabel>
                           <div className="flex flex-col gap-3">
                             {field.value ? (
-                              <div className="relative w-full h-40 rounded-xl overflow-hidden border">
+                              <div className="relative h-40 w-full overflow-hidden rounded-xl border">
                                 <Image src={formatDocUrl(field.value)} alt="Cover" fill className="object-cover" />
                                 <Button
                                   type="button"
@@ -180,9 +180,9 @@ export const Blogs = () => {
                                 </Button>
                               </div>
                             ) : (
-                              <div className="flex items-center justify-center w-full h-40 border-2 border-dashed rounded-xl bg-muted/20">
+                              <div className="bg-muted/20 flex h-40 w-full items-center justify-center rounded-xl border-2 border-dashed">
                                 {uploadMutation.isPending ? (
-                                  <Loader2 className="animate-spin text-muted-foreground" />
+                                  <Loader2 className="text-muted-foreground animate-spin" />
                                 ) : (
                                   <ImageIcon className="text-muted-foreground opacity-50" size={40} />
                                 )}
@@ -215,10 +215,10 @@ export const Blogs = () => {
                         control={form.control}
                         name="isPublished"
                         render={({ field }) => (
-                          <FormItem className="flex items-center justify-between p-4 border rounded-xl shadow-sm bg-background">
+                          <FormItem className="bg-background flex items-center justify-between rounded-xl border p-4 shadow-sm">
                             <div>
                               <FormLabel className="text-base font-semibold">Опубликовать?</FormLabel>
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-muted-foreground text-xs">
                                 Статья будет видна в приложении и на сайте
                               </p>
                             </div>
@@ -232,9 +232,9 @@ export const Blogs = () => {
                   </div>
 
                   {/* ЯЗЫКОВЫЕ ТАБЫ */}
-                  <div className="border rounded-xl p-2 bg-muted/10">
+                  <div className="bg-muted/10 rounded-xl border p-2">
                     <Tabs value={activeLang} onValueChange={(val) => setActiveLang(val as any)} className="w-full">
-                      <TabsList className="grid w-full grid-cols-3 mb-6">
+                      <TabsList className="mb-6 grid w-full grid-cols-3">
                         <TabsTrigger value="ru">🇷🇺 Русский (Основной)</TabsTrigger>
                         <TabsTrigger value="uz">🇺🇿 O'zbekcha</TabsTrigger>
                         <TabsTrigger value="en">🇬🇧 English</TabsTrigger>
@@ -295,7 +295,7 @@ export const Blogs = () => {
                   </div>
 
                   <Button type="submit" className="shadow-glow btn-primary w-full" disabled={isSubmitting}>
-                    {isSubmitting && <Loader2 className="animate-spin mr-2" />}
+                    {isSubmitting && <Loader2 className="mr-2 animate-spin" />}
                     {selectedBlog ? "Сохранить изменения" : "Опубликовать статью"}
                   </Button>
                 </form>
@@ -307,50 +307,50 @@ export const Blogs = () => {
 
       {/* GRID VIEW */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-72 w-full rounded-xl" />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {blogs.map((blog: any) => (
             <Card
               key={blog.id}
-              className="component hover:border-emerald-500 transition-all flex flex-col group overflow-hidden"
+              className="component group flex flex-col overflow-hidden transition-all hover:border-emerald-500"
             >
-              <div className="h-48 bg-muted relative overflow-hidden flex items-center justify-center border-b">
+              <div className="bg-muted relative flex h-48 items-center justify-center overflow-hidden border-b">
                 {blog.coverImage ? (
                   <Image
                     src={formatDocUrl(blog.coverImage)}
                     alt="Cover"
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
                   <ImageIcon className="text-muted-foreground opacity-30" size={40} />
                 )}
                 <div className="absolute top-3 left-3 flex gap-2">
                   <span
-                    className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase shadow-sm ${blog.isPublished ? "bg-emerald-500 text-white" : "bg-yellow-500 text-white"}`}
+                    className={`rounded-md px-2 py-1 text-[10px] font-bold uppercase shadow-sm ${blog.isPublished ? "bg-emerald-500 text-white" : "bg-yellow-500 text-white"}`}
                   >
                     {blog.isPublished ? "Опубликовано" : "Черновик"}
                   </span>
                 </div>
               </div>
               <CardHeader className="p-4 pb-2">
-                <div className="flex justify-between items-center mb-1">
-                  <p className="text-xs text-muted-foreground">{formatDate(blog.createdAt)}</p>
-                  <div className="flex items-center text-xs text-muted-foreground gap-1 bg-muted px-2 py-1 rounded-full">
+                <div className="mb-1 flex items-center justify-between">
+                  <p className="text-muted-foreground text-xs">{formatDate(blog.createdAt)}</p>
+                  <div className="text-muted-foreground bg-muted flex items-center gap-1 rounded-full px-2 py-1 text-xs">
                     <Eye size={12} /> {blog.views || 0}
                   </div>
                 </div>
-                <CardTitle className="text-lg line-clamp-2 leading-tight">
+                <CardTitle className="line-clamp-2 text-lg leading-tight">
                   {blog.title?.ru || "Без заголовка"}
                 </CardTitle>
-                <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{blog.subtitle?.ru}</p>
+                <p className="text-muted-foreground mt-2 line-clamp-2 text-sm">{blog.subtitle?.ru}</p>
               </CardHeader>
-              <CardContent className="p-4 pt-0 mt-auto flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <CardContent className="mt-auto flex justify-end gap-2 p-4 pt-0 opacity-0 transition-opacity group-hover:opacity-100">
                 <Button variant="secondary" size="icon" onClick={() => openEdit(blog)}>
                   <Pencil size={16} />
                 </Button>
@@ -368,7 +368,7 @@ export const Blogs = () => {
             </Card>
           ))}
           {blogs.length === 0 && (
-            <div className="col-span-full py-20 text-center text-muted-foreground">
+            <div className="text-muted-foreground col-span-full py-20 text-center">
               Статей пока нет. Создайте первую!
             </div>
           )}

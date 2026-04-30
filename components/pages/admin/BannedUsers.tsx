@@ -40,7 +40,7 @@ const BannedCard = ({ user }: { user: any }) => {
             <p className="truncate font-medium">
               {user.firstName} {user.lastName}
             </p>
-            <p className="truncate text-xs text-muted-foreground">{user.phoneNumber}</p>
+            <p className="text-muted-foreground truncate text-xs">{user.phoneNumber}</p>
             <span className="pill-red mt-1">
               <ShieldAlert className="size-3" /> Заблокирован
             </span>
@@ -48,17 +48,17 @@ const BannedCard = ({ user }: { user: any }) => {
         </div>
         <div className="space-y-1.5 text-xs">
           <div className="flex items-start gap-1.5">
-            <Calendar className="mt-0.5 size-3.5 text-muted-foreground" />
+            <Calendar className="text-muted-foreground mt-0.5 size-3.5" />
             <span className="text-muted-foreground">До:</span>
             <span className="ml-auto font-medium">
               {user.banExpiresAt ? formatDate(user.banExpiresAt) : "Навсегда"}
             </span>
           </div>
           {user.banReason && (
-            <p className="rounded-md bg-muted/40 px-2 py-1 text-xs text-muted-foreground">{user.banReason}</p>
+            <p className="bg-muted/40 text-muted-foreground rounded-md px-2 py-1 text-xs">{user.banReason}</p>
           )}
           {user.bannedAt && (
-            <p className="text-[11px] text-muted-foreground">Забанен {formatRelativeTime(user.bannedAt)}</p>
+            <p className="text-muted-foreground text-[11px]">Забанен {formatRelativeTime(user.bannedAt)}</p>
           )}
         </div>
         <div className="flex gap-2">
@@ -68,7 +68,7 @@ const BannedCard = ({ user }: { user: any }) => {
               <ChevronRight className="size-3.5" />
             </Link>
           </Button>
-          <Button size="sm" disabled={isPending} onClick={() => unban(user.id)} className="flex-1 gap-1 btn-primary">
+          <Button size="sm" disabled={isPending} onClick={() => unban(user.id)} className="btn-primary flex-1 gap-1">
             {isPending ? "..." : "Разбанить"}
           </Button>
         </div>
@@ -126,7 +126,7 @@ export const BannedUsers = () => {
       )}
 
       {hasNextPage && (
-        <div ref={ref} className="py-4 text-center text-xs text-muted-foreground">
+        <div ref={ref} className="text-muted-foreground py-4 text-center text-xs">
           {isFetchingNextPage ? "Загрузка..." : "Прокрутите для загрузки"}
         </div>
       )}

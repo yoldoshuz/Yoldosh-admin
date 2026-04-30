@@ -36,7 +36,7 @@ export const StatsChart = ({
   const textColor = isDark ? "#a1a1aa" : "#64748b";
 
   return (
-    <Card className="flex flex-col h-full shadow-lg border-emerald-100/20 dark:border-emerald-900/20">
+    <Card className="flex h-full flex-col border-emerald-100/20 shadow-lg dark:border-emerald-900/20">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="space-y-1">
           <CardTitle className="text-base font-medium">{title}</CardTitle>
@@ -44,7 +44,7 @@ export const StatsChart = ({
           {subtext && <CardDescription>{subtext}</CardDescription>}
         </div>
         <Select value={range} onValueChange={onRangeChange}>
-          <SelectTrigger className="w-25 h-8 text-xs">
+          <SelectTrigger className="h-8 w-25 text-xs">
             <SelectValue placeholder="Period" />
           </SelectTrigger>
           <SelectContent>

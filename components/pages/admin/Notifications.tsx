@@ -77,10 +77,10 @@ export const Notifications = () => {
       <Toaster richColors />
       <h1 className="title-text mb-2">Уведомления</h1>
       <p className="text-sm text-gray-500">Отправка push-уведомлений пользователям.</p>
-      <div className="flex flex-col lg:flex-row items-start justify-between w-full gap-2 sm:gap-8 mt-4">
-        <div className="w-full h-full">
+      <div className="mt-4 flex w-full flex-col items-start justify-between gap-2 sm:gap-8 lg:flex-row">
+        <div className="h-full w-full">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="component space-y-6 p-6 rounded-lg border">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="component space-y-6 rounded-lg border p-6">
               <h1 className="text-xl font-bold">Создать уведомление</h1>
 
               {/* ✅ Added Title Field */}
@@ -105,7 +105,7 @@ export const Notifications = () => {
                   <FormItem>
                     <FormLabel>Содержание</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Текст уведомления..." className="min-h-[60px] component-dark" {...field} />
+                      <Textarea placeholder="Текст уведомления..." className="component-dark min-h-[60px]" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -160,7 +160,7 @@ export const Notifications = () => {
                 )}
               />
 
-              <Button type="submit" className="w-full btn-primary shadow-glow" disabled={isPending}>
+              <Button type="submit" className="btn-primary shadow-glow w-full" disabled={isPending}>
                 {isPending ? "Отправка..." : "Отправить"}
               </Button>
             </form>
@@ -168,14 +168,14 @@ export const Notifications = () => {
         </div>
 
         {/* Notification History Section */}
-        <div className="w-full component border rounded-lg p-6">
+        <div className="component w-full rounded-lg border p-6">
           <h1 className="text-xl font-bold">История уведомлений</h1>
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-2 my-4">
+          <div className="my-4 flex flex-col items-center justify-between gap-2 sm:flex-row">
             <div className="relative w-full">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
               <Input
                 placeholder="Поиск по заголовку или содержанию..."
-                className="pl-8 component-dark"
+                className="component-dark pl-8"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -183,7 +183,7 @@ export const Notifications = () => {
             <div className="flex items-center gap-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant={"outline"} className="component-dark ">
+                  <Button variant={"outline"} className="component-dark">
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {dateRange?.from ? (
                       dateRange.to ? (
@@ -225,7 +225,7 @@ export const Notifications = () => {
             </div>
           </div>
 
-          <ScrollArea className="flex-1 h-[62vh] w-full">
+          <ScrollArea className="h-[62vh] w-full flex-1">
             {isLoading ? (
               <div className="flex flex-col gap-2">
                 {Array.from({ length: 10 }).map((_, i) => (
@@ -236,28 +236,28 @@ export const Notifications = () => {
               <div className="flex flex-col gap-4">
                 {allNotifications.map((notif: any) => (
                   <div
-                    className="flex flex-col gap-4 component border hover:border-emerald-500 dark:hover:border-emerald-600 transition rounded-xl p-6"
+                    className="component flex flex-col gap-4 rounded-xl border p-6 transition hover:border-emerald-500 dark:hover:border-emerald-600"
                     key={notif.createdAt}
                   >
                     <div className="flex flex-row items-start justify-start gap-4">
-                      <div className="bg-linear-to-br from-emerald-400 to-teal-700 text-white rounded-xl p-2">
+                      <div className="rounded-xl bg-linear-to-br from-emerald-400 to-teal-700 p-2 text-white">
                         <Bell className="size-6" />
                       </div>
                       <div className="flex flex-col items-start justify-start gap-2">
                         {/* ✅ Display Title */}
-                        <span className="font-bold text-lg">{notif.title}</span>
-                        <span className="text-sm text-muted-foreground">{notif.message}</span>
+                        <span className="text-lg font-bold">{notif.title}</span>
+                        <span className="text-muted-foreground text-sm">{notif.message}</span>
 
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(notif.type)}`}>
+                        <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(notif.type)}`}>
                           {notif.type}
                         </span>
                         <div className="mt-1 text-sm">
                           <span
-                            className={`px-2 py-1 rounded-full text-xs mr-2 ${getStatusColor(notif.targetAudience)}`}
+                            className={`mr-2 rounded-full px-2 py-1 text-xs ${getStatusColor(notif.targetAudience)}`}
                           >
                             {notif.targetAudience}
                           </span>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-muted-foreground text-xs">
                             {Intl.NumberFormat().format(notif.receivedAmount)} получател
                             {notif.receivedAmount === 1
                               ? "ь"
@@ -273,7 +273,7 @@ export const Notifications = () => {
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center w-full mt-8">
+              <div className="mt-8 flex w-full items-center justify-center">
                 <span className="subtitle-text">Уведомлений пока нет.</span>
               </div>
             )}

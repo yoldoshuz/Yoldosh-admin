@@ -28,7 +28,7 @@ export const ThemeSwitcher = () => {
   };
 
   return (
-    <div className="flex flex-row gap-2 items-center justify-center h-4">
+    <div className="flex h-4 flex-row items-center justify-center gap-2">
       <Switch checked={currentTheme === "dark"} onCheckedChange={handleThemeChange} aria-label="Theme switcher" />
     </div>
   );

@@ -51,10 +51,10 @@ export const Login = () => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col space-y-4 w-96 component-dark-2 border rounded-xl shadow-2xl p-6 mx-2"
+          className="component-dark-2 mx-2 flex w-96 flex-col space-y-4 rounded-xl border p-6 shadow-2xl"
         >
           <div className="text-center">
-            <h1 className="font-semibold text-2xl">Yoldosh Admin</h1>
+            <h1 className="text-2xl font-semibold">Yoldosh Admin</h1>
           </div>
 
           <Separator orientation="horizontal" />
@@ -87,11 +87,11 @@ export const Login = () => {
             )}
           />
 
-          <Button type="submit" className="w-full text-white btn-primary shadow-glow" disabled={isPending}>
+          <Button type="submit" className="btn-primary shadow-glow w-full text-white" disabled={isPending}>
             {isPending ? "Вход..." : "Войти"}
           </Button>
 
-          <div className="text-center text-xs text-muted-foreground pt-2">
+          <div className="text-muted-foreground pt-2 text-center text-xs">
             Доступ разрешен только авторизованным пользователям.
           </div>
         </form>

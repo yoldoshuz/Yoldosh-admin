@@ -20,13 +20,13 @@ export const TripDetails = ({ tripId }: { tripId: string }) => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
       </div>
     );
   }
 
   if (isError || !data?.trip) {
-    return <div className="text-center text-muted-foreground py-12">Не удалось загрузить данные о поездке</div>;
+    return <div className="text-muted-foreground py-12 text-center">Не удалось загрузить данные о поездке</div>;
   }
 
   const trip = data.trip;
@@ -43,7 +43,7 @@ export const TripDetails = ({ tripId }: { tripId: string }) => {
 
   return (
     <div className="space-y-4 p-6">
-      <Link href="/admin/trips" className="flex items-center gap-2 w-full text-emerald-500 hover:underline">
+      <Link href="/admin/trips" className="flex w-full items-center gap-2 text-emerald-500 hover:underline">
         <ChevronLeft className="size-5" />
         <span>Назад к поездкам</span>
       </Link>
@@ -83,7 +83,7 @@ export const TripDetails = ({ tripId }: { tripId: string }) => {
           </p>
           <p>
             <span className="text-muted-foreground">Статус:</span>{" "}
-            <span className={`${getStatusColor(trip.status)} py-1 px-1.5  rounded-full`}>{trip.status}</span>
+            <span className={`${getStatusColor(trip.status)} rounded-full px-1.5 py-1`}>{trip.status}</span>
           </p>
           <p>
             <span className="text-muted-foreground">Дата отправления:</span> {formatDate(trip.departure_ts)}
@@ -197,7 +197,7 @@ export const TripDetails = ({ tripId }: { tripId: string }) => {
                   <Image
                     src={formatDocUrl(car.techPassportBackPath)}
                     alt="Document Front"
-                    className="rounded-lg w-full max-h-[80vh] object-contain"
+                    className="max-h-[80vh] w-full rounded-lg object-contain"
                     width={2048}
                     height={2048}
                   />
@@ -215,7 +215,7 @@ export const TripDetails = ({ tripId }: { tripId: string }) => {
                   <Image
                     src={formatDocUrl(car.techPassportFrontPath)}
                     alt="Document Back"
-                    className="rounded-lg w-full max-h-[80vh] object-contain"
+                    className="max-h-[80vh] w-full rounded-lg object-contain"
                     width={2048}
                     height={2048}
                   />
@@ -261,7 +261,7 @@ export const TripDetails = ({ tripId }: { tripId: string }) => {
         <CardContent className="grid-2 text-sm">
           {trip.bookings?.length ? (
             trip.bookings.map((b: any, i: number) => (
-              <div key={i} className="component-dark border rounded-2xl p-6 space-y-1">
+              <div key={i} className="component-dark space-y-1 rounded-2xl border p-6">
                 <p>
                   <span className="text-muted-foreground">ID:</span> {b.passenger.id}
                 </p>
@@ -280,7 +280,7 @@ export const TripDetails = ({ tripId }: { tripId: string }) => {
                 </p>
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground">Статус:</span>
-                  <div className={`${getStatusColor(b.status)} py-1 px-1.5  rounded-full`}>{b.status}</div>
+                  <div className={`${getStatusColor(b.status)} rounded-full px-1.5 py-1`}>{b.status}</div>
                 </div>
                 {b.status !== "CANCELLED" && (
                   <Button

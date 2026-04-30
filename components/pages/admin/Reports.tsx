@@ -73,13 +73,13 @@ const ReportsTable = ({ status }: { status: "PENDING" | "RESOLVED" | "REJECTED" 
 
   return (
     <Dialog onOpenChange={(isOpen) => !isOpen && setSelectedReport(null)}>
-      <div className="flex flex-col component border rounded-2xl mt-1 px-6 py-4">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-2 my-4">
+      <div className="component mt-1 flex flex-col rounded-2xl border px-6 py-4">
+        <div className="my-4 flex flex-col items-center justify-between gap-2 sm:flex-row">
           <div className="relative flex w-full">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
             <Input
               placeholder="Поиск по ID, причине, имени..."
-              className="pl-8 w-full component-dark"
+              className="component-dark w-full pl-8"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -141,40 +141,40 @@ const ReportsTable = ({ status }: { status: "PENDING" | "RESOLVED" | "REJECTED" 
               <React.Fragment key={i}>
                 {page.reports.map((report: Report, j: number) => (
                   <div
-                    className="flex flex-col gap-4 component border hover:border-emerald-500 dark:hover:border-emerald-600 transition rounded-xl p-6"
+                    className="component flex flex-col gap-4 rounded-xl border p-6 transition hover:border-emerald-500 dark:hover:border-emerald-600"
                     key={report.id}
                   >
-                    <div className="flex flex-col sm:flex-row items-center gap-4">
-                      <span className="font-bold text-lg">#{report.id.substring(0, 6)}</span>
-                      <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${getStatusColor(report.status)}`}>
+                    <div className="flex flex-col items-center gap-4 sm:flex-row">
+                      <span className="text-lg font-bold">#{report.id.substring(0, 6)}</span>
+                      <span className={`rounded-full px-3 py-1.5 text-xs font-medium ${getStatusColor(report.status)}`}>
                         {report.status}
                       </span>
-                      <time className="text-sm text-muted-foreground">{formatDate(report.createdAt)}</time>
+                      <time className="text-muted-foreground text-sm">{formatDate(report.createdAt)}</time>
                     </div>
-                    <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-4">
+                    <div className="flex w-full flex-col items-center justify-between gap-4 sm:flex-row">
                       <div className="flex flex-col space-y-4 text-sm">
                         <Link
                           href={`/admin/users-search/`} //${report.reportingUser.id}
-                          className="flex flex-col link-text"
+                          className="link-text flex flex-col"
                         >
                           <span className="text-muted-foreground">От:</span>
                           <span className="font-semibold">{report.reportingUser?.firstName || "N/A"}</span>
                         </Link>
                         <Link
                           href={`/admin/users-search/`} // ${report.reportedUser.id}
-                          className="flex flex-col link-text"
+                          className="link-text flex flex-col"
                         >
                           <span className="text-muted-foreground">На:</span>
                           <span className="font-semibold">{report.reportedUser?.firstName || "N/A"}</span>
                         </Link>
                         <div className="flex flex-col">
-                          <span className="text-muted-foreground truncate max-w-xs">Причина:</span>
+                          <span className="text-muted-foreground max-w-xs truncate">Причина:</span>
                           <span className="font-semibold">{report.reason}</span>
                         </div>
                       </div>
-                      <div className="flex items-end text-right h-full">
+                      <div className="flex h-full items-end text-right">
                         {report.status === "PENDING" && (
-                          <div className="flex flex-col sm:flex-row items-center gap-2">
+                          <div className="flex flex-col items-center gap-2 sm:flex-row">
                             <Button
                               type="button"
                               variant="destructive"
@@ -214,7 +214,7 @@ const ReportsTable = ({ status }: { status: "PENDING" | "RESOLVED" | "REJECTED" 
             ))}
           </div>
         ) : (
-          <div className="flex items-center justify-center w-full mt-8">
+          <div className="mt-8 flex w-full items-center justify-center">
             <span className="subtitle-text">Жалобы не найдены.</span>
           </div>
         )}
@@ -233,7 +233,7 @@ const ReportsTable = ({ status }: { status: "PENDING" | "RESOLVED" | "REJECTED" 
           <DialogHeader>
             <DialogTitle>Рассмотрение жалобы #{selectedReport.id.substring(0, 8)}</DialogTitle>
           </DialogHeader>
-          <div className="py-4 space-y-4">
+          <div className="space-y-4 py-4">
             {/* <p><strong>От:</strong> {selectedReport.reportingUser.firstName}</p>
                         <p><strong>На:</strong> {selectedReport.reportedUser.firstName}</p> */}
             <p>
@@ -241,7 +241,7 @@ const ReportsTable = ({ status }: { status: "PENDING" | "RESOLVED" | "REJECTED" 
             </p>
             {selectedReport.status === "PENDING" && (
               <div className="pt-4">
-                <h3 className="font-semibold mb-2">Действия по жалобе</h3>
+                <h3 className="mb-2 font-semibold">Действия по жалобе</h3>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onBanSubmit)} className="space-y-4">
                     <FormField
@@ -299,15 +299,15 @@ export const Reports = () => {
       <Toaster richColors />
       <h1 className="title-text">Жалобы</h1>
       <p className="subtitle-text">Управление жалобами пользователей</p>
-      <Tabs defaultValue="PENDING" className="w-full mt-4">
-        <TabsList className="w-64 sm:w-96 px-1">
-          <TabsTrigger value="PENDING" className="w-4 text-xs sm:text-md">
+      <Tabs defaultValue="PENDING" className="mt-4 w-full">
+        <TabsList className="w-64 px-1 sm:w-96">
+          <TabsTrigger value="PENDING" className="sm:text-md w-4 text-xs">
             В ожидании
           </TabsTrigger>
-          <TabsTrigger value="RESOLVED" className="w-4 text-xs sm:text-md">
+          <TabsTrigger value="RESOLVED" className="sm:text-md w-4 text-xs">
             Решенные
           </TabsTrigger>
-          <TabsTrigger value="REJECTED" className="w-4 text-xs sm:text-md">
+          <TabsTrigger value="REJECTED" className="sm:text-md w-4 text-xs">
             Отклоненные
           </TabsTrigger>
         </TabsList>

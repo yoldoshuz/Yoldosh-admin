@@ -75,7 +75,7 @@ export const ActiveTripsStats = () => {
       </StatsSection>
 
       {dataUpdatedAt && (
-        <p className="text-[11px] text-muted-foreground text-right">
+        <p className="text-muted-foreground text-right text-[11px]">
           Обновлено: {new Date(dataUpdatedAt).toLocaleTimeString("ru-RU")}
         </p>
       )}

@@ -2,6 +2,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { stripEmpty } from "@/hooks/_factory";
 import api from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 import { createAdminSchema } from "@/lib/schemas";
@@ -221,5 +222,81 @@ export const useGetSuperAdminReports = (filters: any) => {
     getNextPageParam: (lastPage: any) =>
       lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined,
     initialPageParam: 1,
+  });
+};
+
+// =============================================================
+// Bookings — super-admin (mirrors /admin/bookings without permission gate)
+// =============================================================
+type SuperAdminBookingsFilters = {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: "ASC" | "DESC";
+  search?: string;
+  status?: "PENDING" | "CONFIRMED" | "CANCELLED" | "FAILED";
+  tripId?: string;
+  passengerId?: string;
+  driverId?: string;
+  fromCity?: string;
+  toCity?: string;
+  dateField?: "createdAt" | "departure_ts";
+  range?: string;
+  from?: string;
+  to?: string;
+};
+
+export const useGetSuperAdminBookings = (filters: SuperAdminBookingsFilters = {}) => {
+  return useInfiniteQuery({
+    queryKey: queryKeys.superAdmin.bookings(filters),
+    queryFn: async ({ pageParam = 1 }) => {
+      const { data } = await api.get("/super-admin/bookings", {
+        params: { ...stripEmpty(filters), page: pageParam, limit: filters.limit ?? 20 },
+      });
+      return data.data;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage: any) =>
+      lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined,
+  });
+};
+
+export const useGetSuperAdminBookingDetails = (bookingId: string) => {
+  return useQuery({
+    queryKey: queryKeys.superAdmin.bookingDetails(bookingId),
+    queryFn: async () => {
+      const { data } = await api.get(`/super-admin/bookings/${bookingId}`);
+      return data.data;
+    },
+    enabled: !!bookingId,
+  });
+};
+
+// =============================================================
+// Searches — aggregated search routes (super-admin only)
+// =============================================================
+type SearchesFilters = {
+  page?: number;
+  limit?: number;
+  sortBy?: "count" | "last_searched_at";
+  sortOrder?: "ASC" | "DESC";
+  search?: string;
+  range?: string;
+  from?: string;
+  to?: string;
+};
+
+export const useGetSuperAdminSearches = (filters: SearchesFilters = {}) => {
+  return useInfiniteQuery({
+    queryKey: queryKeys.superAdmin.searches(filters),
+    queryFn: async ({ pageParam = 1 }) => {
+      const { data } = await api.get("/super-admin/searches", {
+        params: { ...stripEmpty(filters), page: pageParam, limit: filters.limit ?? 20 },
+      });
+      return data.data;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage: any) =>
+      lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined,
   });
 };

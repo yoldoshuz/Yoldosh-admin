@@ -44,7 +44,7 @@ export const AdminsStats = () => {
 
         <StatsSection title="Действий по категории" className="lg:col-span-2">
           {byCategory.length === 0 && !isLoading ? (
-            <p className="text-sm text-muted-foreground">Нет данных</p>
+            <p className="text-muted-foreground text-sm">Нет данных</p>
           ) : (
             <ul className="space-y-1.5">
               {byCategory.map((c: any) => {
@@ -52,13 +52,13 @@ export const AdminsStats = () => {
                 return (
                   <li
                     key={c.category}
-                    className="flex items-center justify-between rounded-lg border bg-card px-3 py-1.5 text-sm"
+                    className="bg-card flex items-center justify-between rounded-lg border px-3 py-1.5 text-sm"
                   >
                     <span className="flex items-center gap-2">
                       <span className={`size-2 rounded-full ${meta.dot}`} />
                       {meta.label}
                     </span>
-                    <span className="tabular-nums text-muted-foreground">{c.count}</span>
+                    <span className="text-muted-foreground tabular-nums">{c.count}</span>
                   </li>
                 );
               })}
@@ -75,24 +75,24 @@ export const AdminsStats = () => {
 
       <StatsSection title="Топ-20 активных админов">
         {topAdmins.length === 0 && !isLoading ? (
-          <p className="text-sm text-muted-foreground">Нет данных</p>
+          <p className="text-muted-foreground text-sm">Нет данных</p>
         ) : (
-          <ul className="divide-y rounded-xl border bg-card overflow-hidden">
+          <ul className="bg-card divide-y overflow-hidden rounded-xl border">
             {topAdmins.map((a: any) => {
               const fullName = `${a.firstName ?? ""} ${a.lastName ?? ""}`.trim() || a.email || a.id?.slice(0, 8) || "—";
               return (
                 <li key={a.id} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
                   <div className="min-w-0 flex-1">
                     {a.id ? (
-                      <Link href={`/super-admin/admins/${a.id}`} className="link-text font-medium truncate">
+                      <Link href={`/super-admin/admins/${a.id}`} className="link-text truncate font-medium">
                         {fullName}
                       </Link>
                     ) : (
-                      <span className="font-medium truncate">{fullName}</span>
+                      <span className="truncate font-medium">{fullName}</span>
                     )}
-                    {a.email && <p className="truncate text-xs text-muted-foreground">{a.email}</p>}
+                    {a.email && <p className="text-muted-foreground truncate text-xs">{a.email}</p>}
                   </div>
-                  <div className="flex shrink-0 items-center gap-3 text-xs text-muted-foreground">
+                  <div className="text-muted-foreground flex shrink-0 items-center gap-3 text-xs">
                     <span className="pill-slate">{a.role ?? "—"}</span>
                     <span className="tabular-nums">{Number(a.actions_count ?? a.actionsCount ?? 0)} действий</span>
                     {a.last_action_at && <span>{formatRelativeTime(a.last_action_at)}</span>}
@@ -106,33 +106,33 @@ export const AdminsStats = () => {
 
       <StatsSection title="Последние логины">
         {recentLogins.length === 0 && !isLoading ? (
-          <p className="text-sm text-muted-foreground">Нет данных</p>
+          <p className="text-muted-foreground text-sm">Нет данных</p>
         ) : (
-          <ul className="divide-y rounded-xl border bg-card overflow-hidden text-sm">
+          <ul className="bg-card divide-y overflow-hidden rounded-xl border text-sm">
             {recentLogins.map((l: any, i: number) => (
               <li
                 key={`${l.admin_id ?? "x"}-${l.timestamp ?? i}-${i}`}
                 className="grid grid-cols-12 items-center gap-3 px-3 py-2"
               >
-                <div className="col-span-12 sm:col-span-3 min-w-0">
+                <div className="col-span-12 min-w-0 sm:col-span-3">
                   {l.admin_id ? (
-                    <Link href={`/super-admin/admins/${l.admin_id}`} className="link-text font-medium truncate">
+                    <Link href={`/super-admin/admins/${l.admin_id}`} className="link-text truncate font-medium">
                       {l.admin_name ?? "—"}
                     </Link>
                   ) : (
-                    <span className="font-medium truncate">{l.admin_name ?? "—"}</span>
+                    <span className="truncate font-medium">{l.admin_name ?? "—"}</span>
                   )}
                 </div>
-                <span className="col-span-6 sm:col-span-2 font-mono text-xs text-muted-foreground truncate">
+                <span className="text-muted-foreground col-span-6 truncate font-mono text-xs sm:col-span-2">
                   {l.ip_address ?? l.ipAddress ?? "—"}
                 </span>
                 <span
-                  className="col-span-6 sm:col-span-4 truncate text-xs text-muted-foreground"
+                  className="text-muted-foreground col-span-6 truncate text-xs sm:col-span-4"
                   title={l.user_agent ?? l.userAgent ?? ""}
                 >
                   {shortUserAgent(l.user_agent ?? l.userAgent)}
                 </span>
-                <span className="col-span-12 sm:col-span-3 text-right text-xs text-muted-foreground">
+                <span className="text-muted-foreground col-span-12 text-right text-xs sm:col-span-3">
                   {l.timestamp ? formatDate(l.timestamp) : "—"}
                 </span>
               </li>

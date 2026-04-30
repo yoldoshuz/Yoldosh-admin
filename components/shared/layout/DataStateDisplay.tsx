@@ -47,7 +47,7 @@ export const DataStateDisplay = ({
   // 2. Error State
   if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 text-center space-y-4 min-h-[300px]">
+      <div className="flex min-h-[300px] flex-col items-center justify-center space-y-4 p-8 text-center">
         <Alert variant="destructive" className="max-w-md">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Ошибка сервера</AlertTitle>
@@ -65,12 +65,12 @@ export const DataStateDisplay = ({
   // 3. Empty State
   if (isEmpty) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center border-2 border-dashed rounded-xl min-h-[300px] bg-muted/20">
-        <div className="p-4 rounded-full bg-muted mb-4">
-          <FileSearch className="h-8 w-8 text-muted-foreground" />
+      <div className="bg-muted/20 flex min-h-[300px] flex-col items-center justify-center rounded-xl border-2 border-dashed p-12 text-center">
+        <div className="bg-muted mb-4 rounded-full p-4">
+          <FileSearch className="text-muted-foreground h-8 w-8" />
         </div>
         <h3 className="text-lg font-semibold">{emptyMessage}</h3>
-        <p className="text-sm text-muted-foreground max-w-sm mt-1">
+        <p className="text-muted-foreground mt-1 max-w-sm text-sm">
           По вашему запросу ничего не найдено. Попробуйте изменить фильтры или зайдите позже.
         </p>
       </div>

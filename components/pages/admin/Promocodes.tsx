@@ -62,15 +62,15 @@ export const Promocodes = () => {
   return (
     <div>
       <Toaster richColors />
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
+      <div className="mb-6 flex flex-col items-center justify-between sm:flex-row">
         <div className="mb-4 sm:mb-0">
           <h1 className="title-text">Промокоды</h1>
           <p className="subtitle-text">Управление промокодами и скидками</p>
         </div>
-        <div className="flex flex-col sm:flex-row  gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <Dialog open={isPersonalDialogOpen} onOpenChange={setIsPersonalDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-gray-200 dark:bg-gray-800 text-black dark:text-white cursor-pointer">
+              <Button className="cursor-pointer bg-gray-200 text-black dark:bg-gray-800 dark:text-white">
                 <UserCheck />
                 Персональный промокод
               </Button>
@@ -231,7 +231,7 @@ export const Promocodes = () => {
       </div>
 
       <Tabs defaultValue="global" className="w-full">
-        <TabsList className="flex items-center justify-center w-64 sm:w-96 px-1">
+        <TabsList className="flex w-64 items-center justify-center px-1 sm:w-96">
           <TabsTrigger value="global">Глобальные</TabsTrigger>
           <TabsTrigger value="personal">Персональные</TabsTrigger>
         </TabsList>

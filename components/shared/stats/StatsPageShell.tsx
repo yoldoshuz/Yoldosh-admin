@@ -24,8 +24,9 @@ export const StatsHeader = ({
   </div>
 );
 
-export const rangeToParams = (range: DateRangeValue) => ({
-  range: range.preset === "custom" ? ("custom" as const) : range.preset,
-  from: range.from,
-  to: range.to,
-});
+export const rangeToParams = (range: DateRangeValue) => {
+  if (range.preset === "custom" && range.from && range.to) {
+    return { range: "custom" as const, from: range.from, to: range.to };
+  }
+  return { range: range.preset };
+};

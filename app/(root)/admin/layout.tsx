@@ -12,7 +12,7 @@ export default function RootLayout({
     <AuthGuard requiredRole="Admin">
       <SidebarProvider>
         <AdminSidebar />
-        <div className="flex-1 flex flex-col">
+        <div className="flex flex-1 flex-col">
           <Navbar />
           <main className="flex-1">{children}</main>
         </div>

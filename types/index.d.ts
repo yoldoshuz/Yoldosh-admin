@@ -1,10 +1,40 @@
 // ============= Shared =============
-export type DateRangePreset = "day" | "week" | "month" | "year" | "custom";
+export type DateRangePreset = "today" | "yesterday" | "week" | "month" | "quarter" | "year" | "custom" | "day";
 
 export type RangeQuery = {
   range?: DateRangePreset;
   from?: string; // ISO
   to?: string; // ISO
+};
+
+export type RegistrationSourceValue = "user" | "from_bot" | "reg_bot";
+
+// API segmentation aliases — backend renames raw enum values:
+// user → self · from_bot → botImported · reg_bot → regBot
+export type RegistrationSourceAlias = "self" | "botImported" | "regBot";
+
+export type SourceSegmentation = {
+  byRole: { drivers: number; passengers: number };
+  bySource: Record<RegistrationSourceAlias, number>;
+  byRoleAndSource: {
+    drivers: Record<RegistrationSourceAlias, number>;
+    passengers: Record<RegistrationSourceAlias, number>;
+  };
+};
+
+export type DauMauBlock = {
+  windowStart: string;
+  total: number;
+  byRole: { drivers: number; passengers: number };
+  bySource: Record<RegistrationSourceAlias, number>;
+};
+
+export type DauMau = {
+  now: string;
+  dau: DauMauBlock;
+  mau: DauMauBlock;
+  stickiness: number; // DAU/MAU
+  totals: SourceSegmentation;
 };
 
 export type GraphPoint = {
@@ -66,14 +96,62 @@ export type User = {
   avatar: string | null;
   role: "Passenger" | "Driver";
   isBanned: boolean;
+  registration_source?: RegistrationSourceValue;
+  rating?: number;
 };
 
 export type AdminPermissions = Partial<
   Record<
-    "driver_applications" | "reports" | "trips" | "notifications" | "promocodes" | "moderation" | "blogs" | "users",
+    | "driver_applications"
+    | "reports"
+    | "trips"
+    | "bookings"
+    | "notifications"
+    | "promocodes"
+    | "moderation"
+    | "blogs"
+    | "users",
     boolean
   >
 >;
+
+// ============= Booking =============
+export type BookingStatusValue = "PENDING" | "CONFIRMED" | "CANCELLED" | "FAILED";
+
+export type Booking = {
+  id: string;
+  tripId: string;
+  passengerId: string;
+  from_city: string;
+  to_city: string;
+  from_address: string;
+  to_address: string;
+  seatsBooked: number;
+  totalPrice: string | number;
+  status: BookingStatusValue;
+  cancellationReason: string | null;
+  createdAt: string;
+  updatedAt: string;
+  passenger?: User;
+  trip?: Trip & {
+    driver_id?: string;
+    arrival_ts?: string;
+    price_per_person?: number | string;
+    status?: string;
+    driver?: User;
+  };
+};
+
+// ============= Search aggregate row =============
+export type SearchRow = {
+  from_city: string;
+  to_city: string;
+  count: number;
+  unique_users: number;
+  unique_guests: number;
+  last_searched_at: string;
+  active_trips: number;
+};
 
 export type Admin = {
   id: string;
@@ -110,6 +188,9 @@ export type StatsOverview = {
     newDriversInRange: number;
     graph: GraphPoint[];
     driversGraph: GraphPoint[];
+    bySource?: SourceSegmentation;
+    newBySource?: SourceSegmentation;
+    dauMau?: DauMau;
   };
   trips: {
     total: number;

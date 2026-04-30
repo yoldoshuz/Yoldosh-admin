@@ -62,15 +62,15 @@ export const OverviewChart = ({
   return (
     <Card className="stats-card">
       <CardHeader className="space-y-1 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+        <CardTitle className="text-muted-foreground text-sm font-medium">{title}</CardTitle>
         {total !== undefined && (
           <div className="text-2xl font-semibold tracking-tight tabular-nums">
             {typeof total === "number" ? formatCompactNumber(total) : total}
-            {totalSuffix && <span className="ml-1 text-sm font-normal text-muted-foreground">{totalSuffix}</span>}
+            {totalSuffix && <span className="text-muted-foreground ml-1 text-sm font-normal">{totalSuffix}</span>}
           </div>
         )}
       </CardHeader>
-      <CardContent className="pb-4 pt-0">
+      <CardContent className="pt-0 pb-4">
         {loading ? (
           <Skeleton className="w-full" style={{ height }} />
         ) : (

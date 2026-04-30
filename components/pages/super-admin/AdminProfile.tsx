@@ -66,12 +66,12 @@ const SessionCard = ({ session }: { session: AdminSession }) => {
         <span
           className={cn(
             "size-3 shrink-0 rounded-full ring-4",
-            isOpen ? "bg-emerald-500 ring-emerald-500/20 animate-pulse" : "bg-slate-400 ring-slate-300/30"
+            isOpen ? "animate-pulse bg-emerald-500 ring-emerald-500/20" : "bg-slate-400 ring-slate-300/30"
           )}
         />
-        <span className="mt-1 h-full w-px bg-border" />
+        <span className="bg-border mt-1 h-full w-px" />
       </div>
-      <div className="-mt-1 min-w-0 flex-1 rounded-xl border bg-muted/30 px-4 py-3">
+      <div className="bg-muted/30 -mt-1 min-w-0 flex-1 rounded-xl border px-4 py-3">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="space-y-0.5">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium">
@@ -87,15 +87,15 @@ const SessionCard = ({ session }: { session: AdminSession }) => {
                 <span className="pill-emerald ml-1">активна или прервана</span>
               )}
             </div>
-            <p className="text-xs text-muted-foreground">Длительность: {formatDuration(session.durationMinutes)}</p>
+            <p className="text-muted-foreground text-xs">Длительность: {formatDuration(session.durationMinutes)}</p>
           </div>
         </div>
         <div className="mt-3 grid gap-1.5 text-xs sm:grid-cols-2">
-          <div className="flex items-center gap-1.5 text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-1.5">
             <Globe className="size-3.5 shrink-0" />
-            <span className="font-mono truncate">{session.ipAddress ?? "—"}</span>
+            <span className="truncate font-mono">{session.ipAddress ?? "—"}</span>
           </div>
-          <div className="flex items-center gap-1.5 text-muted-foreground" title={session.userAgent ?? ""}>
+          <div className="text-muted-foreground flex items-center gap-1.5" title={session.userAgent ?? ""}>
             <Monitor className="size-3.5 shrink-0" />
             <span className="truncate">{shortUserAgent(session.userAgent)}</span>
           </div>
@@ -123,11 +123,11 @@ const DonutChart = ({ data }: { data: { category: string; count: number }[] }) =
   ];
   const total = data.reduce((s, x) => s + x.count, 0);
   if (!data.length || !total) {
-    return <p className="text-sm text-muted-foreground">Нет данных</p>;
+    return <p className="text-muted-foreground text-sm">Нет данных</p>;
   }
   const enriched = data.map((d, i) => ({ ...d, fill: palette[i % palette.length] }));
   return (
-    <div className="grid gap-3 sm:grid-cols-[180px_1fr] items-center">
+    <div className="grid items-center gap-3 sm:grid-cols-[180px_1fr]">
       <div className="relative">
         <ResponsiveContainer width="100%" height={180}>
           <PieChart>
@@ -147,7 +147,7 @@ const DonutChart = ({ data }: { data: { category: string; count: number }[] }) =
           </PieChart>
         </ResponsiveContainer>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span className="text-xs text-muted-foreground">Всего</span>
+          <span className="text-muted-foreground text-xs">Всего</span>
           <span className="text-xl font-semibold tabular-nums">{total}</span>
         </div>
       </div>
@@ -161,7 +161,7 @@ const DonutChart = ({ data }: { data: { category: string; count: number }[] }) =
                 <span className="size-2.5 rounded-sm" style={{ backgroundColor: d.fill }} />
                 <span className="truncate">{meta.label}</span>
               </span>
-              <span className="text-xs tabular-nums text-muted-foreground">
+              <span className="text-muted-foreground text-xs tabular-nums">
                 {d.count} <span className="opacity-60">({pct}%)</span>
               </span>
             </li>
@@ -174,7 +174,7 @@ const DonutChart = ({ data }: { data: { category: string; count: number }[] }) =
 
 // ===== Top actions bar list =====
 const TopActions = ({ data }: { data: { action: string; count: number }[] }) => {
-  if (!data.length) return <p className="text-sm text-muted-foreground">Нет данных</p>;
+  if (!data.length) return <p className="text-muted-foreground text-sm">Нет данных</p>;
   const max = Math.max(...data.map((d) => d.count));
   return (
     <ul className="space-y-2">
@@ -182,9 +182,9 @@ const TopActions = ({ data }: { data: { action: string; count: number }[] }) => 
         <li key={i} className="space-y-1">
           <div className="flex justify-between text-xs">
             <span className="truncate">{d.action}</span>
-            <span className="tabular-nums text-muted-foreground">{d.count}</span>
+            <span className="text-muted-foreground tabular-nums">{d.count}</span>
           </div>
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+          <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
             <div
               className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500"
               style={{ width: `${(d.count / max) * 100}%` }}
@@ -229,8 +229,8 @@ const PermissionsDialog = ({
         </DialogHeader>
         <div className="space-y-3 py-2">
           {Object.values(AdminPermission).map((p) => (
-            <div key={p} className="flex items-center justify-between rounded-lg border bg-card px-3 py-2">
-              <Label htmlFor={p} className="cursor-pointer flex-1">
+            <div key={p} className="bg-card flex items-center justify-between rounded-lg border px-3 py-2">
+              <Label htmlFor={p} className="flex-1 cursor-pointer">
                 {adminPermissionLabels[p as AdminPermissionKey]}
               </Label>
               <Switch
@@ -279,7 +279,7 @@ const ConfirmDeleteDialog = ({
           <DialogTitle>Удалить администратора?</DialogTitle>
           <DialogDescription>Действие необратимо. Все логи этого админа будут также удалены.</DialogDescription>
         </DialogHeader>
-        <div className="rounded-lg border bg-muted/50 px-3 py-2 text-sm">
+        <div className="bg-muted/50 rounded-lg border px-3 py-2 text-sm">
           {admin.firstName} {admin.lastName} · <span className="text-muted-foreground">{admin.email}</span>
         </div>
         <DialogFooter>
@@ -331,12 +331,12 @@ const AdminActionsTab = ({ adminId }: { adminId: string }) => {
             setActive(log);
             setOpen(true);
           }}
-          className="flex w-full items-start gap-3 rounded-xl border bg-card p-3 text-left hover:border-emerald-500/40 hover:bg-muted/40 transition"
+          className="bg-card hover:bg-muted/40 flex w-full items-start gap-3 rounded-xl border p-3 text-left transition hover:border-emerald-500/40"
         >
           <CategoryBadge category={log.category} />
           <div className="min-w-0 flex-1 space-y-0.5">
-            <p className="font-medium truncate">{log.action}</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="truncate font-medium">{log.action}</p>
+            <p className="text-muted-foreground text-xs">
               {formatRelativeTime(log.timestamp)}
               {log.relatedEntityType && (
                 <>
@@ -349,7 +349,7 @@ const AdminActionsTab = ({ adminId }: { adminId: string }) => {
         </button>
       ))}
       {hasNextPage && (
-        <div ref={ref} className="py-3 text-center text-xs text-muted-foreground">
+        <div ref={ref} className="text-muted-foreground py-3 text-center text-xs">
           {isFetchingNextPage ? "Загрузка..." : "Прокрутите для загрузки"}
         </div>
       )}
@@ -383,7 +383,7 @@ export const AdminProfile = ({ adminId }: { adminId: string }) => {
     return (
       <div className="space-y-6">
         <Skeleton className="h-32 w-full rounded-xl" />
-        <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-24 rounded-xl" />
           ))}
@@ -404,13 +404,13 @@ export const AdminProfile = ({ adminId }: { adminId: string }) => {
       {/* Back link */}
       <Link
         href="/super-admin/admins"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+        className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-sm"
       >
         <ArrowLeft className="size-4" />К списку админов
       </Link>
 
       {/* Header */}
-      <div className="flex flex-col gap-4 rounded-2xl border bg-card p-6 sm:flex-row sm:items-start sm:justify-between">
+      <div className="bg-card flex flex-col gap-4 rounded-2xl border p-6 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-4">
           <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-2xl font-semibold text-white shadow-md">
             {initials(a.firstName, a.lastName)}
@@ -422,11 +422,11 @@ export const AdminProfile = ({ adminId }: { adminId: string }) => {
               </h2>
               <span className={cn("pill", isSuper ? "pill-violet" : "pill-emerald")}>{a.role}</span>
             </div>
-            <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <p className="text-muted-foreground flex items-center gap-1.5 text-sm">
               <Mail className="size-3.5" />
               {a.email}
             </p>
-            {a.createdAt && <p className="text-xs text-muted-foreground">Создан: {formatDate(a.createdAt)}</p>}
+            {a.createdAt && <p className="text-muted-foreground text-xs">Создан: {formatDate(a.createdAt)}</p>}
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -460,12 +460,12 @@ export const AdminProfile = ({ adminId }: { adminId: string }) => {
 
       {/* Charts */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border bg-card p-5">
-          <h3 className="text-sm font-semibold mb-3">Распределение действий</h3>
+        <div className="bg-card rounded-2xl border p-5">
+          <h3 className="mb-3 text-sm font-semibold">Распределение действий</h3>
           <DonutChart data={profile.stats.byCategory} />
         </div>
-        <div className="rounded-2xl border bg-card p-5">
-          <h3 className="text-sm font-semibold mb-3">Топ действий</h3>
+        <div className="bg-card rounded-2xl border p-5">
+          <h3 className="mb-3 text-sm font-semibold">Топ действий</h3>
           <TopActions data={profile.stats.byAction} />
         </div>
       </div>
@@ -481,18 +481,18 @@ export const AdminProfile = ({ adminId }: { adminId: string }) => {
           {sessions.length === 0 ? (
             <EmptyState title="Сессий нет" description="Этот админ ещё не входил в систему." />
           ) : (
-            <div className="rounded-2xl border bg-card p-5 sm:p-6">
+            <div className="bg-card rounded-2xl border p-5 sm:p-6">
               {sessions.map((s) => (
                 <SessionCard key={s.sessionId} session={s} />
               ))}
             </div>
           )}
           {(profile.sessions?.legacyLogins?.length ?? 0) > 0 && (
-            <div className="rounded-xl border border-dashed bg-muted/30 p-5">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+            <div className="bg-muted/30 rounded-xl border border-dashed p-5">
+              <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
                 Старые сессии (без session-id)
               </p>
-              <ul className="space-y-1 text-xs text-muted-foreground">
+              <ul className="text-muted-foreground space-y-1 text-xs">
                 {profile.sessions.legacyLogins.map((l, i) => (
                   <li key={l.id ?? `legacy-login-${l.timestamp ?? i}-${i}`}>
                     LOGIN · {formatDate(l.timestamp)} · <span className="font-mono">{l.ipAddress ?? "—"}</span>

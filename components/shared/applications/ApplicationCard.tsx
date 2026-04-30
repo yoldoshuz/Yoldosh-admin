@@ -62,20 +62,20 @@ export const ApplicationCard = ({
   };
 
   return (
-    <Card className="component border hover:border-emerald-500 dark:hover:border-emerald-600 transition rounded-xl shadow-md overflow-hidden w-full">
+    <Card className="component w-full overflow-hidden rounded-xl border shadow-md transition hover:border-emerald-500 dark:hover:border-emerald-600">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <Link
           href={`/admin/users-search/${application.user_id}`}
-          className="flex flex-row items-center justify-start space-y-0 pb-2 gap-4 link-text"
+          className="link-text flex flex-row items-center justify-start gap-4 space-y-0 pb-2"
         >
           <div className="flex flex-col items-start justify-center">
-            <h1 className="font-bold text-lg md:text-xl">
+            <h1 className="text-lg font-bold md:text-xl">
               {application.first_name} {application.last_name} {application.middle_name}
             </h1>
-            <time className="text-xs text-muted-foreground">{formatDate(application.createdAt)}</time>
+            <time className="text-muted-foreground text-xs">{formatDate(application.createdAt)}</time>
           </div>
           <span
-            className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getStatusColor(application.status)}`}
+            className={`rounded-full px-2 py-1 text-xs font-medium whitespace-nowrap ${getStatusColor(application.status)}`}
           >
             {application.status}
           </span>
@@ -83,7 +83,7 @@ export const ApplicationCard = ({
         <div>
           {/* Actions only for PENDING status */}
           {application.status === "PENDING" && (
-            <CardFooter className="flex justify-between items-center gap-2">
+            <CardFooter className="flex items-center justify-between gap-2">
               <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
                 <DialogTrigger asChild>
                   <div className="w-full">
@@ -149,8 +149,8 @@ export const ApplicationCard = ({
         <div className="flex flex-col items-start space-y-4">
           {/* Driver Info */}
           <div className="flex items-center justify-start gap-2">
-            <Phone className="size-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Номер телефона:</span>
+            <Phone className="text-muted-foreground size-4" />
+            <span className="text-muted-foreground text-sm">Номер телефона:</span>
             <span className="text-sm">
               {application.phone.replace(/^\+?(\d{3})(\d{2})(\d{3})(\d{2})(\d{2})$/, "+$1 $2 $3 $4 $5")}
             </span>
@@ -158,17 +158,17 @@ export const ApplicationCard = ({
 
           {/* Licence plate */}
           <div className="flex items-center justify-start gap-2">
-            <span className="text-sm text-muted-foreground">PINFL:</span>
+            <span className="text-muted-foreground text-sm">PINFL:</span>
             <span className="text-sm">{application.licensePinfl || "N/A"}</span>
           </div>
           {/* Licence plate */}
           <div className="flex items-center justify-start gap-2">
-            <span className="text-sm text-muted-foreground">Тип водительского удостоверения:</span>
+            <span className="text-muted-foreground text-sm">Тип водительского удостоверения:</span>
             <span className="text-sm">{application.typeOfLicence || "N/A"}</span>
           </div>
 
           {/* Documents */}
-          <div className="flex gap-2 items-center justify-start flex-wrap mt-2">
+          <div className="mt-2 flex flex-wrap items-center justify-start gap-2">
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="text-xs">
@@ -180,7 +180,7 @@ export const ApplicationCard = ({
                 <Image
                   src={formatDocUrl(application.licenseFrontPath)}
                   alt="Document Front"
-                  className="rounded-lg w-full max-h-[80vh] object-contain"
+                  className="max-h-[80vh] w-full rounded-lg object-contain"
                   width={2048}
                   height={2048}
                 />
@@ -191,8 +191,8 @@ export const ApplicationCard = ({
 
         {/* Rejection Reason */}
         {application.status === "REJECTED" && application.licenseFrontPath && (
-          <div className="text-xs text-red-600 dark:text-red-400 bg-red-100/50 dark:bg-red-900/20 p-2 rounded-md flex items-start gap-2">
-            <Info className="h-3 w-3 mt-0.5 shrink-0" />
+          <div className="flex items-start gap-2 rounded-md bg-red-100/50 p-2 text-xs text-red-600 dark:bg-red-900/20 dark:text-red-400">
+            <Info className="mt-0.5 h-3 w-3 shrink-0" />
             <span>Причина: {application.licenseFrontPath}</span>
           </div>
         )}

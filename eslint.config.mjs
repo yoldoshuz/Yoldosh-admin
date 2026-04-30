@@ -6,6 +6,7 @@ import js from "@eslint/js";
 import typescriptEslintEslintPlugin from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 import prettier from "eslint-plugin-prettier";
+import unusedImports from "eslint-plugin-unused-imports";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,6 +17,10 @@ const compat = new FlatCompat({
 });
 
 export default [
+  {
+    // Skip generated/build artefacts and dependency manifests.
+    ignores: [".next/**", "node_modules/**", "next-env.d.ts", "tsconfig.tsbuildinfo"],
+  },
   ...compat.extends("next", "next/core-web-vitals", "prettier"),
   {
     plugins: {
@@ -50,6 +55,7 @@ export default [
     files: ["**/*.+(ts|tsx)"],
     plugins: {
       "@typescript-eslint": typescriptEslintEslintPlugin,
+      "unused-imports": unusedImports,
     },
     languageOptions: {
       parser: tsParser,
@@ -64,6 +70,13 @@ export default [
       "@typescript-eslint/no-unused-vars": "off",
       "@next/next/no-page-custom-font": "off",
       "@typescript-eslint/no-use-before-define": "off",
+      // Auto-strip unused imports on lint:fix; warn on truly unused vars
+      // (kept as warn rather than error so a single dead import doesn't break CI)
+      "unused-imports/no-unused-imports": "warn",
+      "unused-imports/no-unused-vars": [
+        "warn",
+        { vars: "all", varsIgnorePattern: "^_", args: "after-used", argsIgnorePattern: "^_" },
+      ],
     },
   },
 ];

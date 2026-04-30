@@ -62,7 +62,7 @@ export const Applications = () => {
   return (
     <div>
       <Toaster richColors />
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+      <div className="mb-4 flex flex-col items-center justify-between gap-4 sm:flex-row">
         <div>
           <h1 className="title-text">Заявки водителей</h1>
           <p className="subtitle-text">Управление заявками на регистрацию водителей.</p>
@@ -70,36 +70,36 @@ export const Applications = () => {
       </div>
 
       <Tabs defaultValue="PENDING" className="w-full" onValueChange={(value) => setActiveTab(value as any)}>
-        <TabsList className="w-64 sm:w-96 px-1">
-          <TabsTrigger value="PENDING" className="w-4 text-xs sm:text-md">
+        <TabsList className="w-64 px-1 sm:w-96">
+          <TabsTrigger value="PENDING" className="sm:text-md w-4 text-xs">
             В ожидании
           </TabsTrigger>
-          <TabsTrigger value="VERIFIED" className="w-4 text-xs sm:text-md">
+          <TabsTrigger value="VERIFIED" className="sm:text-md w-4 text-xs">
             Подтвержденные
           </TabsTrigger>
-          <TabsTrigger value="REJECTED" className="w-4 text-xs sm:text-md">
+          <TabsTrigger value="REJECTED" className="sm:text-md w-4 text-xs">
             Отклоненные
           </TabsTrigger>
         </TabsList>
 
         {/* Filters Section */}
-        <div className="flex flex-col component border rounded-2xl mt-1 px-6 py-4">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-2 my-4 px-1">
+        <div className="component mt-1 flex flex-col rounded-2xl border px-6 py-4">
+          <div className="my-4 flex flex-col items-center justify-between gap-2 px-1 sm:flex-row">
             <div className="relative w-full">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
               <Input
                 placeholder="Поиск по имени, номеру телефона, номерному знаку"
-                className="pl-8 component-dark w-full"
+                className="component-dark w-full pl-8"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap justify-end w-full sm:w-auto">
+            <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto sm:flex-nowrap">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="component-dark w-full sm:w-auto justify-start text-left font-normal"
+                    className="component-dark w-full justify-start text-left font-normal sm:w-auto"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {dateRange?.from ? (
@@ -147,15 +147,15 @@ export const Applications = () => {
           {["PENDING", "VERIFIED", "REJECTED"].map((statusValue) => (
             <TabsContent key={statusValue} value={statusValue} className="mt-0">
               {isLoading && !data ? (
-                <div className="flex flex-col items-center justify-start w-full gap-4">
+                <div className="flex w-full flex-col items-center justify-start gap-4">
                   {Array.from({ length: 6 }).map((_, i) => (
-                    <Skeleton key={i} className="h-64 w-full rounded-xl skeleton" />
+                    <Skeleton key={i} className="skeleton h-64 w-full rounded-xl" />
                   ))}
                 </div>
               ) : error ? (
-                <div className="text-center py-10 text-destructive">Ошибка загрузки заявок. Попробуйте перезайти</div>
+                <div className="text-destructive py-10 text-center">Ошибка загрузки заявок. Попробуйте перезайти</div>
               ) : allApplications.length > 0 ? (
-                <div className="flex flex-col items-center justify-start w-full gap-4">
+                <div className="flex w-full flex-col items-center justify-start gap-4">
                   {allApplications.map((app) => (
                     <ApplicationCard
                       key={app.id}
@@ -167,13 +167,13 @@ export const Applications = () => {
                   ))}
                   {/* Infinite scroll trigger */}
                   {hasNextPage && (
-                    <div ref={ref} className="col-span-1 md:col-span-2 lg:col-span-3 flex justify-center py-4">
+                    <div ref={ref} className="col-span-1 flex justify-center py-4 md:col-span-2 lg:col-span-3">
                       {isFetchingNextPage && <p>Загрузка...</p>}
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="text-center py-10 text-muted-foreground">Заявки не найдены</div>
+                <div className="text-muted-foreground py-10 text-center">Заявки не найдены</div>
               )}
             </TabsContent>
           ))}

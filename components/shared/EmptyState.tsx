@@ -17,16 +17,16 @@ export const EmptyState = ({ icon: Icon = Inbox, title, description, action, cla
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed bg-muted/40 px-6 py-12 text-center",
+        "bg-muted/40 flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed px-6 py-12 text-center",
         className
       )}
     >
-      <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-        <Icon className="size-6 text-muted-foreground" />
+      <div className="bg-muted flex size-12 items-center justify-center rounded-full">
+        <Icon className="text-muted-foreground size-6" />
       </div>
       <div className="space-y-1">
         <p className="font-medium">{title}</p>
-        {description && <p className="text-sm text-muted-foreground">{description}</p>}
+        {description && <p className="text-muted-foreground text-sm">{description}</p>}
       </div>
       {action && (
         <Button

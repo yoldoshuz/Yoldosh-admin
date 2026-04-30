@@ -33,7 +33,7 @@ export const EntityLink = ({ type, id, snapshot, basePath, showSubLabel = false,
     return (
       <span className={`text-foreground ${className ?? ""}`}>
         <span className="font-medium">{label}</span>
-        {showSubLabel && sub && <span className="text-muted-foreground text-xs ml-1.5">· {sub}</span>}
+        {showSubLabel && sub && <span className="text-muted-foreground ml-1.5 text-xs">· {sub}</span>}
       </span>
     );
   }
@@ -41,11 +41,11 @@ export const EntityLink = ({ type, id, snapshot, basePath, showSubLabel = false,
   return (
     <Link
       href={path}
-      className={`group inline-flex items-baseline gap-1.5 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 ${className ?? ""}`}
+      className={`group inline-flex items-baseline gap-1.5 text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 ${className ?? ""}`}
     >
-      <span className="font-medium underline-offset-4 group-hover:underline truncate max-w-[300px]">{label}</span>
+      <span className="max-w-[300px] truncate font-medium underline-offset-4 group-hover:underline">{label}</span>
       {showSubLabel && sub && <span className="text-muted-foreground text-xs">· {sub}</span>}
-      <ExternalLink className="size-3 opacity-0 group-hover:opacity-100 transition" />
+      <ExternalLink className="size-3 opacity-0 transition group-hover:opacity-100" />
     </Link>
   );
 };

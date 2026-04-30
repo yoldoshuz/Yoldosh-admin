@@ -39,30 +39,19 @@ export const AdminSidebar = () => {
       <SidebarContent className="bg-sidebar">
         <SidebarGroup className="h-full px-3 py-4">
           <SidebarGroupLabel asChild>
-            <div className="flex items-center gap-3 px-1 mt-2 pb-3 mb-3">
+            <div className="mt-2 mb-3 flex items-center gap-3 px-1 pb-3">
               <div className="rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 p-2 text-white shadow-md shadow-emerald-500/25">
                 <CarIcon className="size-5" />
               </div>
               <div className="flex flex-col leading-none">
-                <h1 className="text-base font-semibold text-foreground">Yoldosh</h1>
-                <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Admin</p>
+                <h1 className="text-foreground text-base font-semibold">Yoldosh</h1>
+                <p className="text-muted-foreground text-[11px] tracking-wider uppercase">Admin</p>
               </div>
             </div>
           </SidebarGroupLabel>
 
           <SidebarGroupContent className="h-full pt-2">
             <SidebarMenu className="flex h-full flex-col gap-0.5">
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild className="h-10 border border-border bg-card px-3 hover:bg-muted">
-                  <Link href="/admin/users-search" className="flex items-center gap-2.5">
-                    <Search className="size-4 shrink-0" />
-                    <span>Поиск пользователя</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <div className="my-3 h-px bg-border" />
-
               <div className="space-y-1">
                 {allowedItems.map((item) => {
                   const active = isActive(pathname, item);
@@ -73,7 +62,7 @@ export const AdminSidebar = () => {
                         className={cn(
                           "h-9 px-2.5 text-sm transition",
                           active
-                            ? "bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 hover:bg-emerald-500/15"
+                            ? "bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/15 dark:bg-emerald-500/15 dark:text-emerald-300"
                             : "hover:bg-muted text-muted-foreground hover:text-foreground"
                         )}
                       >
@@ -87,10 +76,10 @@ export const AdminSidebar = () => {
                 })}
               </div>
 
-              <div className="mt-auto pt-3 space-y-2">
+              <div className="mt-auto space-y-2 pt-3">
                 {profile && (
-                  <div className="rounded-lg border bg-card px-3 py-2 text-xs">
-                    <p className="font-medium truncate">
+                  <div className="bg-card rounded-lg border px-3 py-2 text-xs">
+                    <p className="truncate font-medium">
                       {profile.firstName} {profile.lastName}
                     </p>
                     <p className="text-muted-foreground truncate">{profile.email}</p>
@@ -104,7 +93,7 @@ export const AdminSidebar = () => {
                     <button
                       onClick={handleLogout}
                       disabled={isPending}
-                      className="flex items-center gap-2.5 cursor-pointer"
+                      className="flex cursor-pointer items-center gap-2.5"
                     >
                       <LogOut className="size-4 shrink-0" />
                       {isPending ? "Завершаем сессию..." : "Завершить сессию"}

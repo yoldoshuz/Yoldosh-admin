@@ -56,11 +56,11 @@ export const StatCard = ({
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{title}</p>
-            <div className="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight tabular-nums">
+            <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">{title}</p>
+            <div className="mt-2 text-2xl font-semibold tracking-tight tabular-nums sm:text-3xl">
               {loading ? <Skeleton className="h-8 w-20" /> : formatValue(value)}
             </div>
-            {subtext && !loading && <p className="mt-1 text-xs text-muted-foreground">{subtext}</p>}
+            {subtext && !loading && <p className="text-muted-foreground mt-1 text-xs">{subtext}</p>}
           </div>
           {Icon && (
             <div className={cn("flex size-10 items-center justify-center rounded-xl", toneIcon[tone])}>

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
+import { WorldMap } from "@/components/shared/charts/WorldMap";
 import { OverviewChart } from "@/components/shared/layout/OverviewChart";
 import { StatCard } from "@/components/shared/StatCard";
 import { StatsSection, TopList } from "@/components/shared/stats/StatsSections";
@@ -56,7 +57,7 @@ const PlatformBadge = ({ platforms }: { platforms?: { platform: string; id: stri
       {platforms.map((p) => (
         <span
           key={`${p.platform}-${p.id}`}
-          className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground"
+          className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium tracking-wider uppercase"
         >
           {p.platform}
         </span>
@@ -139,7 +140,7 @@ export const AppMetrica = () => {
           metrics: ["ym:u:users"],
           dimensions: ["ym:u:regionCountry"],
           sort: "-ym:u:users",
-          limit: 10,
+          limit: 50, // wider for the world heatmap (TopList still slices to 10)
         }
       : null
   );
@@ -264,7 +265,7 @@ export const AppMetrica = () => {
           <p className="subtitle-text">
             {selectedApp?.name ? (
               <>
-                Аналитика приложения <span className="font-medium text-foreground">{selectedApp.name}</span>
+                Аналитика приложения <span className="text-foreground font-medium">{selectedApp.name}</span>
               </>
             ) : (
               <>Подключено к Yandex AppMetrica</>
@@ -287,9 +288,9 @@ export const AppMetrica = () => {
               {apps?.map((app) => (
                 <SelectItem key={app.id} value={String(app.id)}>
                   <div className="flex items-center gap-2">
-                    <Smartphone className="size-3.5 text-muted-foreground" />
+                    <Smartphone className="text-muted-foreground size-3.5" />
                     <span>{app.name}</span>
-                    <span className="ml-auto text-xs text-muted-foreground">#{app.id}</span>
+                    <span className="text-muted-foreground ml-auto text-xs">#{app.id}</span>
                   </div>
                 </SelectItem>
               ))}
@@ -297,7 +298,7 @@ export const AppMetrica = () => {
           </Select>
 
           {/* Date presets */}
-          <div className="flex items-center gap-1 rounded-xl border bg-card p-1">
+          <div className="bg-card flex items-center gap-1 rounded-xl border p-1">
             {PRESETS.map((p) => (
               <button
                 key={p.key}
@@ -394,32 +395,32 @@ export const AppMetrica = () => {
 
       {/* App info card */}
       {selectedApp && (
-        <div className="grid gap-3 rounded-xl border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="bg-card grid gap-3 rounded-xl border p-4 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Приложение</p>
+            <p className="text-muted-foreground text-xs tracking-wider uppercase">Приложение</p>
             <p className="mt-0.5 font-semibold">{selectedApp.name}</p>
-            <p className="text-xs text-muted-foreground">ID: {selectedApp.id}</p>
+            <p className="text-muted-foreground text-xs">ID: {selectedApp.id}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Платформы</p>
+            <p className="text-muted-foreground text-xs tracking-wider uppercase">Платформы</p>
             <div className="mt-1.5">
               <PlatformBadge platforms={selectedApp.app_id_on_platform} />
             </div>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Часовой пояс</p>
+            <p className="text-muted-foreground text-xs tracking-wider uppercase">Часовой пояс</p>
             <p className="mt-0.5 text-sm">{selectedApp.time_zone_name ?? "—"}</p>
           </div>
           <div className="flex items-start justify-between gap-2">
             <div>
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">Создано</p>
+              <p className="text-muted-foreground text-xs tracking-wider uppercase">Создано</p>
               <p className="mt-0.5 text-sm">{selectedApp.create_date ? formatDate(selectedApp.create_date) : "—"}</p>
             </div>
             <a
               href={`https://appmetrica.yandex.ru/overview?period=week&groupMethod=calendar&group=day&currency=rub&accuracy=medium&appId=${selectedApp.id}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex h-8 items-center gap-1 rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="bg-background text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-8 items-center gap-1 rounded-md border px-2.5 text-xs font-medium"
             >
               <ExternalLink className="size-3.5" />
               Открыть
@@ -519,6 +520,20 @@ export const AppMetrica = () => {
         />
       </div>
 
+      {/* World map — geographic distribution of users */}
+      {topCountries.isError ? (
+        <SectionError message={(topCountries.error as Error)?.message} />
+      ) : (
+        <WorldMap
+          title="География пользователей"
+          loading={topCountries.isLoading}
+          data={toTopList(topCountries.data).map((it: { label: string; count: number }) => ({
+            name: it.label,
+            value: it.count,
+          }))}
+        />
+      )}
+
       {/* Top lists */}
       <div className="grid gap-4 lg:grid-cols-2">
         <StatsSection title="Топ ОС">
@@ -546,7 +561,7 @@ export const AppMetrica = () => {
       </StatsSection>
 
       {/* Footer hint */}
-      <div className="rounded-xl border border-dashed bg-card p-4 text-xs text-muted-foreground">
+      <div className="bg-card text-muted-foreground rounded-xl border border-dashed p-4 text-xs">
         Источник данных: Yandex AppMetrica API ·{" "}
         <a
           href="https://appmetrica.yandex.ru/docs/ru/mobile-api/"

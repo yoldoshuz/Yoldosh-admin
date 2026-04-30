@@ -2,6 +2,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { stripEmpty } from "@/hooks/_factory";
 import api from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 import {
@@ -62,17 +63,9 @@ export const useGetAdminProfile = (enabled: boolean = true) => {
 };
 
 type RangeParams = {
-  range?: "day" | "week" | "month" | "year" | "custom";
+  range?: "today" | "yesterday" | "day" | "week" | "month" | "quarter" | "year" | "custom";
   from?: string;
   to?: string;
-};
-
-const stripEmpty = (params: Record<string, any>) => {
-  const out: Record<string, any> = {};
-  for (const k of Object.keys(params)) {
-    if (params[k] !== undefined && params[k] !== null && params[k] !== "") out[k] = params[k];
-  }
-  return out;
 };
 
 export const useGetAdminStats = (params: RangeParams = {}) => {
@@ -618,12 +611,105 @@ export const useChangeBookingStatus = () => {
     onSuccess: (_, vars) => {
       toast.success(`Статус брони изменён на ${vars.status}`);
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.trips({}) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.bookings({}) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.bookingDetails(vars.bookingId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.superAdmin.bookings({}) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.superAdmin.bookingDetails(vars.bookingId) });
       // Инвалидируем детали пользователя (там тоже видны брони)
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.all });
     },
     onError: () => {
       toast.error("Не удалось изменить статус брони");
     },
+  });
+};
+
+// =============================================================
+// Bookings — admin
+// =============================================================
+type BookingsFilters = {
+  page?: number;
+  limit?: number;
+  sortBy?:
+    | "createdAt"
+    | "updatedAt"
+    | "totalPrice"
+    | "seatsBooked"
+    | "status"
+    | "departure_ts"
+    | "passenger.firstName"
+    | "driver.firstName";
+  sortOrder?: "ASC" | "DESC";
+  search?: string;
+  status?: "PENDING" | "CONFIRMED" | "CANCELLED" | "FAILED";
+  tripId?: string;
+  passengerId?: string;
+  driverId?: string;
+  fromCity?: string;
+  toCity?: string;
+  dateField?: "createdAt" | "departure_ts";
+  range?: string;
+  from?: string;
+  to?: string;
+};
+
+export const useGetBookings = (filters: BookingsFilters = {}) => {
+  return useInfiniteQuery({
+    queryKey: queryKeys.admin.bookings(filters),
+    queryFn: async ({ pageParam = 1 }) => {
+      const { data } = await api.get("/admin/bookings", {
+        params: { ...stripEmpty(filters), page: pageParam, limit: filters.limit ?? 20 },
+      });
+      return data.data;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage: any) =>
+      lastPage.currentPage < lastPage.totalPages ? lastPage.currentPage + 1 : undefined,
+  });
+};
+
+export const useGetBookingDetails = (bookingId: string) => {
+  return useQuery({
+    queryKey: queryKeys.admin.bookingDetails(bookingId),
+    queryFn: async () => {
+      const { data } = await api.get(`/admin/bookings/${bookingId}`);
+      return data.data;
+    },
+    enabled: !!bookingId,
+  });
+};
+
+// =============================================================
+// New stats — bookings / searches / dau-mau
+// =============================================================
+export const useGetBookingsStats = (params: RangeParams = {}) => {
+  return useQuery({
+    queryKey: queryKeys.admin.statsBookings(params),
+    queryFn: async () => {
+      const { data } = await api.get("/admin/stats/bookings", { params: stripEmpty(params) });
+      return data.data;
+    },
+  });
+};
+
+export const useGetSearchesStats = (params: RangeParams = {}) => {
+  return useQuery({
+    queryKey: queryKeys.admin.statsSearches(params),
+    queryFn: async () => {
+      const { data } = await api.get("/admin/stats/searches", { params: stripEmpty(params) });
+      return data.data;
+    },
+  });
+};
+
+export const useGetDauMau = () => {
+  return useQuery({
+    queryKey: queryKeys.admin.statsDauMau(),
+    queryFn: async () => {
+      const { data } = await api.get("/admin/stats/dau-mau");
+      return data.data;
+    },
+    staleTime: 5 * 60 * 1000, // backend caches 5 minutes
   });
 };
 

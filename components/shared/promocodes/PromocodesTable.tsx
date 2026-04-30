@@ -16,7 +16,7 @@ export const PromoCodesTable = ({ type }: { type: "SINGLE_USER" | "GLOBAL" }) =>
   const isLoading = type === "SINGLE_USER" ? userPromos.isLoading : globalPromos.isLoading;
 
   return (
-    <div className="flex flex-col component border rounded-2xl mt-4 px-6 py-4">
+    <div className="component mt-4 flex flex-col rounded-2xl border px-6 py-4">
       {isLoading ? (
         <div className="grid-default">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -27,12 +27,12 @@ export const PromoCodesTable = ({ type }: { type: "SINGLE_USER" | "GLOBAL" }) =>
         <div className="grid-2">
           {promoCodes.map((pc: any) => (
             <div
-              className="flex flex-col gap-3 component border hover:border-emerald-500 dark:hover:border-emerald-600 transition rounded-xl p-6"
+              className="component flex flex-col gap-3 rounded-xl border p-6 transition hover:border-emerald-500 dark:hover:border-emerald-600"
               key={pc.id}
             >
               {/* Code */}
               <div className="flex flex-row items-center justify-start gap-3">
-                <div className="bg-gradient-to-br from-emerald-400 to-teal-700 text-white rounded-xl p-3">
+                <div className="rounded-xl bg-gradient-to-br from-emerald-400 to-teal-700 p-3 text-white">
                   <Ticket className="size-7" />
                 </div>
                 <div>
@@ -40,7 +40,7 @@ export const PromoCodesTable = ({ type }: { type: "SINGLE_USER" | "GLOBAL" }) =>
                   {/* Status */}
                   <div>
                     {pc.isActive ? (
-                      <span className={`px-3 py-0.5 rounded-full text-xs ${getStatusColor("ACTIVE")}`}>Активен</span>
+                      <span className={`rounded-full px-3 py-0.5 text-xs ${getStatusColor("ACTIVE")}`}>Активен</span>
                     ) : (
                       <span className={getStatusColor("INACTIVE")}>Истек</span>
                     )}
@@ -67,7 +67,7 @@ export const PromoCodesTable = ({ type }: { type: "SINGLE_USER" | "GLOBAL" }) =>
                 </div>
               )}
               {/* Expiration date */}
-              <div className="flex flex-col sm:flex-row items-center justify-between">
+              <div className="flex flex-col items-center justify-between sm:flex-row">
                 <span className="text-muted-foreground">Действителен до:</span>
                 <time className="font-semibold">{pc.expiresAt ? formatDate(pc.expiresAt) : "Бессрочный"}</time>
               </div>
@@ -88,7 +88,7 @@ export const PromoCodesTable = ({ type }: { type: "SINGLE_USER" | "GLOBAL" }) =>
           ))}
         </div>
       ) : (
-        <div className="flex items-center justify-center w-full mt-8">
+        <div className="mt-8 flex w-full items-center justify-center">
           <span className="subtitle-text">Промокоды не найдены.</span>
         </div>
       )}

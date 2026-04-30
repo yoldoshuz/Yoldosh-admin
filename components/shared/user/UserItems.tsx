@@ -30,7 +30,7 @@ export const InfoItem = ({
     <div className="flex items-start gap-4">
       {icon && <div className="text-muted-foreground mt-1">{icon}</div>}
       <div>
-        <p className="text-sm text-muted-foreground">{label}</p>
+        <p className="text-muted-foreground text-sm">{label}</p>
         <p className={`font-semibold break-all ${valueClassName || ""}`}>{renderValue()}</p>
       </div>
     </div>
@@ -40,15 +40,15 @@ export const InfoItem = ({
 export const TripCard = ({ trip }: { trip: any }) => (
   <Card className="component">
     <CardHeader>
-      <Link href={`/admin/trips/${trip.id}`} className="flex justify-between items-center link-text">
+      <Link href={`/admin/trips/${trip.id}`} className="link-text flex items-center justify-between">
         <CardTitle className="font-mono text-base">Поездка #{trip.id.substring(0, 6)}</CardTitle>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(trip.status)}`}>
+        <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(trip.status)}`}>
           {trip.status}
         </span>
       </Link>
-      <p className="text-sm text-muted-foreground">{formatDate(trip.departure_ts)}</p>
+      <p className="text-muted-foreground text-sm">{formatDate(trip.departure_ts)}</p>
     </CardHeader>
-    <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
       <InfoItem label="Откуда" value={trip.from_address || trip.from_city || "N/A"} />
       <InfoItem label="Куда" value={trip.to_address || trip.to_city || "N/A"} />
       <InfoItem label="Стоимость" value={`${parseFloat(trip.price_per_person).toLocaleString("ru-RU")} UZS`} />
@@ -59,15 +59,15 @@ export const TripCard = ({ trip }: { trip: any }) => (
 export const BookingCard = ({ booking }: { booking: any }) => (
   <Card className="component">
     <CardHeader>
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <CardTitle className="font-mono text-base">Бронь #{booking.id.substring(0, 6)}</CardTitle>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
+        <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(booking.status)}`}>
           {booking.status}
         </span>
       </div>
-      <p className="text-sm text-muted-foreground">{formatDate(booking.createdAt)}</p>
+      <p className="text-muted-foreground text-sm">{formatDate(booking.createdAt)}</p>
     </CardHeader>
-    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <InfoItem label="Общая стоимость" value={`${parseFloat(booking.totalPrice).toLocaleString("ru-RU")} UZS`} />
       <InfoItem label="Мест забронировано" value={booking.seatsBooked} />
       <InfoItem label="Причина отмены" value={booking.cancellationReason ?? "—"} />
@@ -78,15 +78,15 @@ export const BookingCard = ({ booking }: { booking: any }) => (
 export const CarCard = ({ car }: { car: any }) => (
   <Card className="component">
     <CardHeader>
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <CardTitle className="text-xl font-bold">
           {car.make} {car.model}
         </CardTitle>
       </div>
-      <p className="text-sm text-muted-foreground font-mono">Номер машины: {car.govNumber}</p>
-      <p className="text-sm text-muted-foreground font-mono">Id машины: {car.id}</p>
+      <p className="text-muted-foreground font-mono text-sm">Номер машины: {car.govNumber}</p>
+      <p className="text-muted-foreground font-mono text-sm">Id машины: {car.id}</p>
     </CardHeader>
-    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <InfoItem label="Цвет" value={car.color} />
       <InfoItem label="Дата выдачи" value={car.issueDate} />
       <InfoItem label="Причина отклонения" value={car.rejectionReason ?? "—"} />
@@ -95,7 +95,7 @@ export const CarCard = ({ car }: { car: any }) => (
       <InfoItem label="Серийный номер тех. пасспорта" value={car.techPassportSerial} />
 
       {/* Tech passport */}
-      <div className="flex flex-row w-full gap-2 items-center justify-start flex-wrap">
+      <div className="flex w-full flex-row flex-wrap items-center justify-start gap-2">
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm" className="text-xs">
@@ -108,7 +108,7 @@ export const CarCard = ({ car }: { car: any }) => (
             <Image
               src={formatDocUrl(car.techPassportFrontPath)}
               alt="Document Front"
-              className="rounded-lg w-full max-h-[80vh] object-contain"
+              className="max-h-[80vh] w-full rounded-lg object-contain"
               width={2048}
               height={2048}
             />
@@ -126,7 +126,7 @@ export const CarCard = ({ car }: { car: any }) => (
             <Image
               src={formatDocUrl(car.techPassportBackPath)}
               alt="Document Back"
-              className="rounded-lg w-full max-h-[80vh] object-contain"
+              className="max-h-[80vh] w-full rounded-lg object-contain"
               width={2048}
               height={2048}
             />
@@ -140,15 +140,15 @@ export const CarCard = ({ car }: { car: any }) => (
 export const ReportCard = ({ report }: { report: any }) => (
   <Card className="component">
     <CardHeader>
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <CardTitle className="font-mono text-base">
           Жалоба <span className="text-muted-foreground">#{report.id}</span>
         </CardTitle>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(report.status)}`}>
+        <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(report.status)}`}>
           {report.status}
         </span>
       </div>
-      <p className="text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-sm">
         От: {report.reportingUser?.firstName || "N/A"} — {formatDate(report.createdAt)}
       </p>
     </CardHeader>
@@ -160,14 +160,14 @@ export const ReportCard = ({ report }: { report: any }) => (
 );
 
 export const UserDetailsSkeleton = () => (
-  <div className="space-y-6 animate-pulse">
-    <div className="flex justify-between items-start">
+  <div className="animate-pulse space-y-6">
+    <div className="flex items-start justify-between">
       <div className="flex items-center gap-4">
-        <Skeleton className="w-20 h-20 rounded-full" />
+        <Skeleton className="h-20 w-20 rounded-full" />
         <div>
-          <Skeleton className="h-8 w-48 mb-2" />
+          <Skeleton className="mb-2 h-8 w-48" />
           <Skeleton className="h-4 w-64" />
-          <Skeleton className="h-4 w-40 mt-1" />
+          <Skeleton className="mt-1 h-4 w-40" />
         </div>
       </div>
       <Skeleton className="h-10 w-32" />

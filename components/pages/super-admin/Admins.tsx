@@ -93,7 +93,7 @@ export const Admins = () => {
   return (
     <div>
       <Toaster richColors />
-      <div className="flex gap-2 justify-between items-center mb-6">
+      <div className="mb-6 flex flex-col items-stretch justify-between gap-2 sm:flex-row sm:items-center">
         <h1 className="title-text">Управление админами</h1>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
@@ -153,7 +153,8 @@ export const Admins = () => {
         </Dialog>
       </div>
 
-      <div className="border rounded-lg">
+      {/* Desktop table */}
+      <div className="hidden rounded-lg border md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -196,7 +197,7 @@ export const Admins = () => {
                           setIsPermissionsDialogOpen(true);
                         }}
                       >
-                        <Edit className="h-4 w-4 mr-2" />
+                        <Edit className="mr-2 h-4 w-4" />
                         Права
                       </Button>
                     )}
@@ -213,7 +214,7 @@ export const Admins = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="text-center h-24">
+                <TableCell colSpan={4} className="h-24 text-center">
                   Администраторы не найдены.
                 </TableCell>
               </TableRow>
@@ -222,7 +223,7 @@ export const Admins = () => {
               <TableRow>
                 <TableCell colSpan={4} ref={ref}>
                   {isFetchingNextPage && (
-                    <div className="flex justify-center items-center p-4">
+                    <div className="flex items-center justify-center p-4">
                       <p>Загрузка...</p>
                     </div>
                   )}
@@ -233,12 +234,75 @@ export const Admins = () => {
         </Table>
       </div>
 
+      {/* Mobile cards */}
+      <div className="grid gap-2 md:hidden">
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-32 rounded-2xl" />)
+        ) : allAdmins.length === 0 ? (
+          <p className="bg-card text-muted-foreground rounded-2xl border p-6 text-center text-sm">
+            Администраторы не найдены.
+          </p>
+        ) : (
+          allAdmins.map((admin: Admin) => (
+            <div key={admin.id} className="bg-card rounded-2xl border p-3 shadow-sm">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium">
+                    {admin.firstName} {admin.lastName}
+                  </p>
+                  <p className="text-muted-foreground truncate text-xs">{admin.email}</p>
+                </div>
+                <span className="bg-muted shrink-0 rounded-md px-2 py-0.5 text-[10px] tracking-wider uppercase">
+                  {admin.role}
+                </span>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button asChild size="sm" variant="outline" className="flex-1 gap-1">
+                  <Link href={`/super-admin/admins/${admin.id}`}>
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    Профиль
+                  </Link>
+                </Button>
+                {admin.role === "Admin" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 gap-1"
+                    onClick={() => {
+                      setSelectedAdmin(admin);
+                      setIsPermissionsDialogOpen(true);
+                    }}
+                  >
+                    <Edit className="h-4 w-4" />
+                    Права
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  disabled={isDeleting || admin.role === "SuperAdmin"}
+                  onClick={() => handleDelete(admin.id)}
+                  className="flex-1"
+                >
+                  Удалить
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+        {hasNextPage && (
+          <div ref={ref} className="text-muted-foreground flex justify-center py-3 text-xs">
+            {isFetchingNextPage ? "Загрузка..." : "Прокрутите ниже"}
+          </div>
+        )}
+      </div>
+
       <Dialog open={isPermissionsDialogOpen} onOpenChange={setIsPermissionsDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Изменить права доступа для {selectedAdmin?.firstName}</DialogTitle>
           </DialogHeader>
-          <div className="py-4 space-y-4">
+          <div className="space-y-4 py-4">
             {Object.values(AdminPermission).map((permission) => (
               <div key={permission} className="flex items-center justify-between">
                 <Label htmlFor={permission} className="flex-1">

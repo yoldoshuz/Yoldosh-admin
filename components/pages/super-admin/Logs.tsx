@@ -83,8 +83,8 @@ export const Logs = () => {
 
       {/* Filters bar */}
       <div className="flex flex-wrap items-center gap-2">
-        <div className="relative flex-1 min-w-[220px]">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative min-w-[220px] flex-1">
+          <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
           <Input
             placeholder="Поиск по action / details / id…"
             value={search}
@@ -134,9 +134,9 @@ export const Logs = () => {
               <ChevronDown className="size-4 opacity-60" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent align="end" className="w-64 p-1 max-h-80 overflow-auto">
+          <PopoverContent align="end" className="max-h-80 w-64 overflow-auto p-1">
             {allAdmins.length === 0 ? (
-              <p className="p-2 text-sm text-muted-foreground">Список пуст</p>
+              <p className="text-muted-foreground p-2 text-sm">Список пуст</p>
             ) : (
               allAdmins.map((a: any) => (
                 <Toggle key={a.id} active={adminIds.includes(a.id)} onClick={() => toggleAdmin(a.id)}>
@@ -144,7 +144,7 @@ export const Logs = () => {
                     <span className="font-medium">
                       {a.firstName} {a.lastName}
                     </span>
-                    <span className="text-xs text-muted-foreground">{a.email}</span>
+                    <span className="text-muted-foreground text-xs">{a.email}</span>
                   </span>
                 </Toggle>
               ))
@@ -160,7 +160,7 @@ export const Logs = () => {
               setCategories([]);
               setAdminIds([]);
             }}
-            className="gap-1 text-muted-foreground"
+            className="text-muted-foreground gap-1"
           >
             <X className="size-3.5" />
             Сбросить
@@ -196,7 +196,7 @@ export const Logs = () => {
       )}
 
       {/* Table */}
-      <div className="overflow-hidden rounded-xl border bg-card">
+      <div className="bg-card overflow-hidden rounded-xl border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -221,7 +221,7 @@ export const Logs = () => {
               <TableRow>
                 <TableCell colSpan={6}>
                   <div className="flex items-center justify-between p-4">
-                    <span className="text-sm text-muted-foreground">Не удалось загрузить логи.</span>
+                    <span className="text-muted-foreground text-sm">Не удалось загрузить логи.</span>
                     <Button variant="outline" size="sm" onClick={() => refetch()}>
                       Повторить
                     </Button>
@@ -251,16 +251,16 @@ export const Logs = () => {
               allLogs.map((log) => (
                 <TableRow
                   key={log.id}
-                  className="cursor-pointer hover:bg-muted/50"
+                  className="hover:bg-muted/50 cursor-pointer"
                   onClick={() => {
                     setActiveLog(log);
                     setDrawerOpen(true);
                   }}
                 >
                   <TableCell>
-                    <span className="text-xs text-muted-foreground">{formatRelativeTime(log.timestamp)}</span>
+                    <span className="text-muted-foreground text-xs">{formatRelativeTime(log.timestamp)}</span>
                   </TableCell>
-                  <TableCell className="font-medium truncate">{log.adminName}</TableCell>
+                  <TableCell className="truncate font-medium">{log.adminName}</TableCell>
                   <TableCell>
                     <CategoryBadge category={log.category} />
                   </TableCell>
@@ -281,7 +281,7 @@ export const Logs = () => {
 
             {hasNextPage && (
               <TableRow>
-                <TableCell colSpan={6} ref={ref} className="text-center text-xs text-muted-foreground py-3">
+                <TableCell colSpan={6} ref={ref} className="text-muted-foreground py-3 text-center text-xs">
                   {isFetchingNextPage ? "Загрузка..." : "Прокрутите для загрузки"}
                 </TableCell>
               </TableRow>

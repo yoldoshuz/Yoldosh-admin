@@ -25,20 +25,21 @@ export const Wallets = () => {
   const transactions = data?.pages.flatMap((page: any) => page.rows) ?? [];
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 p-4 sm:gap-6 sm:p-6 lg:p-8">
       <div>
         <h1 className="title-text">История транзакций</h1>
         <p className="subtitle-text">Мониторинг пополнений и списаний в системе.</p>
       </div>
 
-      <div className="border rounded-xl bg-card shadow-sm overflow-hidden">
-        <DataStateDisplay
-          isLoading={isLoading}
-          isError={isError}
-          isEmpty={!isLoading && transactions.length === 0}
-          onRetry={() => refetch()}
-          emptyMessage="Транзакции не найдены"
-        >
+      <DataStateDisplay
+        isLoading={isLoading}
+        isError={isError}
+        isEmpty={!isLoading && transactions.length === 0}
+        onRetry={() => refetch()}
+        emptyMessage="Транзакции не найдены"
+      >
+        {/* Desktop table */}
+        <div className="bg-card hidden overflow-hidden rounded-xl border shadow-sm md:block">
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow>
@@ -54,17 +55,17 @@ export const Wallets = () => {
                 const isPositive = tx.amount > 0;
                 return (
                   <TableRow key={tx.id} className="group">
-                    <TableCell className="font-mono text-xs text-muted-foreground group-hover:text-foreground transition-colors">
+                    <TableCell className="text-muted-foreground group-hover:text-foreground font-mono text-xs transition-colors">
                       {tx.id.substring(0, 8)}
                     </TableCell>
                     <TableCell>
-                      <Link href={`/admin/users-search/${tx.wallet?.user?.id}`} className="hover:underline font-medium">
+                      <Link href={`/admin/users-search/${tx.wallet?.user?.id}`} className="font-medium hover:underline">
                         {tx.wallet?.user?.firstName} {tx.wallet?.user?.lastName}
                       </Link>
-                      <div className="text-xs text-muted-foreground">{tx.wallet?.user?.phoneNumber}</div>
+                      <div className="text-muted-foreground text-xs">{tx.wallet?.user?.phoneNumber}</div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="uppercase text-[10px]">
+                      <Badge variant="outline" className="text-[10px] uppercase">
                         {tx.type}
                       </Badge>
                     </TableCell>
@@ -80,7 +81,7 @@ export const Wallets = () => {
                         {Math.abs(tx.amount).toLocaleString()} UZS
                       </div>
                     </TableCell>
-                    <TableCell className="text-right text-muted-foreground text-sm">
+                    <TableCell className="text-muted-foreground text-right text-sm">
                       {formatDate(tx.createdAt)}
                     </TableCell>
                   </TableRow>
@@ -88,16 +89,53 @@ export const Wallets = () => {
               })}
             </TableBody>
           </Table>
+        </div>
 
-          {hasNextPage && (
-            <div ref={ref} className="py-6 flex justify-center w-full bg-card border-t">
-              {isFetchingNextPage && (
-                <div className="text-muted-foreground text-sm animate-pulse">Загрузка данных...</div>
-              )}
-            </div>
-          )}
-        </DataStateDisplay>
-      </div>
+        {/* Mobile cards */}
+        <div className="grid gap-2 md:hidden">
+          {transactions.map((tx: any) => {
+            const isPositive = tx.amount > 0;
+            return (
+              <div key={tx.id} className="bg-card rounded-2xl border p-3 shadow-sm">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/admin/users-search/${tx.wallet?.user?.id}`}
+                      className="block truncate font-medium hover:underline"
+                    >
+                      {tx.wallet?.user?.firstName} {tx.wallet?.user?.lastName}
+                    </Link>
+                    <p className="text-muted-foreground truncate text-xs">{tx.wallet?.user?.phoneNumber}</p>
+                  </div>
+                  <Badge variant="outline" className="shrink-0 text-[10px] uppercase">
+                    {tx.type}
+                  </Badge>
+                </div>
+                <div className="mt-2 flex items-center justify-between">
+                  <span className={`flex items-center font-bold ${isPositive ? "text-emerald-600" : "text-red-600"}`}>
+                    {isPositive ? (
+                      <ArrowDownLeft className="mr-1 h-3 w-3" />
+                    ) : (
+                      <ArrowUpRight className="mr-1 h-3 w-3" />
+                    )}
+                    {Math.abs(tx.amount).toLocaleString()} UZS
+                  </span>
+                  <span className="text-muted-foreground text-xs">{formatDate(tx.createdAt)}</span>
+                </div>
+                <p className="text-muted-foreground mt-1 font-mono text-[10px]">{tx.id.substring(0, 8)}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        {hasNextPage && (
+          <div ref={ref} className="flex w-full justify-center py-6">
+            {isFetchingNextPage && (
+              <div className="text-muted-foreground animate-pulse text-sm">Загрузка данных...</div>
+            )}
+          </div>
+        )}
+      </DataStateDisplay>
     </div>
   );
 };

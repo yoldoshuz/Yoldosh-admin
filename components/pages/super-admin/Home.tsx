@@ -3,21 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Activity,
-  Banknote,
-  CarFront,
-  ChevronRight,
-  CircleDollarSign,
-  Flag,
-  Search,
-  ShieldAlert,
-  Ticket,
-  TrendingUp,
-  UserCheck,
-  Users,
-  UserX,
-  Wallet,
-  Zap,
+  Activity, Banknote, CarFront, ChevronRight, CircleDollarSign,
+  Flag, Search, ShieldAlert, Ticket, TrendingUp,
+  UserCheck, Users, UserX, Wallet, Zap,
 } from "lucide-react";
 
 import { DateRangePicker, DateRangeValue } from "@/components/shared/DateRangePicker";
@@ -27,26 +15,31 @@ import { toCitiesList, toRoutesList, toUserTopList } from "@/components/shared/s
 import { rangeToParams } from "@/components/shared/stats/StatsPageShell";
 import { StatsSection, TopList } from "@/components/shared/stats/StatsSections";
 import {
-  useGetAdminStats,
-  useGetDauMau,
-  useGetSearchesStats,
-  useGetTripsStats,
-  useGetUsersStats,
-  useGetWalletStats,
+  useGetAdminStats, useGetDauMau, useGetSearchesStats,
+  useGetTripsStats, useGetUsersStats, useGetWalletStats,
 } from "@/hooks/adminHooks";
 import { useGetSuperAdminProfile } from "@/hooks/superAdminHooks";
 import { formatCompactNumber, formatNumber } from "@/lib/utils";
 
+// Человекочитаемый лейбл периода для subtext-ов
+const getPeriodLabel = (range: DateRangeValue): string => {
+  const labels: Record<string, string> = {
+    today: "сегодня",
+    yesterday: "вчера",
+    week: "за неделю",
+    month: "за месяц",
+    quarter: "за квартал",
+    year: "за год",
+    custom: "за период",
+  };
+  return labels[range.preset ?? ""] ?? "за период";
+};
+
 const statusToneByKey: Record<string, "emerald" | "sky" | "amber" | "red" | "violet" | "default"> = {
-  COMPLETED: "emerald",
-  CONFIRMED: "emerald",
-  CREATED: "sky",
-  PENDING: "amber",
-  IN_PROGRESS: "amber",
-  CANCELED: "red",
-  CANCELLED: "red",
-  RESOLVED: "sky",
-  REJECTED: "red",
+  COMPLETED: "emerald", CONFIRMED: "emerald",
+  CREATED: "sky", RESOLVED: "sky",
+  PENDING: "amber", IN_PROGRESS: "amber",
+  CANCELED: "red", CANCELLED: "red", REJECTED: "red",
 };
 
 const StatusChips = ({ data }: { data: Record<string, number> | undefined }) => {
@@ -55,21 +48,13 @@ const StatusChips = ({ data }: { data: Record<string, number> | undefined }) => 
     <div className="mt-3 flex flex-wrap gap-1.5">
       {Object.entries(data).map(([k, v]) => {
         const tone = statusToneByKey[k] ?? "default";
-        const cls =
-          tone === "emerald"
-            ? "pill-emerald"
-            : tone === "amber"
-              ? "pill-amber"
-              : tone === "red"
-                ? "pill-red"
-                : tone === "sky"
-                  ? "pill-sky"
-                  : tone === "violet"
-                    ? "pill-violet"
-                    : "pill-slate";
+        const cls = {
+          emerald: "pill-emerald", amber: "pill-amber", red: "pill-red",
+          sky: "pill-sky", violet: "pill-violet", default: "pill-slate",
+        }[tone];
         return (
           <span key={k} className={cls}>
-            {k.replace("_", " ").toLowerCase()} · <span className="tabular-nums">{formatCompactNumber(v)}</span>
+            {k.replace(/_/g, " ").toLowerCase()} · <span className="tabular-nums">{formatCompactNumber(v)}</span>
           </span>
         );
       })}
@@ -78,10 +63,7 @@ const StatusChips = ({ data }: { data: Record<string, number> | undefined }) => 
 };
 
 const QuickLink = ({ href, label }: { href: string; label: string }) => (
-  <Link
-    href={href}
-    className="group inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
-  >
+  <Link href={href} className="group inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300">
     {label}
     <ChevronRight className="size-3 transition group-hover:translate-x-0.5" />
   </Link>
@@ -90,6 +72,8 @@ const QuickLink = ({ href, label }: { href: string; label: string }) => (
 export const Home = () => {
   const [range, setRange] = useState<DateRangeValue>({ preset: "month" });
   const params = rangeToParams(range);
+  const periodLabel = getPeriodLabel(range);
+
   const { data: superAdmin } = useGetSuperAdminProfile();
   const { data: stats, isLoading, isError, refetch } = useGetAdminStats(params);
   const { data: usersData, isLoading: isUsersLoading } = useGetUsersStats(params);
@@ -102,24 +86,24 @@ export const Home = () => {
   const pendingApplications = stats?.applications?.pending ?? 0;
   const inProgressTrips = stats?.trips?.byStatus?.IN_PROGRESS ?? 0;
 
-  // Derived: drivers with >= 1 trip from users-stats top list
-  const activeDriversCount = (usersData?.top?.driversByTrips ?? []).length;
   const topDrivers = toUserTopList(usersData?.top?.driversByTrips, "trips_count");
   const topPassengers = toUserTopList(usersData?.top?.passengersByBookings, "bookings_count");
-
   const topRoutes = toRoutesList(tripsData?.top?.routes);
   const topDepCities = toCitiesList(tripsData?.top?.departureCities, "from_city");
   const topSearchRoutes = toRoutesList(searchesStats?.top?.routes);
-
   const topWallets = toUserTopList(walletData?.top?.usersByBalance, "balance");
 
-  // DAU/MAU with new prop (admin/stats/dau-mau or stats.users.dauMau fallback)
   const dauMauBlock = dauMau ?? stats?.users?.dauMau;
   const segmentation = stats?.users?.bySource?.byRoleAndSource;
   const newBySource = stats?.users?.newBySource?.bySource;
 
+  // Сумма пополнений за период
+  const walletTopUpsAmount = walletData?.topUps?.total ?? stats?.wallet?.topUpsInRange;
+
   return (
     <div className="flex flex-col gap-6">
+
+      {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="title-text">Привет{superAdmin?.firstName ? `, ${superAdmin.firstName}` : ""}!</h2>
@@ -139,115 +123,161 @@ export const Home = () => {
         </div>
       )}
 
-      {/* TOP ROW: rich KPIs */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      {/* ── ROW 1: Real-time / fixed metrics (нет range — всегда текущие) ── */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard
-          title="Активные поездки"
+          title="В пути сейчас"
           value={inProgressTrips}
           icon={Activity}
           tone={inProgressTrips > 0 ? "emerald" : "default"}
           highlight={inProgressTrips > 0}
-          subtext="В пути сейчас"
+          subtext="Активные поездки"
           loading={isLoading}
         />
         <StatCard
-          title="Кошельки"
+          title="Баланс кошельков"
           value={stats?.wallet?.totalBalance != null ? `${formatNumber(stats.wallet.totalBalance)} UZS` : undefined}
           icon={Wallet}
           tone="emerald"
-          subtext="Баланс на руках"
+          subtext="На руках у пользователей"
           loading={isLoading}
         />
-        <StatCard
-          title="Гости"
-          value={stats?.guests?.uniqueInRange}
-          icon={Users}
-          tone="violet"
-          subtext="Уникальных за период"
-          loading={isLoading}
-        />
-        <StatCard
-          title="Завершено"
-          value={stats?.trips?.byStatus?.COMPLETED}
-          icon={CarFront}
-          tone="sky"
-          subtext="Успешные поездки"
-          loading={isLoading}
-        />
-        <StatCard
-          title="Жалобы"
-          value={stats?.reports?.total}
-          icon={Flag}
-          tone={pendingReports > 0 ? "red" : "default"}
-          highlight={pendingReports > 0}
-          subtext={`${formatCompactNumber(pendingReports)} открытых`}
-          loading={isLoading}
-        />
-      </div>
-
-      {/* MIDDLE ROW */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <StatCard
-          title="Пользователи"
-          value={stats?.users?.total}
-          icon={Users}
-          tone="emerald"
-          subtext={
-            stats?.users?.newInRange != null ? `+${formatCompactNumber(stats.users.newInRange)} новых` : undefined
-          }
-          loading={isLoading}
-        />
-        <StatCard
-          title="Водители"
-          value={stats?.users?.drivers}
-          icon={UserCheck}
-          tone="sky"
-          subtext={
-            stats?.users?.newDriversInRange != null
-              ? `+${formatCompactNumber(stats.users.newDriversInRange)} новых`
-              : undefined
-          }
-          loading={isLoading}
-        />
-        <StatCard
-          title="Активные водители"
-          value={activeDriversCount}
-          icon={TrendingUp}
-          tone="emerald"
-          subtext="С поездками"
-          loading={isUsersLoading}
-        />
-        <StatCard title="Забанено" value={stats?.users?.banned} icon={UserX} tone="red" loading={isLoading} />
         <StatCard
           title="Заявки водителей"
           value={pendingApplications}
           icon={ShieldAlert}
           tone={pendingApplications > 0 ? "amber" : "default"}
           highlight={pendingApplications > 0}
-          subtext={`Подтв.: ${formatCompactNumber(stats?.applications?.verified ?? 0)}`}
+          subtext={`Подтверждено всего: ${formatCompactNumber(stats?.applications?.verified ?? 0)}`}
           loading={isLoading}
         />
-        <Link href="/super-admin/bookings" className="contents">
-          <StatCard
-            title="Бронирований"
-            value={stats?.bookings?.total}
-            icon={Ticket}
-            tone="sky"
-            loading={isLoading}
-            subtext="Перейти к списку →"
-            className="cursor-pointer transition hover:ring-2 hover:ring-sky-500/30"
-          />
-        </Link>
+        <StatCard
+          title="Забанено"
+          value={stats?.users?.banned}
+          icon={UserX}
+          tone="red"
+          subtext={`Всего пользователей: ${formatCompactNumber(stats?.users?.total)}`}
+          loading={isLoading}
+        />
       </div>
 
-      {/* DAU / MAU / Stickiness */}
+      {/* ── ROW 2: Пользователи за период ── */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard
+          title="Новых пользователей"
+          value={stats?.users?.newInRange}
+          icon={Users}
+          tone="emerald"
+          subtext={`Всего в базе: ${formatCompactNumber(stats?.users?.total)}`}
+          loading={isLoading}
+        />
+        <StatCard
+          title="Новых пассажиров"
+          value={stats?.users?.newInRange - stats?.users?.passengerInRange}
+          icon={Users}
+          tone="sky"
+          subtext={`Всего: ${formatCompactNumber(stats?.users?.passengers)}`}
+          loading={isLoading}
+        />
+        <StatCard
+          title="Новых водителей"
+          value={stats?.users?.newDriversInRange}
+          icon={UserCheck}
+          tone="sky"
+          subtext={`Всего: ${formatCompactNumber(stats?.users?.drivers)}`}
+          loading={isLoading}
+        />
+        <StatCard
+          title="Гостей (без акк.)"
+          value={stats?.guests?.uniqueInRange}
+          icon={Users}
+          tone="violet"
+          subtext={`Уникальных ${periodLabel}`}
+          loading={isLoading}
+        />
+      </div>
+
+      {/* ── ROW 3: Поездки и бронирования за период ── */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard
+          title="Поездок создано"
+          value={stats?.trips?.createdInRange}
+          icon={CarFront}
+          tone="sky"
+          subtext={`Всего в базе: ${formatCompactNumber(stats?.trips?.total)}`}
+          loading={isLoading}
+        />
+        <StatCard
+          title="Поездок завершено"
+          value={stats?.trips?.completedInRange}
+          icon={CarFront}
+          tone="emerald"
+          subtext={`Всего завершено: ${formatCompactNumber(stats?.trips?.byStatus?.COMPLETED)}`}
+          loading={isLoading}
+        />
+        <StatCard
+          title="Бронирований"
+          value={stats?.bookings?.totalInRange}
+          icon={Ticket}
+          tone="sky"
+          subtext={`Всего в базе: ${formatCompactNumber(stats?.bookings?.total)}`}
+          loading={isLoading}
+        />
+        <StatCard
+          title="Жалоб подано"
+          value={stats?.reports?.newInRange ?? stats?.reports?.total}
+          icon={Flag}
+          tone={pendingReports > 0 ? "red" : "default"}
+          highlight={pendingReports > 0}
+          subtext={`Открытых: ${formatCompactNumber(pendingReports)} · Всего: ${formatCompactNumber(stats?.reports?.total)}`}
+          loading={isLoading}
+        />
+      </div>
+
+      {/* ── ROW 4: Финансы за период ── */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <StatCard
+          title="Пополнений кошельков"
+          value={walletTopUpsAmount != null ? `${formatNumber(walletTopUpsAmount)} UZS` : undefined}
+          icon={Wallet}
+          tone="emerald"
+          subtext={`Транзакций: ${formatCompactNumber(walletData?.topUps?.count ?? 0)}`}
+          loading={isLoading || isWalletLoading}
+        />
+        <StatCard
+          title="Средний чек пополнения"
+          value={
+            walletData?.topUps?.averageInRange != null && walletData.topUps.averageInRange > 0
+              ? `${formatNumber(Math.round(walletData.topUps.averageInRange))} UZS`
+              : undefined
+          }
+          icon={Wallet}
+          tone="sky"
+          subtext={`За ${periodLabel}`}
+          loading={isWalletLoading}
+        />
+        <StatCard
+          title="Выручка с бронирований"
+          value={
+            walletData?.financials?.revenueInRange != null
+              ? `${formatNumber(walletData.financials.revenueInRange)} UZS`
+              : undefined
+          }
+          icon={Banknote}
+          tone="emerald"
+          subtext={`Подтверждённые бронирования ${periodLabel}`}
+          loading={isWalletLoading}
+        />
+      </div>
+
+      {/* ── ROW 5: DAU / MAU ── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard
           title="DAU"
           value={dauMauBlock?.dau?.total}
           icon={Activity}
           tone="emerald"
-          subtext="Активных за 24 ч"
+          subtext="Живых пользователей за 24 ч"
           loading={isDauMauLoading || isLoading}
         />
         <StatCard
@@ -255,7 +285,7 @@ export const Home = () => {
           value={dauMauBlock?.mau?.total}
           icon={Users}
           tone="sky"
-          subtext="Активных за 30 дней"
+          subtext="Живых пользователей за 30 дней"
           loading={isDauMauLoading || isLoading}
         />
         <StatCard
@@ -263,11 +293,11 @@ export const Home = () => {
           value={dauMauBlock?.stickiness != null ? `${(Number(dauMauBlock.stickiness) * 100).toFixed(1)}%` : undefined}
           icon={Zap}
           tone="violet"
-          subtext="DAU / MAU"
+          subtext="DAU ÷ MAU — удержание"
           loading={isDauMauLoading || isLoading}
         />
         <StatCard
-          title="Активных водителей (DAU)"
+          title="Водителей в DAU"
           value={dauMauBlock?.dau?.byRole?.drivers}
           icon={UserCheck}
           tone="amber"
@@ -276,11 +306,11 @@ export const Home = () => {
         />
       </div>
 
-      {/* Segmentation by registration_source */}
+      {/* ── Segmentation ── */}
       {segmentation && (
         <StatsSection
           title="Сегментация: роль × источник регистрации"
-          description="Откуда пришли пользователи: сами (через приложение), импорт из telegram-бота, reg-бот"
+          description="Откуда пришли пользователи: сами (приложение), импорт из Telegram-бота, reg-бот"
         >
           <div className="grid gap-4 lg:grid-cols-2">
             {(["drivers", "passengers"] as const).map((role) => {
@@ -320,16 +350,12 @@ export const Home = () => {
                   </ul>
                   {newBySource && (
                     <p className="text-muted-foreground mt-3 border-t pt-3 text-xs">
-                      Новых за период: сами{" "}
+                      Новых {periodLabel}: сами{" "}
                       <span className="text-foreground tabular-nums">{formatCompactNumber(newBySource.self ?? 0)}</span>
                       , бот-импорт{" "}
-                      <span className="text-foreground tabular-nums">
-                        {formatCompactNumber(newBySource.botImported ?? 0)}
-                      </span>
+                      <span className="text-foreground tabular-nums">{formatCompactNumber(newBySource.botImported ?? 0)}</span>
                       , reg-бот{" "}
-                      <span className="text-foreground tabular-nums">
-                        {formatCompactNumber(newBySource.regBot ?? 0)}
-                      </span>
+                      <span className="text-foreground tabular-nums">{formatCompactNumber(newBySource.regBot ?? 0)}</span>
                     </p>
                   )}
                 </div>
@@ -339,7 +365,7 @@ export const Home = () => {
         </StatsSection>
       )}
 
-      {/* Status distribution chips */}
+      {/* ── Status chips ── */}
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="bg-card rounded-xl border p-4">
           <div className="flex items-center justify-between">
@@ -364,42 +390,39 @@ export const Home = () => {
         </div>
       </div>
 
-      {/* Charts grid */}
+      {/* ── Charts ── */}
       <div className="grid gap-4 lg:grid-cols-2">
         <OverviewChart
           title="Регистрации"
           total={stats?.users?.newInRange}
-          totalSuffix="за период"
+          totalSuffix={periodLabel}
           loading={isLoading}
           series={[
-            { name: "Пользователи", data: stats?.users?.graph ?? [], color: "var(--chart-1)" },
+            { name: "Все пользователи", data: stats?.users?.graph ?? [], color: "var(--chart-1)" },
             { name: "Водители", data: stats?.users?.driversGraph ?? [], color: "var(--chart-2)" },
           ]}
         />
         <OverviewChart
           title="Поездки"
           total={stats?.trips?.createdInRange}
-          totalSuffix="создано"
+          totalSuffix={`создано ${periodLabel}`}
           loading={isLoading}
           series={[
-            {
-              name: "Создано",
-              data: tripsData?.timeSeries?.created ?? stats?.trips?.graph ?? [],
-              color: "var(--chart-1)",
-            },
+            { name: "Создано", data: tripsData?.timeSeries?.created ?? stats?.trips?.graph ?? [], color: "var(--chart-1)" },
             { name: "Завершено", data: tripsData?.timeSeries?.completed ?? [], color: "var(--chart-2)" },
             { name: "Отменено", data: tripsData?.timeSeries?.canceled ?? [], color: "var(--chart-4)" },
           ]}
         />
         <OverviewChart
           title="Бронирования"
-          total={stats?.bookings?.total}
+          total={stats?.bookings?.totalInRange}
+          totalSuffix={periodLabel}
           loading={isLoading}
           series={[{ name: "Бронирования", data: stats?.bookings?.graph ?? [], color: "var(--chart-3)" }]}
         />
         <OverviewChart
           title="Пополнения кошельков"
-          total={walletData?.topUps?.total ?? stats?.wallet?.topUpsInRange}
+          total={walletTopUpsAmount}
           totalSuffix="UZS"
           loading={isLoading || isWalletLoading}
           series={[
@@ -408,7 +431,7 @@ export const Home = () => {
         />
       </div>
 
-      {/* Top routes — published vs searched */}
+      {/* ── Top lists ── */}
       <div className="grid gap-4 lg:grid-cols-2">
         <StatsSection title="Топ маршрутов (опубликованные трипы)">
           <TopList data={topRoutes} loading={isTripsLoading} limit={10} />
@@ -416,45 +439,31 @@ export const Home = () => {
         <StatsSection title="Топ маршрутов поиска">
           <div className="flex flex-col gap-2">
             <TopList data={topSearchRoutes} loading={isSearchesLoading} limit={10} />
-            <Link
-              href="/super-admin/searches"
-              className="inline-flex items-center gap-1 self-end text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
-            >
-              Все маршруты поиска
-              <ChevronRight className="size-3" />
+            <Link href="/super-admin/searches" className="inline-flex items-center gap-1 self-end text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400">
+              Все маршруты поиска <ChevronRight className="size-3" />
             </Link>
           </div>
         </StatsSection>
       </div>
 
-      {/* Cities */}
       <div className="grid gap-4 lg:grid-cols-2">
         <StatsSection title="Топ городов отправления">
           <TopList data={topDepCities} loading={isTripsLoading} limit={10} />
         </StatsSection>
-        {searchesStats?.unmatched?.routes?.length > 0 && (
-          <StatsSection title="Спрос без предложения" description="Ищут, но активных трипов нет">
+        {(searchesStats?.unmatched?.routes?.length ?? 0) > 0 && (
+          <StatsSection title="Спрос без предложения" description="Ищут маршрут, но активных трипов нет">
             <ul className="space-y-1.5">
-              {searchesStats.unmatched.routes.slice(0, 8).map((r: any, i: number) => (
-                <li
-                  key={`${r.from_city}-${r.to_city}-${i}`}
-                  className="flex items-center justify-between gap-2 rounded-lg border bg-amber-50/40 px-3 py-1.5 text-sm dark:bg-amber-900/10"
-                >
-                  <span className="font-medium">
-                    {r.from_city} → {r.to_city}
-                  </span>
+              {searchesStats!.unmatched.routes.slice(0, 8).map((r: any, i: number) => (
+                <li key={`${r.from_city}-${r.to_city}-${i}`} className="flex items-center justify-between gap-2 rounded-lg border bg-amber-50/40 px-3 py-1.5 text-sm dark:bg-amber-900/10">
+                  <span className="font-medium">{r.from_city} → {r.to_city}</span>
                   <span className="text-amber-700 tabular-nums dark:text-amber-300">
                     {formatCompactNumber(Number(r.searches_count))}
                   </span>
                 </li>
               ))}
             </ul>
-            <Link
-              href="/super-admin/searches"
-              className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
-            >
-              Все маршруты
-              <ChevronRight className="size-3" />
+            <Link href="/super-admin/searches" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400">
+              Все маршруты <ChevronRight className="size-3" />
             </Link>
           </StatsSection>
         )}
@@ -473,35 +482,23 @@ export const Home = () => {
         <TopList data={topWallets} loading={isWalletLoading} format="money" limit={10} />
       </StatsSection>
 
-      {/* Quick deep-link cards */}
+      {/* ── Quick links ── */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {[
           { href: "/super-admin/bookings", title: "Бронирования", icon: Ticket, tone: "sky" as const },
           { href: "/super-admin/searches", title: "Маршруты поиска", icon: Search, tone: "emerald" as const },
           { href: "/super-admin/stats/users", title: "Аналитика пользователей", icon: Users, tone: "emerald" as const },
           { href: "/super-admin/stats/wallet", title: "Финансовая аналитика", icon: Banknote, tone: "sky" as const },
-          {
-            href: "/super-admin/stats/active-trips",
-            title: "Активные поездки",
-            icon: Activity,
-            tone: "amber" as const,
-          },
-          {
-            href: "/super-admin/stats/admins",
-            title: "Активность админов",
-            icon: CircleDollarSign,
-            tone: "violet" as const,
-          },
+          { href: "/super-admin/stats/active-trips", title: "Активные поездки", icon: Activity, tone: "amber" as const },
+          { href: "/super-admin/stats/admins", title: "Активность админов", icon: CircleDollarSign, tone: "violet" as const },
         ].map((q) => {
           const Icon = q.icon;
-          const tone =
-            q.tone === "emerald"
-              ? "text-emerald-500 bg-emerald-500/10"
-              : q.tone === "sky"
-                ? "text-sky-500 bg-sky-500/10"
-                : q.tone === "amber"
-                  ? "text-amber-500 bg-amber-500/10"
-                  : "text-violet-500 bg-violet-500/10";
+          const tone = {
+            emerald: "text-emerald-500 bg-emerald-500/10",
+            sky: "text-sky-500 bg-sky-500/10",
+            amber: "text-amber-500 bg-amber-500/10",
+            violet: "text-violet-500 bg-violet-500/10",
+          }[q.tone];
           return (
             <Link key={q.href} href={q.href} className="stats-card group flex items-center gap-3 p-4">
               <span className={`flex size-10 items-center justify-center rounded-xl ${tone}`}>
@@ -513,6 +510,7 @@ export const Home = () => {
           );
         })}
       </div>
+
     </div>
   );
 };

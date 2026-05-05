@@ -59,9 +59,9 @@ export const UsersStats = () => {
   const bySource = toDistribution(distribution.bySource, ["registration_source", "source"]);
   const byHour = toHourDistribution(registrations.byHourOfDay);
 
-  const total = byRole.reduce((s, x) => s + x.count, 0);
-  const drivers = byRole.find((x) => /driver/i.test(x.label))?.count ?? 0;
-  const passengers = byRole.find((x) => /passenger/i.test(x.label))?.count ?? 0;
+  const totalUsers = data?.totalInRange ?? 0;
+  const passengers = data?.passengerInRange ?? 0;
+  const drivers = data?.driversInRange ?? 0;
 
   const topDrivers = toUserTopList(top.driversByTrips, "trips_count");
   const topPassengers = toUserTopList(top.passengersByBookings, "bookings_count");
@@ -76,7 +76,7 @@ export const UsersStats = () => {
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <StatCard title="Всего" value={total} icon={Users} loading={isLoading} />
+        <StatCard title="Всего" value={totalUsers} icon={Users} loading={isLoading} />
         <StatCard title="Водители" value={drivers} icon={Users} tone="sky" loading={isLoading} />
         <StatCard title="Пассажиры" value={passengers} icon={Users} tone="violet" loading={isLoading} />
         <StatCard title="Верифицировано" value={flags.verified} icon={ShieldCheck} tone="emerald" loading={isLoading} />

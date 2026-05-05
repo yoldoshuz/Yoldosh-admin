@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CarIcon, LogOut, Search } from "lucide-react";
+import { CarIcon, LogOut } from "lucide-react";
 
 import {
   Sidebar,

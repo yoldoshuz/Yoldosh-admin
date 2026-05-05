@@ -3,9 +3,20 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Activity, Banknote, CarFront, ChevronRight, CircleDollarSign,
-  Flag, Search, ShieldAlert, Ticket, TrendingUp,
-  UserCheck, Users, UserX, Wallet, Zap,
+  Activity,
+  Banknote,
+  CarFront,
+  ChevronRight,
+  CircleDollarSign,
+  Flag,
+  Search,
+  ShieldAlert,
+  Ticket,
+  UserCheck,
+  Users,
+  UserX,
+  Wallet,
+  Zap,
 } from "lucide-react";
 
 import { DateRangePicker, DateRangeValue } from "@/components/shared/DateRangePicker";
@@ -15,8 +26,12 @@ import { toCitiesList, toRoutesList, toUserTopList } from "@/components/shared/s
 import { rangeToParams } from "@/components/shared/stats/StatsPageShell";
 import { StatsSection, TopList } from "@/components/shared/stats/StatsSections";
 import {
-  useGetAdminStats, useGetDauMau, useGetSearchesStats,
-  useGetTripsStats, useGetUsersStats, useGetWalletStats,
+  useGetAdminStats,
+  useGetDauMau,
+  useGetSearchesStats,
+  useGetTripsStats,
+  useGetUsersStats,
+  useGetWalletStats,
 } from "@/hooks/adminHooks";
 import { useGetSuperAdminProfile } from "@/hooks/superAdminHooks";
 import { formatCompactNumber, formatNumber } from "@/lib/utils";
@@ -36,10 +51,15 @@ const getPeriodLabel = (range: DateRangeValue): string => {
 };
 
 const statusToneByKey: Record<string, "emerald" | "sky" | "amber" | "red" | "violet" | "default"> = {
-  COMPLETED: "emerald", CONFIRMED: "emerald",
-  CREATED: "sky", RESOLVED: "sky",
-  PENDING: "amber", IN_PROGRESS: "amber",
-  CANCELED: "red", CANCELLED: "red", REJECTED: "red",
+  COMPLETED: "emerald",
+  CONFIRMED: "emerald",
+  CREATED: "sky",
+  RESOLVED: "sky",
+  PENDING: "amber",
+  IN_PROGRESS: "amber",
+  CANCELED: "red",
+  CANCELLED: "red",
+  REJECTED: "red",
 };
 
 const StatusChips = ({ data }: { data: Record<string, number> | undefined }) => {
@@ -49,8 +69,12 @@ const StatusChips = ({ data }: { data: Record<string, number> | undefined }) => 
       {Object.entries(data).map(([k, v]) => {
         const tone = statusToneByKey[k] ?? "default";
         const cls = {
-          emerald: "pill-emerald", amber: "pill-amber", red: "pill-red",
-          sky: "pill-sky", violet: "pill-violet", default: "pill-slate",
+          emerald: "pill-emerald",
+          amber: "pill-amber",
+          red: "pill-red",
+          sky: "pill-sky",
+          violet: "pill-violet",
+          default: "pill-slate",
         }[tone];
         return (
           <span key={k} className={cls}>
@@ -63,7 +87,10 @@ const StatusChips = ({ data }: { data: Record<string, number> | undefined }) => 
 };
 
 const QuickLink = ({ href, label }: { href: string; label: string }) => (
-  <Link href={href} className="group inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300">
+  <Link
+    href={href}
+    className="group inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
+  >
     {label}
     <ChevronRight className="size-3 transition group-hover:translate-x-0.5" />
   </Link>
@@ -102,7 +129,6 @@ export const Home = () => {
 
   return (
     <div className="flex flex-col gap-6">
-
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -353,9 +379,13 @@ export const Home = () => {
                       Новых {periodLabel}: сами{" "}
                       <span className="text-foreground tabular-nums">{formatCompactNumber(newBySource.self ?? 0)}</span>
                       , бот-импорт{" "}
-                      <span className="text-foreground tabular-nums">{formatCompactNumber(newBySource.botImported ?? 0)}</span>
+                      <span className="text-foreground tabular-nums">
+                        {formatCompactNumber(newBySource.botImported ?? 0)}
+                      </span>
                       , reg-бот{" "}
-                      <span className="text-foreground tabular-nums">{formatCompactNumber(newBySource.regBot ?? 0)}</span>
+                      <span className="text-foreground tabular-nums">
+                        {formatCompactNumber(newBySource.regBot ?? 0)}
+                      </span>
                     </p>
                   )}
                 </div>
@@ -408,7 +438,11 @@ export const Home = () => {
           totalSuffix={`создано ${periodLabel}`}
           loading={isLoading}
           series={[
-            { name: "Создано", data: tripsData?.timeSeries?.created ?? stats?.trips?.graph ?? [], color: "var(--chart-1)" },
+            {
+              name: "Создано",
+              data: tripsData?.timeSeries?.created ?? stats?.trips?.graph ?? [],
+              color: "var(--chart-1)",
+            },
             { name: "Завершено", data: tripsData?.timeSeries?.completed ?? [], color: "var(--chart-2)" },
             { name: "Отменено", data: tripsData?.timeSeries?.canceled ?? [], color: "var(--chart-4)" },
           ]}
@@ -439,7 +473,10 @@ export const Home = () => {
         <StatsSection title="Топ маршрутов поиска">
           <div className="flex flex-col gap-2">
             <TopList data={topSearchRoutes} loading={isSearchesLoading} limit={10} />
-            <Link href="/super-admin/searches" className="inline-flex items-center gap-1 self-end text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400">
+            <Link
+              href="/super-admin/searches"
+              className="inline-flex items-center gap-1 self-end text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+            >
               Все маршруты поиска <ChevronRight className="size-3" />
             </Link>
           </div>
@@ -454,15 +491,23 @@ export const Home = () => {
           <StatsSection title="Спрос без предложения" description="Ищут маршрут, но активных трипов нет">
             <ul className="space-y-1.5">
               {searchesStats!.unmatched.routes.slice(0, 8).map((r: any, i: number) => (
-                <li key={`${r.from_city}-${r.to_city}-${i}`} className="flex items-center justify-between gap-2 rounded-lg border bg-amber-50/40 px-3 py-1.5 text-sm dark:bg-amber-900/10">
-                  <span className="font-medium">{r.from_city} → {r.to_city}</span>
+                <li
+                  key={`${r.from_city}-${r.to_city}-${i}`}
+                  className="flex items-center justify-between gap-2 rounded-lg border bg-amber-50/40 px-3 py-1.5 text-sm dark:bg-amber-900/10"
+                >
+                  <span className="font-medium">
+                    {r.from_city} → {r.to_city}
+                  </span>
                   <span className="text-amber-700 tabular-nums dark:text-amber-300">
                     {formatCompactNumber(Number(r.searches_count))}
                   </span>
                 </li>
               ))}
             </ul>
-            <Link href="/super-admin/searches" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400">
+            <Link
+              href="/super-admin/searches"
+              className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+            >
               Все маршруты <ChevronRight className="size-3" />
             </Link>
           </StatsSection>
@@ -489,8 +534,18 @@ export const Home = () => {
           { href: "/super-admin/searches", title: "Маршруты поиска", icon: Search, tone: "emerald" as const },
           { href: "/super-admin/stats/users", title: "Аналитика пользователей", icon: Users, tone: "emerald" as const },
           { href: "/super-admin/stats/wallet", title: "Финансовая аналитика", icon: Banknote, tone: "sky" as const },
-          { href: "/super-admin/stats/active-trips", title: "Активные поездки", icon: Activity, tone: "amber" as const },
-          { href: "/super-admin/stats/admins", title: "Активность админов", icon: CircleDollarSign, tone: "violet" as const },
+          {
+            href: "/super-admin/stats/active-trips",
+            title: "Активные поездки",
+            icon: Activity,
+            tone: "amber" as const,
+          },
+          {
+            href: "/super-admin/stats/admins",
+            title: "Активность админов",
+            icon: CircleDollarSign,
+            tone: "violet" as const,
+          },
         ].map((q) => {
           const Icon = q.icon;
           const tone = {
@@ -510,7 +565,6 @@ export const Home = () => {
           );
         })}
       </div>
-
     </div>
   );
 };

@@ -21,7 +21,6 @@ import { useIntersectionObserver } from "usehooks-ts";
 
 import { CategoryBadge } from "@/components/shared/CategoryBadge";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { EntityLink } from "@/components/shared/EntityLink";
 import { LogDetailsDrawer } from "@/components/shared/LogDetailsDrawer";
 import { StatCard } from "@/components/shared/StatCard";
 import { Button } from "@/components/ui/button";

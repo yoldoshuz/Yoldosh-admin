@@ -4,18 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Check,
-  Copyright,
-  File,
-  Image as ImageIcon,
-  Info,
-  PaintbrushVertical,
-  Phone,
-  Send,
-  UserRound,
-  X,
-} from "lucide-react";
+import { Check, Image as ImageIcon, Info, Phone, Send, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 

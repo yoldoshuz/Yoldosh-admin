@@ -7,7 +7,6 @@ import api from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 import {
   banUserSchema,
-  carModelSchema,
   editTripSchema,
   globalNotificationSchema,
   globalPromoCodeSchema,

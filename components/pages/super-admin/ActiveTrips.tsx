@@ -5,7 +5,6 @@ import { useIntersectionObserver } from "usehooks-ts";
 
 import { DataStateDisplay } from "@/components/shared/layout/DataStateDisplay";
 import { TripCard } from "@/components/shared/user/UserItems";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetSuperAdminActiveTrips } from "@/hooks/superAdminHooks";
 

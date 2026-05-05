@@ -1,4 +1,4 @@
-import { Moon, Sun, UserRound } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 
 import { ThemeSwitcher } from "@/components/functions/ThemeSwitcher";
 import { SidebarTrigger } from "@/components/ui/sidebar";

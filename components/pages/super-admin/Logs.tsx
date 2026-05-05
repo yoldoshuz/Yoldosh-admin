@@ -15,7 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useGetAllAdmins, useGetGlobalLogs } from "@/hooks/superAdminHooks";
-import { adminLogCategoryMeta, cn, formatRelativeTime, shortUserAgent } from "@/lib/utils";
+import { adminLogCategoryMeta, cn, formatRelativeTime } from "@/lib/utils";
 import { AdminLog } from "@/types";
 
 const CATEGORIES = Object.keys(adminLogCategoryMeta);

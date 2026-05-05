@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { ArrowDownLeft, ArrowUpRight, Wallet } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { useIntersectionObserver } from "usehooks-ts";
 
 import { DataStateDisplay } from "@/components/shared/layout/DataStateDisplay";

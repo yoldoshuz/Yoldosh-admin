@@ -191,7 +191,7 @@ export const Home = () => {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard
           title="Новых пользователей"
-          value={stats?.users?.newInRange}
+          value={stats?.users?.totalInRange}
           icon={Users}
           tone="emerald"
           subtext={`Всего в базе: ${formatCompactNumber(stats?.users?.total)}`}
@@ -199,7 +199,7 @@ export const Home = () => {
         />
         <StatCard
           title="Новых пассажиров"
-          value={stats?.users?.newInRange - stats?.users?.passengerInRange}
+          value={stats?.users?.passengerInRange}
           icon={Users}
           tone="sky"
           subtext={`Всего: ${formatCompactNumber(stats?.users?.passengers)}`}
@@ -207,7 +207,7 @@ export const Home = () => {
         />
         <StatCard
           title="Новых водителей"
-          value={stats?.users?.newDriversInRange}
+          value={stats?.users?.driversInRange}
           icon={UserCheck}
           tone="sky"
           subtext={`Всего: ${formatCompactNumber(stats?.users?.drivers)}`}

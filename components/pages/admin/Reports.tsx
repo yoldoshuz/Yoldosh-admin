@@ -26,11 +26,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useBanUser, useGetReports, useUpdateReportStatus } from "@/hooks/adminHooks";
+import { useBasePath } from "@/hooks/useBasePath";
 import { banUserSchema } from "@/lib/schemas";
 import { formatDate, getStatusColor } from "@/lib/utils";
 import { Report } from "@/types";
 
 const ReportsTable = ({ status }: { status: "PENDING" | "RESOLVED" | "REJECTED" }) => {
+  const base = useBasePath();
   const [searchTerm, setSearchTerm] = useState("");
   const [sort, setSort] = useState({ sortBy: "createdAt", sortOrder: "DESC" });
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
@@ -154,14 +156,14 @@ const ReportsTable = ({ status }: { status: "PENDING" | "RESOLVED" | "REJECTED" 
                     <div className="flex w-full flex-col items-center justify-between gap-4 sm:flex-row">
                       <div className="flex flex-col space-y-4 text-sm">
                         <Link
-                          href={`/admin/users-search/`} //${report.reportingUser.id}
+                          href={`/${base}/users-search/${report.reportingUser?.id ?? ""}`}
                           className="link-text flex flex-col"
                         >
                           <span className="text-muted-foreground">От:</span>
                           <span className="font-semibold">{report.reportingUser?.firstName || "N/A"}</span>
                         </Link>
                         <Link
-                          href={`/admin/users-search/`} // ${report.reportedUser.id}
+                          href={`/${base}/users-search/${report.reportedUser?.id ?? ""}`}
                           className="link-text flex flex-col"
                         >
                           <span className="text-muted-foreground">На:</span>

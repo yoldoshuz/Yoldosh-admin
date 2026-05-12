@@ -25,6 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/sonner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDeleteTrip, useEditTrip, useGetTrips } from "@/hooks/adminHooks";
+import { useBasePath } from "@/hooks/useBasePath";
 import { editTripSchema } from "@/lib/schemas";
 import { formatDate, getStatusColor } from "@/lib/utils";
 import { Trip } from "@/types";
@@ -81,6 +82,7 @@ export function NumberField<T extends FieldValues>({ control, name, label, step 
 }
 
 export const Trips = () => {
+  const base = useBasePath();
   const [activeTab, setActiveTab] = useState<TripStatus | "ALL">("ALL");
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -250,7 +252,7 @@ export const Trips = () => {
                   key={trip.id}
                 >
                   <div className="flex flex-col items-center gap-4 sm:flex-row">
-                    <Link href={`/admin/trips/${trip.id}`} className="link-text text-lg font-bold">
+                    <Link href={`/${base}/trips/${trip.id}`} className="link-text text-lg font-bold">
                       #{trip.id.substring(0, 6)}
                     </Link>
                     <span className={`rounded-full px-3 py-1.5 text-xs font-medium ${getStatusColor(trip.status)}`}>
@@ -260,7 +262,7 @@ export const Trips = () => {
                   </div>
                   <div className="flex w-full flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                     <div className="flex flex-col space-y-4 text-sm">
-                      <Link href={`/admin/users-search/${trip.driver.id}`} className="flex flex-col gap-1">
+                      <Link href={`/${base}/users-search/${trip.driver.id}`} className="flex flex-col gap-1">
                         <span className="text-muted-foreground link-text">Водитель:</span>
                         <span className="link-text font-semibold">
                           {trip.driver.firstName} {trip.driver.lastName}

@@ -1,12 +1,14 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { ImageIcon } from "lucide-react";
+import { Calendar, Car as CarIcon, IdCard, ImageIcon, MapPin, Users } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatDate, formatDocUrl, getStatusColor } from "@/lib/utils";
+import { useBasePath } from "@/hooks/useBasePath";
+import { formatDate, formatDocUrl, getStatusColor, isRealImagePath } from "@/lib/utils";
 
 export const InfoItem = ({
   icon,
@@ -27,138 +29,256 @@ export const InfoItem = ({
   };
 
   return (
-    <div className="flex items-start gap-4">
-      {icon && <div className="text-muted-foreground mt-1">{icon}</div>}
-      <div>
-        <p className="text-muted-foreground text-sm">{label}</p>
-        <p className={`font-semibold break-all ${valueClassName || ""}`}>{renderValue()}</p>
+    <div className="flex items-start gap-3">
+      {icon && <div className="text-muted-foreground mt-0.5">{icon}</div>}
+      <div className="min-w-0">
+        <p className="text-muted-foreground text-xs">{label}</p>
+        <p className={`text-sm font-medium break-all ${valueClassName || ""}`}>{renderValue()}</p>
       </div>
     </div>
   );
 };
 
-export const TripCard = ({ trip }: { trip: any }) => (
-  <Card className="component">
-    <CardHeader>
-      <Link href={`/admin/trips/${trip.id}`} className="link-text flex items-center justify-between">
-        <CardTitle className="font-mono text-base">Поездка #{trip.id.substring(0, 6)}</CardTitle>
-        <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(trip.status)}`}>
-          {trip.status}
-        </span>
-      </Link>
-      <p className="text-muted-foreground text-sm">{formatDate(trip.departure_ts)}</p>
-    </CardHeader>
-    <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
-      <InfoItem label="Откуда" value={trip.from_address || trip.from_city || "N/A"} />
-      <InfoItem label="Куда" value={trip.to_address || trip.to_city || "N/A"} />
-      <InfoItem label="Стоимость" value={`${parseFloat(trip.price_per_person).toLocaleString("ru-RU")} UZS`} />
-    </CardContent>
-  </Card>
-);
-
-export const BookingCard = ({ booking }: { booking: any }) => (
-  <Card className="component">
-    <CardHeader>
-      <div className="flex items-center justify-between">
-        <CardTitle className="font-mono text-base">Бронь #{booking.id.substring(0, 6)}</CardTitle>
-        <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(booking.status)}`}>
-          {booking.status}
-        </span>
+/* ----------------------- Photo thumb (clickable) ---------------------- */
+export const PhotoThumb = ({
+  src,
+  label,
+  ratio = "aspect-[4/3]",
+  empty,
+}: {
+  src?: string | null;
+  label: string;
+  ratio?: string;
+  empty?: string;
+}) => {
+  if (!isRealImagePath(src)) {
+    return (
+      <div
+        className={`bg-muted/40 text-muted-foreground flex w-full flex-col items-center justify-center rounded-lg border border-dashed text-[10px] ${ratio}`}
+      >
+        <ImageIcon className="mb-1 h-4 w-4" />
+        <span className="px-2 text-center">{empty || "Нет фото"}</span>
       </div>
-      <p className="text-muted-foreground text-sm">{formatDate(booking.createdAt)}</p>
+    );
+  }
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          className={`group relative w-full overflow-hidden rounded-lg border transition hover:border-emerald-500 ${ratio}`}
+          aria-label={label}
+        >
+          <Image
+            src={formatDocUrl(src)}
+            alt={label}
+            fill
+            sizes="(max-width: 768px) 50vw, 240px"
+            className="object-cover transition group-hover:scale-105"
+          />
+          <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-2 py-1 text-left text-[10px] font-medium tracking-wide text-white uppercase">
+            {label}
+          </span>
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl p-0">
+        <DialogTitle className="sr-only">{label}</DialogTitle>
+        <Image
+          src={formatDocUrl(src)}
+          alt={label}
+          className="max-h-[85vh] w-full rounded-lg object-contain"
+          width={2048}
+          height={2048}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const KV = ({ label, value, mono }: { label: string; value: React.ReactNode; mono?: boolean }) => (
+  <div className="flex items-center justify-between gap-2 text-[11.5px]">
+    <span className="text-muted-foreground">{label}</span>
+    <span className={`text-foreground text-right ${mono ? "font-mono" : ""}`}>{value ?? "—"}</span>
+  </div>
+);
+
+/* ============================ DriverLicenseCard ============================ */
+export const DriverLicenseCard = ({
+  licenseFrontPath,
+  licensePinfl,
+  typeOfLicence,
+  applicationStatus,
+}: {
+  licenseFrontPath?: string | null;
+  licensePinfl?: string | null;
+  typeOfLicence?: string | null;
+  applicationStatus?: string | null;
+}) => (
+  <Card className="component shadow-none">
+    <CardHeader className="pb-2">
+      <CardTitle className="flex items-center justify-between text-sm">
+        <span className="inline-flex items-center gap-1.5">
+          <IdCard className="size-4" /> Водительское удостоверение
+        </span>
+        {applicationStatus && (
+          <span className={`rounded-full px-2 py-0.5 text-[10px] ${getStatusColor(applicationStatus)}`}>
+            {applicationStatus}
+          </span>
+        )}
+      </CardTitle>
     </CardHeader>
-    <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
-      <InfoItem label="Общая стоимость" value={`${parseFloat(booking.totalPrice).toLocaleString("ru-RU")} UZS`} />
-      <InfoItem label="Мест забронировано" value={booking.seatsBooked} />
-      <InfoItem label="Причина отмены" value={booking.cancellationReason ?? "—"} />
+    <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-[260px_1fr]">
+      <PhotoThumb src={licenseFrontPath} label="Вод. удостоверение" empty="Нет фото прав" />
+      <div className="grid grid-cols-1 gap-y-1 self-start text-sm">
+        <KV label="PINFL" value={licensePinfl} mono />
+        <KV label="Категория" value={typeOfLicence} />
+      </div>
     </CardContent>
   </Card>
 );
 
+/* =============================== TripCard =============================== */
+export const TripCard = ({ trip }: { trip: any }) => {
+  const base = useBasePath();
+  return (
+    <Card className="component shadow-none">
+      <CardHeader className="pb-2">
+        <Link href={`/${base}/trips/${trip.id}`} className="link-text flex items-center justify-between">
+          <CardTitle className="inline-flex items-center gap-1.5 font-mono text-sm">
+            <CarIcon className="size-3.5" /> #{trip.id.substring(0, 6)}
+          </CardTitle>
+          <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${getStatusColor(trip.status)}`}>
+            {trip.status}
+          </span>
+        </Link>
+        <p className="text-muted-foreground inline-flex items-center gap-1 text-[11px]">
+          <Calendar className="size-3" /> {formatDate(trip.departure_ts)}
+        </p>
+      </CardHeader>
+      <CardContent className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <div className="inline-flex items-start gap-1.5 text-xs">
+          <MapPin className="mt-0.5 size-3 text-emerald-500" />
+          <div>
+            <p className="text-muted-foreground text-[10px]">Откуда</p>
+            <p>{trip.from_address || trip.from_city || "—"}</p>
+          </div>
+        </div>
+        <div className="inline-flex items-start gap-1.5 text-xs">
+          <MapPin className="mt-0.5 size-3 text-red-500" />
+          <div>
+            <p className="text-muted-foreground text-[10px]">Куда</p>
+            <p>{trip.to_address || trip.to_city || "—"}</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-muted-foreground text-[10px]">Цена</p>
+          <p className="text-sm font-bold">{parseFloat(trip.price_per_person).toLocaleString("ru-RU")} UZS</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+/* ============================= BookingCard ============================= */
+export const BookingCard = ({ booking }: { booking: any }) => {
+  const base = useBasePath();
+  const tripId = booking.tripId ?? booking.trip?.id;
+  return (
+    <Card className="component shadow-none">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          {tripId ? (
+            <Link href={`/${base}/trips/${tripId}`} className="link-text inline-flex items-center gap-1.5">
+              <CardTitle className="font-mono text-sm">Бронь #{booking.id.substring(0, 6)}</CardTitle>
+            </Link>
+          ) : (
+            <CardTitle className="font-mono text-sm">Бронь #{booking.id.substring(0, 6)}</CardTitle>
+          )}
+          <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${getStatusColor(booking.status)}`}>
+            {booking.status}
+          </span>
+        </div>
+        <p className="text-muted-foreground inline-flex items-center gap-1 text-[11px]">
+          <Calendar className="size-3" /> {formatDate(booking.createdAt)}
+        </p>
+      </CardHeader>
+      <CardContent className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <InfoItem label="Цена" value={`${parseFloat(booking.totalPrice).toLocaleString("ru-RU")} UZS`} />
+        <InfoItem icon={<Users className="size-3.5" />} label="Мест" value={booking.seatsBooked} />
+        {booking.cancellationReason && <InfoItem label="Причина отмены" value={booking.cancellationReason} />}
+      </CardContent>
+    </Card>
+  );
+};
+
+/* ================================ CarCard ============================== */
 export const CarCard = ({ car }: { car: any }) => (
-  <Card className="component">
-    <CardHeader>
-      <div className="flex items-center justify-between">
-        <CardTitle className="text-xl font-bold">
-          {car.make} {car.model}
+  <Card className="component shadow-none">
+    <CardHeader className="pb-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <CardTitle className="inline-flex items-center gap-2 text-base">
+          <CarIcon className="size-4" />
+          <span>
+            {car.make || "—"} {car.model || ""}
+          </span>
+          {car.govNumber && (
+            <span className="bg-background rounded-md border px-2 py-0.5 font-mono text-xs">{car.govNumber}</span>
+          )}
         </CardTitle>
+        <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${getStatusColor(car.status)}`}>
+          {car.status}
+        </span>
       </div>
-      <p className="text-muted-foreground font-mono text-sm">Номер машины: {car.govNumber}</p>
-      <p className="text-muted-foreground font-mono text-sm">Id машины: {car.id}</p>
+      <p className="text-muted-foreground font-mono text-[10px]">{car.id}</p>
     </CardHeader>
-    <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
-      <InfoItem label="Цвет" value={car.color} />
-      <InfoItem label="Дата выдачи" value={car.issueDate} />
-      <InfoItem label="Причина отклонения" value={car.rejectionReason ?? "—"} />
-      <InfoItem label="Создано" value={formatDate(car.createdAt)} />
-      <InfoItem label="Места в машине" value={car.seats} />
-      <InfoItem label="Серийный номер тех. пасспорта" value={car.techPassportSerial} />
 
-      {/* Tech passport */}
-      <div className="flex w-full flex-row flex-wrap items-center justify-start gap-2">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="text-xs">
-              <ImageIcon className="mr-1 h-3 w-3" />
-              Тех пасспорт Спереди
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md p-0">
-            <DialogTitle className="sr-only">Тех пасспорт Спереди</DialogTitle>
-            <Image
-              src={formatDocUrl(car.techPassportFrontPath)}
-              alt="Document Front"
-              className="max-h-[80vh] w-full rounded-lg object-contain"
-              width={2048}
-              height={2048}
-            />
-          </DialogContent>
-        </Dialog>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="text-xs">
-              <ImageIcon className="mr-1 h-3 w-3" />
-              Тех пасспорт Сзади
-            </Button>
-          </DialogTrigger>
-          <DialogTitle className="sr-only">Тех пасспорт Сзади</DialogTitle>
-          <DialogContent className="max-w-md p-0">
-            <Image
-              src={formatDocUrl(car.techPassportBackPath)}
-              alt="Document Back"
-              className="max-h-[80vh] w-full rounded-lg object-contain"
-              width={2048}
-              height={2048}
-            />
-          </DialogContent>
-        </Dialog>
+    <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr]">
+      {/* Photos: license + tech passport (front/back) */}
+      <div className="grid grid-cols-3 gap-2">
+        <PhotoThumb src={car.licenseFrontPath} label="Вод. удост." empty="Нет прав" />
+        <PhotoThumb src={car.techPassportFrontPath} label="Тех. паспорт — лицо" />
+        <PhotoThumb src={car.techPassportBackPath} label="Тех. паспорт — оборот" />
+      </div>
+
+      {/* Info */}
+      <div className="grid grid-cols-2 gap-x-3 gap-y-1 self-start text-sm">
+        <KV label="Цвет" value={car.color} />
+        <KV label="Мест" value={car.seats} />
+        <KV label="Серия т.п." value={car.techPassportSerial} mono />
+        <KV label="Выдан" value={car.issueDate} />
+        <KV label="PINFL вод." value={car.licensePinfl} mono />
+        <KV label="Категория" value={car.typeOfLicence} />
+        <KV label="Создан" value={formatDate(car.createdAt)} />
+        {car.rejectionReason && <KV label="Отказ" value={car.rejectionReason} />}
       </div>
     </CardContent>
   </Card>
 );
 
+/* =============================== ReportCard ============================= */
 export const ReportCard = ({ report }: { report: any }) => (
-  <Card className="component">
-    <CardHeader>
+  <Card className="component shadow-none">
+    <CardHeader className="pb-2">
       <div className="flex items-center justify-between">
-        <CardTitle className="font-mono text-base">
-          Жалоба <span className="text-muted-foreground">#{report.id}</span>
+        <CardTitle className="font-mono text-sm">
+          Жалоба <span className="text-muted-foreground">#{report.id?.substring?.(0, 8) ?? report.id}</span>
         </CardTitle>
-        <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(report.status)}`}>
+        <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${getStatusColor(report.status)}`}>
           {report.status}
         </span>
       </div>
-      <p className="text-muted-foreground text-sm">
-        От: {report.reportingUser?.firstName || "N/A"} — {formatDate(report.createdAt)}
+      <p className="text-muted-foreground text-[11px]">
+        От: {report.reportingUser?.firstName || "N/A"} · {formatDate(report.createdAt)}
       </p>
     </CardHeader>
-    <CardContent className="grid gap-2">
+    <CardContent className="grid gap-1 text-sm">
       <InfoItem label="Причина" value={report.reason} />
-      <InfoItem label="ID поездки" value={report.tripId ?? "—"} />
+      {report.tripId && <InfoItem label="ID поездки" value={report.tripId} />}
     </CardContent>
   </Card>
 );
 
+/* =========================== UserDetailsSkeleton ========================= */
 export const UserDetailsSkeleton = () => (
   <div className="animate-pulse space-y-6">
     <div className="flex items-start justify-between">

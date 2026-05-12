@@ -46,19 +46,72 @@ export type GraphPoint = {
 };
 
 // ============= Domain =============
+export type ApplicationCar = {
+  id: string;
+  driver_id: string;
+  techPassportFrontPath: string | null;
+  techPassportBackPath: string | null;
+  govNumber: string | null;
+  make: string | null;
+  model: string | null;
+  color: string | null;
+  techPassportSerial: string | null;
+  issueDate: string | null;
+  seats: number | null;
+  status: "WAITING_FOR_DIDOX" | "PENDING" | "VERIFIED" | "REJECTED" | string;
+  rejectionReason: string | null;
+  // === Driver license copied onto Car (added 2026-05-12) ===
+  licenseFrontPath?: string | null;
+  licensePinfl?: string | null;
+  typeOfLicence?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ApplicationUser = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  phoneNumber: string | null;
+  avatar: string | null;
+  bio: string | null;
+  date_of__birthday: string | null;
+  gender: "MALE" | "FEMALE" | "OTHER" | null;
+  talkative: boolean | null;
+  music_allowed: boolean | null;
+  pets_allowed: boolean | null;
+  rating: number | null;
+  role: "Passenger" | "Driver" | null;
+  verified: boolean | null;
+  passport_verified: boolean | null;
+  preferred_navigator: string | null;
+  preferredLanguage: string | null;
+  notificationPreferences: Record<string, boolean> | null;
+  isBanned: boolean | null;
+  isHavePromocode: boolean | null;
+  banExpiresAt: string | null;
+  banReason: string | null;
+  registration_source: RegistrationSourceValue | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+  cars: ApplicationCar[];
+};
+
 export type CarApplication = {
   id: string;
   user_id: string;
-  first_name: string;
-  last_name: string;
-  middle_name: string;
+  first_name: string | null;
+  last_name: string | null;
+  middle_name: string | null;
   phone: string;
-  licenseFrontPath: string;
-  licensePinfl: string;
-  typeOfLicence: string;
-  status: "PENDING" | "VERIFIED" | "REJECTED";
+  licenseFrontPath: string | null;
+  licensePinfl: string | null;
+  typeOfLicence: string | null;
+  status: "PENDING" | "VERIFIED" | "REJECTED" | "FAILED_DIDOX";
   createdAt: string;
   updatedAt: string;
+  user?: ApplicationUser | null;
 };
 
 export type Region = {

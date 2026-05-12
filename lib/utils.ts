@@ -7,15 +7,33 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Format document URL
-export const formatDocUrl = (url?: string) => {
-  if (!url) return "https://placehold.co/300x200/EEE/AAA?text=No+Image";
+// Sentinels from data migration that should be treated as "no image".
+const PLACEHOLDER_SENTINELS = ["imported/placeholder", "placeholder", "null", "undefined"];
+
+export const isRealImagePath = (url?: string | null): url is string => {
+  if (!url) return false;
+  const trimmed = url.trim().replace(/^\/+/, "").toLowerCase();
+  if (!trimmed) return false;
+  return !PLACEHOLDER_SENTINELS.includes(trimmed);
+};
+
+// Format document URL — always returns a URL that next/image can load (or a data: stub).
+export const formatDocUrl = (url?: string | null) => {
+  const FALLBACK =
+    "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201%201%22%2F%3E";
+  if (!isRealImagePath(url)) return FALLBACK;
+
+  // Absolute URL — pass through.
+  if (/^https?:\/\//i.test(url) || url.startsWith("data:")) return url;
 
   let formatted = url;
   if (formatted.startsWith("/public/")) {
     formatted = formatted.slice("/public".length);
   }
-
+  if (!formatted.startsWith("/")) {
+    formatted = "/" + formatted;
+  }
+  if (!baseUrl) return FALLBACK;
   return `${baseUrl}${formatted}`;
 };
 

@@ -9,9 +9,11 @@ import { DataStateDisplay } from "@/components/shared/layout/DataStateDisplay";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useGetSuperAdminWallets } from "@/hooks/superAdminHooks";
+import { useBasePath } from "@/hooks/useBasePath";
 import { formatDate } from "@/lib/utils";
 
 export const Wallets = () => {
+  const base = useBasePath();
   const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetSuperAdminWallets(
     {}
   );
@@ -59,7 +61,10 @@ export const Wallets = () => {
                       {tx.id.substring(0, 8)}
                     </TableCell>
                     <TableCell>
-                      <Link href={`/admin/users-search/${tx.wallet?.user?.id}`} className="font-medium hover:underline">
+                      <Link
+                        href={`/${base}/users-search/${tx.wallet?.user?.id}`}
+                        className="font-medium hover:underline"
+                      >
                         {tx.wallet?.user?.firstName} {tx.wallet?.user?.lastName}
                       </Link>
                       <div className="text-muted-foreground text-xs">{tx.wallet?.user?.phoneNumber}</div>
@@ -100,7 +105,7 @@ export const Wallets = () => {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <Link
-                      href={`/admin/users-search/${tx.wallet?.user?.id}`}
+                      href={`/${base}/users-search/${tx.wallet?.user?.id}`}
                       className="block truncate font-medium hover:underline"
                     >
                       {tx.wallet?.user?.firstName} {tx.wallet?.user?.lastName}

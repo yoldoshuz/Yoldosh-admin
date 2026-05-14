@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CarFront, MapPin, Route, TrendingUp } from "lucide-react";
 
+import { ActiveTripsSnapshotBlock } from "@/components/shared/active-trips/ActiveTripsSnapshot";
 import { DateRangeValue } from "@/components/shared/DateRangePicker";
 import { OverviewChart } from "@/components/shared/layout/OverviewChart";
 import { StatCard } from "@/components/shared/StatCard";
@@ -33,6 +34,12 @@ export const TripsStats = () => {
         range={range}
         onRangeChange={setRange}
       />
+
+      {data?.active && (
+        <StatsSection title="Из всего пула — активны сейчас" description="Снапшот текущих поездок">
+          <ActiveTripsSnapshotBlock snapshot={data.active} loading={isLoading} variant="compact" />
+        </StatsSection>
+      )}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard title="Всего поездок" value={totalTrips} icon={CarFront} loading={isLoading} />

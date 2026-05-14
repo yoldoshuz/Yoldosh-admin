@@ -84,6 +84,54 @@ const FeaturePill = ({ on, icon, label }: { on?: boolean; icon: React.ReactNode;
   </span>
 );
 
+const toNum = (v: unknown): number | null => {
+  if (v == null) return null;
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : null;
+};
+
+const MapPreview = ({
+  lat,
+  lon,
+  label,
+}: {
+  lat: number | string | null | undefined;
+  lon: number | string | null | undefined;
+  label: string;
+}) => {
+  const lt = toNum(lat);
+  const ln = toNum(lon);
+  if (lt == null || ln == null) {
+    return (
+      <div className="bg-muted/40 text-muted-foreground flex h-32 w-full items-center justify-center rounded-lg border border-dashed text-[11px]">
+        Координаты не заданы
+      </div>
+    );
+  }
+  // Yandex Maps embeds use `ll=lon,lat`. `pt=lon,lat,pm2rdm` places a red placemark.
+  const embedUrl = `https://yandex.com/map-widget/v1/?ll=${ln}%2C${lt}&z=14&pt=${ln}%2C${lt}%2Cpm2rdm&l=map`;
+  const externalUrl = `https://yandex.com/maps/?ll=${ln}%2C${lt}&z=15&pt=${ln}%2C${lt}%2Cpm2rdm`;
+  return (
+    <a
+      href={externalUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Открыть «${label}» в Яндекс.Картах`}
+      className="group relative block h-40 w-full overflow-hidden rounded-lg border transition hover:border-emerald-500"
+    >
+      <iframe
+        src={embedUrl}
+        title={label}
+        loading="lazy"
+        className="pointer-events-none absolute inset-0 h-full w-full"
+      />
+      <span className="absolute top-2 right-2 inline-flex items-center gap-1 rounded-md bg-white/90 px-2 py-1 text-[10px] font-medium text-slate-800 shadow-sm transition group-hover:bg-white dark:bg-slate-900/90 dark:text-slate-100">
+        <MapPin className="size-3" /> Открыть в Яндекс.Картах
+      </span>
+    </a>
+  );
+};
+
 const TechPassportThumb = ({ src, label }: { src?: string | null; label: string }) => {
   if (!isRealImagePath(src)) {
     return (
@@ -205,26 +253,36 @@ export const TripDetails = ({ tripId }: { tripId: string }) => {
 
           {/* Route timeline */}
           <div className="bg-muted/30 grid grid-cols-1 gap-3 rounded-xl border p-3 md:grid-cols-[1fr_auto_1fr]">
-            <div className="flex items-start gap-2">
-              <MapPin className="mt-1 size-4 shrink-0 text-emerald-500" />
-              <div className="min-w-0">
-                <p className="text-muted-foreground text-[10px] uppercase">Откуда</p>
-                <p className="text-sm font-medium break-words">{trip.from_address || trip.from_city || "—"}</p>
-                <p className="text-muted-foreground mt-0.5 font-mono text-[10px]">
-                  {trip.from_latitude ?? "—"}, {trip.from_longitude ?? "—"}
-                </p>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-start gap-2">
+                <MapPin className="mt-1 size-4 shrink-0 text-emerald-500" />
+                <div className="min-w-0">
+                  <p className="text-muted-foreground text-[10px] uppercase">Откуда</p>
+                  <p className="text-sm font-medium break-words">{trip.from_address || trip.from_city || "—"}</p>
+                  {(trip.from_latitude != null || trip.from_longitude != null) && (
+                    <p className="text-muted-foreground mt-0.5 font-mono text-[10px]">
+                      {trip.from_latitude ?? "—"}, {trip.from_longitude ?? "—"}
+                    </p>
+                  )}
+                </div>
               </div>
+              <MapPreview lat={trip.from_latitude} lon={trip.from_longitude} label="Откуда" />
             </div>
             <ArrowRight className="text-muted-foreground hidden self-center md:block" />
-            <div className="flex items-start gap-2">
-              <MapPin className="mt-1 size-4 shrink-0 text-red-500" />
-              <div className="min-w-0">
-                <p className="text-muted-foreground text-[10px] uppercase">Куда</p>
-                <p className="text-sm font-medium break-words">{trip.to_address || trip.to_city || "—"}</p>
-                <p className="text-muted-foreground mt-0.5 font-mono text-[10px]">
-                  {trip.to_latitude ?? "—"}, {trip.to_longitude ?? "—"}
-                </p>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-start gap-2">
+                <MapPin className="mt-1 size-4 shrink-0 text-red-500" />
+                <div className="min-w-0">
+                  <p className="text-muted-foreground text-[10px] uppercase">Куда</p>
+                  <p className="text-sm font-medium break-words">{trip.to_address || trip.to_city || "—"}</p>
+                  {(trip.to_latitude != null || trip.to_longitude != null) && (
+                    <p className="text-muted-foreground mt-0.5 font-mono text-[10px]">
+                      {trip.to_latitude ?? "—"}, {trip.to_longitude ?? "—"}
+                    </p>
+                  )}
+                </div>
               </div>
+              <MapPreview lat={trip.to_latitude} lon={trip.to_longitude} label="Куда" />
             </div>
           </div>
 

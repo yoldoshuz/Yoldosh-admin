@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Filter, MapPin, Pencil, Search, Trash2 } from "lucide-react";
+import { Filter, MapPin, Pencil, Search, Trash2, Users } from "lucide-react";
 import { Control, FieldPath, FieldValues, useForm } from "react-hook-form";
 import { useDebounceValue, useIntersectionObserver } from "usehooks-ts";
 import z from "zod";
@@ -246,75 +246,95 @@ export const Trips = () => {
             </div>
           ) : allTrips.length > 0 ? (
             <div className="grid-default">
-              {allTrips.map((trip: any) => (
-                <div
-                  className="component flex flex-col gap-4 rounded-xl border p-6 transition hover:border-emerald-500 dark:hover:border-emerald-600"
-                  key={trip.id}
-                >
-                  <div className="flex flex-col items-center gap-4 sm:flex-row">
-                    <Link href={`/${base}/trips/${trip.id}`} className="link-text text-lg font-bold">
-                      #{trip.id.substring(0, 6)}
-                    </Link>
-                    <span className={`rounded-full px-3 py-1.5 text-xs font-medium ${getStatusColor(trip.status)}`}>
-                      {trip.status}
-                    </span>
-                    <time className="text-muted-foreground text-sm">{formatDate(trip.departure_ts)}</time>
-                  </div>
-                  <div className="flex w-full flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-                    <div className="flex flex-col space-y-4 text-sm">
-                      <Link href={`/${base}/users-search/${trip.driver.id}`} className="flex flex-col gap-1">
-                        <span className="text-muted-foreground link-text">Водитель:</span>
-                        <span className="link-text font-semibold">
-                          {trip.driver.firstName} {trip.driver.lastName}
-                        </span>
+              {allTrips.map((trip: any) => {
+                const bookings: any[] = Array.isArray(trip.bookings) ? trip.bookings : [];
+                const confirmedCount = bookings.filter((b) => b.status === "CONFIRMED").length;
+                const pendingCount = bookings.filter((b) => b.status === "PENDING").length;
+                const bookingsRevenue = bookings
+                  .filter((b) => b.status === "CONFIRMED")
+                  .reduce((s, b) => s + Number(b.totalPrice ?? 0), 0);
+                return (
+                  <div
+                    className="component flex flex-col gap-4 rounded-xl border p-6 transition hover:border-emerald-500 dark:hover:border-emerald-600"
+                    key={trip.id}
+                  >
+                    <div className="flex flex-col items-center gap-4 sm:flex-row">
+                      <Link href={`/${base}/trips/${trip.id}`} className="link-text text-lg font-bold">
+                        #{trip.id.substring(0, 6)}
                       </Link>
-                      <div className="flex flex-col gap-1">
-                        <span className="text-muted-foreground">Номер:</span>
-                        <span>{trip.driver.phoneNumber}</span>
-                      </div>
-                      <div className="flex flex-col gap-2 text-base">
-                        <div className="flex flex-row gap-2">
-                          <MapPin className="size-4 text-green-500" />
-                          <div className="flex flex-col gap-1">
-                            <span className="text-muted-foreground text-sm">Откуда:</span>
-                            <span className="font-thin">
-                              {trip.fromRegion?.nameRu || trip.from_address || trip.from_city || "Неизвестно"}
+                      <span className={`rounded-full px-3 py-1.5 text-xs font-medium ${getStatusColor(trip.status)}`}>
+                        {trip.status}
+                      </span>
+                      <time className="text-muted-foreground text-sm">{formatDate(trip.departure_ts)}</time>
+                      {bookings.length > 0 && (
+                        <span className="ml-auto inline-flex flex-wrap items-center gap-1.5 text-[11px]">
+                          <Users className="text-muted-foreground size-3" />
+                          <span className="pill-emerald">CONFIRMED · {confirmedCount}</span>
+                          {pendingCount > 0 && <span className="pill-amber">PENDING · {pendingCount}</span>}
+                          {bookingsRevenue > 0 && (
+                            <span className="text-muted-foreground tabular-nums">
+                              ≈ <span className="text-foreground">{bookingsRevenue.toLocaleString("ru-RU")} UZS</span>
                             </span>
-                          </div>
-                        </div>
-                        <div className="flex flex-row gap-2">
-                          <MapPin className="size-4 text-red-500" />
-                          <div className="flex flex-col gap-1">
-                            <span className="text-muted-foreground text-sm">Куда:</span>
-                            <span className="font-thin">
-                              {trip.toRegion?.nameRu || trip.to_address || trip.to_city || "Неизвестно"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
+                          )}
+                        </span>
+                      )}
                     </div>
-                    <div className="flex h-full flex-col items-center justify-between gap-4">
-                      <div className="h-full w-full text-xl font-bold">
-                        <h1 className="text-center sm:text-right">
-                          {Intl.NumberFormat("fr-FR").format(trip.price_per_person)} UZS
-                        </h1>
+                    <div className="flex w-full flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                      <div className="flex flex-col space-y-4 text-sm">
+                        <Link href={`/${base}/users-search/${trip.driver.id}`} className="flex flex-col gap-1">
+                          <span className="text-muted-foreground link-text">Водитель:</span>
+                          <span className="link-text font-semibold">
+                            {trip.driver.firstName} {trip.driver.lastName}
+                          </span>
+                        </Link>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-muted-foreground">Номер:</span>
+                          <span>{trip.driver.phoneNumber}</span>
+                        </div>
+                        <div className="flex flex-col gap-2 text-base">
+                          <div className="flex flex-row gap-2">
+                            <MapPin className="size-4 text-green-500" />
+                            <div className="flex flex-col gap-1">
+                              <span className="text-muted-foreground text-sm">Откуда:</span>
+                              <span className="font-thin">
+                                {trip.fromRegion?.nameRu || trip.from_address || trip.from_city || "Неизвестно"}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-row gap-2">
+                            <MapPin className="size-4 text-red-500" />
+                            <div className="flex flex-col gap-1">
+                              <span className="text-muted-foreground text-sm">Куда:</span>
+                              <span className="font-thin">
+                                {trip.toRegion?.nameRu || trip.to_address || trip.to_city || "Неизвестно"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex flex-col gap-2 space-x-2 sm:flex-row">
-                        <DialogTrigger asChild>
-                          <Button variant="outline" onClick={() => handleEditClick(trip)}>
-                            Редактировать
-                            <Pencil className="size" />
+                      <div className="flex h-full flex-col items-center justify-between gap-4">
+                        <div className="h-full w-full text-xl font-bold">
+                          <h1 className="text-center sm:text-right">
+                            {Intl.NumberFormat("fr-FR").format(trip.price_per_person)} UZS
+                          </h1>
+                        </div>
+                        <div className="flex flex-col gap-2 space-x-2 sm:flex-row">
+                          <DialogTrigger asChild>
+                            <Button variant="outline" onClick={() => handleEditClick(trip)}>
+                              Редактировать
+                              <Pencil className="size" />
+                            </Button>
+                          </DialogTrigger>
+                          <Button variant="destructive" onClick={() => handleDelete(trip.id)} disabled={isDeleting}>
+                            Удалить
+                            <Trash2 className="size-4" />
                           </Button>
-                        </DialogTrigger>
-                        <Button variant="destructive" onClick={() => handleDelete(trip.id)} disabled={isDeleting}>
-                          Удалить
-                          <Trash2 className="size-4" />
-                        </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="mt-8 flex w-full items-center justify-center">

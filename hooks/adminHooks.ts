@@ -107,12 +107,17 @@ export const useGetWalletStats = (params: RangeParams = {}) => {
   });
 };
 
-export const useGetActiveTripsStats = (params: RangeParams = {}) => {
+type ActiveTripsStatsParams = RangeParams & {
+  limit?: number;
+  upcomingHours?: number;
+};
+
+export const useGetActiveTripsStats = (params: ActiveTripsStatsParams = {}) => {
   return useQuery({
     queryKey: queryKeys.admin.statsActiveTrips(params),
     queryFn: async () => {
       const { data } = await api.get("/admin/stats/active-trips", { params: stripEmpty(params) });
-      return data.data;
+      return data.data as import("@/types").ActiveTripsStatsResponse;
     },
     refetchInterval: 30_000,
   });

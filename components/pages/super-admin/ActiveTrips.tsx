@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useIntersectionObserver } from "usehooks-ts";
 
+import { ActiveTripsSnapshotBlock } from "@/components/shared/active-trips/ActiveTripsSnapshot";
 import { DataStateDisplay } from "@/components/shared/layout/DataStateDisplay";
 import { TripCard } from "@/components/shared/user/UserItems";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,6 +20,7 @@ export const ActiveTrips = () => {
   }, [isIntersecting, hasNextPage, fetchNextPage]);
 
   const trips = data?.pages.flatMap((page: any) => page.trips) ?? [];
+  const snapshot = data?.pages?.[0]?.snapshot;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-6 md:p-8">
@@ -26,6 +28,8 @@ export const ActiveTrips = () => {
         <h1 className="title-text">Активные поездки</h1>
         <p className="subtitle-text">Поездки, которые находятся в статусе "В пути" прямо сейчас.</p>
       </div>
+
+      <ActiveTripsSnapshotBlock snapshot={snapshot} loading={isLoading} variant="compact" />
 
       <DataStateDisplay
         isLoading={isLoading}

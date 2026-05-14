@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CarFront, Flag, ShieldAlert, Ticket, UserCheck, Users } from "lucide-react";
 
+import { ActiveTripsSnapshotBlock } from "@/components/shared/active-trips/ActiveTripsSnapshot";
 import { DateRangePicker, DateRangeValue } from "@/components/shared/DateRangePicker";
 import { OverviewChart } from "@/components/shared/layout/OverviewChart";
 import { StatCard } from "@/components/shared/StatCard";
@@ -61,6 +62,7 @@ export const Home = () => {
 
   const pendingReports = stats?.reports?.byStatus?.PENDING ?? 0;
   const pendingApplications = stats?.applications?.pending ?? 0;
+  const activeTripsSnapshot = stats?.activeTrips ?? stats?.trips?.active;
 
   return (
     <div className="flex flex-col gap-6">
@@ -115,6 +117,16 @@ export const Home = () => {
           loading={isLoading}
         />
       </div>
+
+      {/* Active trips snapshot */}
+      {activeTripsSnapshot && (
+        <div className="bg-card rounded-xl border p-4">
+          <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">
+            Сейчас на платформе
+          </p>
+          <ActiveTripsSnapshotBlock snapshot={activeTripsSnapshot} loading={isLoading} variant="compact" />
+        </div>
+      )}
 
       {/* Status distribution chips */}
       <div className="grid gap-3 sm:grid-cols-3">

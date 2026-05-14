@@ -19,6 +19,7 @@ import {
   Zap,
 } from "lucide-react";
 
+import { ActiveTripsSnapshotBlock } from "@/components/shared/active-trips/ActiveTripsSnapshot";
 import { DateRangePicker, DateRangeValue } from "@/components/shared/DateRangePicker";
 import { OverviewChart } from "@/components/shared/layout/OverviewChart";
 import { StatCard } from "@/components/shared/StatCard";
@@ -111,7 +112,8 @@ export const Home = () => {
 
   const pendingReports = stats?.reports?.byStatus?.PENDING ?? 0;
   const pendingApplications = stats?.applications?.pending ?? 0;
-  const inProgressTrips = stats?.trips?.byStatus?.IN_PROGRESS ?? 0;
+  const activeTripsSnapshot = stats?.activeTrips ?? stats?.trips?.active;
+  const inProgressTrips = activeTripsSnapshot?.counts?.inProgress ?? stats?.trips?.byStatus?.IN_PROGRESS ?? 0;
 
   const topDrivers = toUserTopList(usersData?.top?.driversByTrips, "trips_count");
   const topPassengers = toUserTopList(usersData?.top?.passengersByBookings, "bookings_count");
@@ -186,6 +188,19 @@ export const Home = () => {
           loading={isLoading}
         />
       </div>
+
+      {/* ── Active trips snapshot ── */}
+      {activeTripsSnapshot && (
+        <StatsSection
+          title="Сейчас на платформе"
+          description="Снимок активных поездок · обновляется вместе с остальной сводкой"
+        >
+          <ActiveTripsSnapshotBlock snapshot={activeTripsSnapshot} loading={isLoading} variant="compact" />
+          <div className="mt-3">
+            <QuickLink href="/super-admin/stats/active-trips" label="Открыть страницу активных" />
+          </div>
+        </StatsSection>
+      )}
 
       {/* ── ROW 2: Пользователи за период ── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">

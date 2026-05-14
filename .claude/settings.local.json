@@ -4,7 +4,9 @@
       "Bash(npx tsc *)",
       "Bash(npm update *)",
       "Bash(npm run *)",
-      "Bash(npx prettier *)"
+      "Bash(npx prettier *)",
+      "Bash(npx eslint *)",
+      "Bash(echo \"exit=$?\")"
     ]
   }
 }

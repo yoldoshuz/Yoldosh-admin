@@ -195,6 +195,164 @@ export type Booking = {
   };
 };
 
+// ============= Trip list row bookings (admin /trips and super-admin active/finished) =============
+export type TripListBookingPassenger = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  avatar: string | null;
+  rating: number;
+};
+
+export type TripListBooking = {
+  id: string;
+  status: "CONFIRMED" | "PENDING";
+  seatsBooked: number;
+  totalPrice: number | string;
+  from_city: string;
+  to_city: string;
+  passengerId: string;
+  createdAt: string;
+  passenger: TripListBookingPassenger | null;
+};
+
+// ============= Active trips — snapshot & detailed cards =============
+export type ActiveTripStatus = "IN_PROGRESS" | "CREATED";
+
+export type ActiveTripsByStatusEntry = {
+  tripsCount: number;
+  confirmedBookings: number;
+  pendingBookings: number;
+  seatsBooked: number;
+  seatsAvailable: number;
+  bookingsRevenue: number;
+  potentialRevenue: number;
+  avgPricePerPerson?: number;
+};
+
+export type ActiveTripsSnapshot = {
+  counts: {
+    inProgress: number;
+    created: number;
+    totalActive: number;
+    departingToday: number;
+    startedLast24h: number;
+    confirmedBookings?: number;
+    pendingBookings?: number;
+    upcomingInWindow?: number;
+    upcomingWindowHours?: number;
+  };
+  seats: {
+    total: number;
+    booked: number;
+    available: number;
+    fillRatePercent: number;
+  };
+  financials: {
+    bookingsRevenue: number;
+    potentialRevenue: number;
+    grandTotalIfFull?: number;
+    byStatus?: Record<
+      ActiveTripStatus,
+      { bookingsRevenue: number; potentialRevenue: number; avgPricePerPerson: number }
+    >;
+  };
+  byStatus: Record<ActiveTripStatus, ActiveTripsByStatusEntry>;
+};
+
+export type ActiveTripBooking = {
+  id: string;
+  status: "CONFIRMED" | "PENDING";
+  seatsBooked: number;
+  totalPrice: number;
+  fromCity: string;
+  toCity: string;
+  createdAt: string;
+  passenger: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+    avatar: string | null;
+    rating: number;
+  } | null;
+};
+
+export type ActiveTripCard = {
+  id: string;
+  status: ActiveTripStatus;
+  route: {
+    from: { city: string; address: string; cityId: string | null };
+    to: { city: string; address: string; cityId: string | null };
+    distanceMeters: number | null;
+    durationSeconds: number | null;
+  };
+  schedule: {
+    departureTs: string;
+    arrivalTs: string | null;
+    tripStartTs: string | null;
+    tripEndTs: string | null;
+    createdAt: string;
+    updatedAt: string;
+  };
+  pricing: {
+    pricePerPerson: number;
+    bookingsRevenue: number;
+    potentialRevenue: number;
+  };
+  seats: {
+    total: number;
+    booked: number;
+    available: number;
+    fillRatePercent: number;
+  };
+  bookings: {
+    total: number;
+    confirmed: number;
+    pending: number;
+    list: ActiveTripBooking[];
+  };
+  driver: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+    avatar: string | null;
+    rating: number;
+  } | null;
+  car: {
+    id: string;
+    make: string;
+    model: string;
+    color: string;
+    govNumber: string;
+  } | null;
+  bookingType: "INSTANT" | "REQUEST";
+  comment: string | null;
+};
+
+export type ActiveTripsStatsResponse = ActiveTripsSnapshot & {
+  generatedAt: string;
+  byDepartureCity: Array<{ from_city: string; count: number }>;
+  byArrivalCity: Array<{ to_city: string; count: number }>;
+  topRoutes: Array<{
+    fromCity: string;
+    toCity: string;
+    tripsCount: number;
+    seatsAvailable: number;
+    seatsBooked: number;
+    revenue: number;
+    avgPrice: number;
+  }>;
+  timing: { avgTripDurationMinutes: number; avgStartDelayMinutes: number };
+  trips: {
+    inProgress: ActiveTripCard[];
+    upcoming: ActiveTripCard[];
+    listLimit: number;
+  };
+};
+
 // ============= Search aggregate row =============
 export type SearchRow = {
   from_city: string;

@@ -146,6 +146,8 @@ export const useGetSuperAdminStats = (range: "day" | "week" | "month" = "month")
   });
 };
 
+// Active trips listing (paginated) — now also returns `snapshot` payload alongside `trips`.
+// We expose the snapshot as a derived value via `useGetSuperAdminActiveTripsSnapshot`.
 export const useGetSuperAdminActiveTrips = (filters: any) => {
   return useInfiniteQuery({
     queryKey: ["super-admin", "active-trips", filters],

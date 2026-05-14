@@ -1,0 +1,102 @@
+
+D:\Yoldosh-admin\components\pages\admin\Trips.tsx
+  117:6   warning  React Hook useEffect has a missing dependency: 'fetchNextPage'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  257:17  error    Insert `··`                                                                                                       prettier/prettier
+  258:1   error    Insert `··`                                                                                                       prettier/prettier
+  259:19  error    Insert `··`                                                                                                       prettier/prettier
+  260:17  error    Insert `··`                                                                                                       prettier/prettier
+  261:1   error    Insert `··`                                                                                                       prettier/prettier
+  262:1   error    Replace `····················` with `······················`                                                      prettier/prettier
+  263:23  error    Insert `··`                                                                                                       prettier/prettier
+  264:21  error    Insert `··`                                                                                                       prettier/prettier
+  265:1   error    Replace `····················` with `······················`                                                      prettier/prettier
+  266:23  error    Insert `··`                                                                                                       prettier/prettier
+  267:1   error    Insert `··`                                                                                                       prettier/prettier
+  268:21  error    Insert `··`                                                                                                       prettier/prettier
+  269:21  error    Insert `··`                                                                                                       prettier/prettier
+  270:1   error    Insert `··`                                                                                                       prettier/prettier
+  271:25  error    Insert `··`                                                                                                       prettier/prettier
+  272:1   error    Insert `··`                                                                                                       prettier/prettier
+  273:1   error    Replace `························` with `··························`                                              prettier/prettier
+  274:1   error    Insert `··`                                                                                                       prettier/prettier
+  275:27  error    Insert `··`                                                                                                       prettier/prettier
+  276:1   error    Replace `····························` with `······························`                                      prettier/prettier
+  277:27  error    Insert `··`                                                                                                       prettier/prettier
+  278:1   error    Insert `··`                                                                                                       prettier/prettier
+  279:23  error    Insert `··`                                                                                                       prettier/prettier
+  280:1   error    Insert `··`                                                                                                       prettier/prettier
+  281:19  error    Insert `··`                                                                                                       prettier/prettier
+  282:1   error    Insert `··`                                                                                                       prettier/prettier
+  283:21  error    Insert `··`                                                                                                       prettier/prettier
+  284:1   error    Replace `······················` with `························`                                                  prettier/prettier
+  285:1   error    Insert `··`                                                                                                       prettier/prettier
+  286:25  error    Insert `··`                                                                                                       prettier/prettier
+  287:1   error    Replace `··························` with `····························`                                          prettier/prettier
+  288:25  error    Insert `··`                                                                                                       prettier/prettier
+  289:1   error    Insert `··`                                                                                                       prettier/prettier
+  290:23  error    Insert `··`                                                                                                       prettier/prettier
+  291:1   error    Insert `··`                                                                                                       prettier/prettier
+  292:1   error    Insert `··`                                                                                                       prettier/prettier
+  293:23  error    Insert `··`                                                                                                       prettier/prettier
+  294:1   error    Insert `··`                                                                                                       prettier/prettier
+  295:1   error    Replace `························` with `··························`                                              prettier/prettier
+  296:1   error    Insert `··`                                                                                                       prettier/prettier
+  297:27  error    Insert `··`                                                                                                       prettier/prettier
+  298:1   error    Replace `····························` with `······························`                                      prettier/prettier
+  299:29  error    Insert `··`                                                                                                       prettier/prettier
+  300:1   error    Insert `··`                                                                                                       prettier/prettier
+  301:29  error    Insert `··`                                                                                                       prettier/prettier
+  302:27  error    Insert `··`                                                                                                       prettier/prettier
+  303:1   error    Insert `··`                                                                                                       prettier/prettier
+  304:25  error    Insert `··`                                                                                                       prettier/prettier
+  305:1   error    Insert `··`                                                                                                       prettier/prettier
+  306:1   error    Replace `··························` with `····························`                                          prettier/prettier
+  307:1   error    Insert `··`                                                                                                       prettier/prettier
+  308:29  error    Insert `··`                                                                                                       prettier/prettier
+  309:1   error    Replace `······························` with `································`                                  prettier/prettier
+  310:29  error    Insert `··`                                                                                                       prettier/prettier
+  311:1   error    Insert `··`                                                                                                       prettier/prettier
+  312:25  error    Insert `··`                                                                                                       prettier/prettier
+  313:1   error    Insert `··`                                                                                                       prettier/prettier
+  314:1   error    Insert `··`                                                                                                       prettier/prettier
+  315:21  error    Insert `··`                                                                                                       prettier/prettier
+  316:23  error    Insert `··`                                                                                                       prettier/prettier
+  317:1   error    Replace `························` with `··························`                                              prettier/prettier
+  318:1   error    Insert `··`                                                                                                       prettier/prettier
+  319:25  error    Insert `··`                                                                                                       prettier/prettier
+  320:1   error    Replace `······················` with `························`                                                  prettier/prettier
+  321:1   error    Insert `··`                                                                                                       prettier/prettier
+  322:1   error    Insert `··`                                                                                                       prettier/prettier
+  323:27  error    Insert `··`                                                                                                       prettier/prettier
+  324:29  error    Insert `··`                                                                                                       prettier/prettier
+  325:1   error    Insert `··`                                                                                                       prettier/prettier
+  326:27  error    Insert `··`                                                                                                       prettier/prettier
+  327:1   error    Insert `··`                                                                                                       prettier/prettier
+  328:1   error    Replace `························` with `··························`                                              prettier/prettier
+  329:27  error    Insert `··`                                                                                                       prettier/prettier
+  330:1   error    Insert `··`                                                                                                       prettier/prettier
+  331:1   error    Replace `························` with `··························`                                              prettier/prettier
+  332:23  error    Insert `··`                                                                                                       prettier/prettier
+  333:1   error    Insert `··`                                                                                                       prettier/prettier
+  334:19  error    Insert `··`                                                                                                       prettier/prettier
+  335:1   error    Insert `··`                                                                                                       prettier/prettier
+  336:15  error    Replace `);` with `··);⏎··············`                                                                           prettier/prettier
+
+D:\Yoldosh-admin\components\shared\active-trips\ActiveTripCard.tsx
+   19:41  warning  'CardTitle' is defined but never used                                                                                                                                                                                                                                                              unused-imports/no-unused-imports
+  171:53  error    Replace `<span·className="pill-amber">PENDING···{trip.bookings.pending}</span>` with `(⏎················<span·className="pill-amber">PENDING···{trip.bookings.pending}</span>⏎··············)`                                                                                                     prettier/prettier
+  197:26  error    Replace `·href={`/${base}/users-search/${b.passenger.id}`}·className="link-text·flex·min-w-0·items-center·gap-2"` with `⏎······················href={`/${base}/users-search/${b.passenger.id}`}⏎······················className="link-text·flex·min-w-0·items-center·gap-2"⏎····················`  prettier/prettier
+  226:26  error    Replace `(⏎··········<p·className="text-muted-foreground·border-t·pt-3·text-xs·italic">«{trip.comment}»</p>⏎········)` with `<p·className="text-muted-foreground·border-t·pt-3·text-xs·italic">«{trip.comment}»</p>`                                                                               prettier/prettier
+
+D:\Yoldosh-admin\components\shared\active-trips\ActiveTripsSnapshot.tsx
+  61:22  error  Replace `⏎··············counts?.pendingBookings·!=·null·?·`PENDING···${formatNumber(counts.pendingBookings)}`·:·undefined⏎············` with `counts?.pendingBookings·!=·null·?·`PENDING···${formatNumber(counts.pendingBookings)}`·:·undefined`  prettier/prettier
+
+D:\Yoldosh-admin\components\shared\user\UserItems.tsx
+  146:27  error  Replace `⏎····.filter((b)·=>·b.status·===·"CONFIRMED")⏎····` with `.filter((b)·=>·b.status·===·"CONFIRMED")`  prettier/prettier
+
+D:\Yoldosh-admin\hooks\adminHooks.ts
+  171:7  warning  'updateCarStatusSchema' is assigned a value but only used as a type. Allowed unused vars must match /^_/u  unused-imports/no-unused-vars
+
+✖ 88 problems (85 errors, 3 warnings)
+  85 errors and 1 warning potentially fixable with the `--fix` option.
+

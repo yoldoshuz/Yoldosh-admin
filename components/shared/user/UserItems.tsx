@@ -140,6 +140,11 @@ export const DriverLicenseCard = ({
 /* =============================== TripCard =============================== */
 export const TripCard = ({ trip }: { trip: any }) => {
   const base = useBasePath();
+  const bookings: any[] = Array.isArray(trip?.bookings) ? trip.bookings : [];
+  const confirmedCount = bookings.filter((b) => b.status === "CONFIRMED").length;
+  const pendingCount = bookings.filter((b) => b.status === "PENDING").length;
+  const revenue = bookings.filter((b) => b.status === "CONFIRMED").reduce((s, b) => s + Number(b.totalPrice ?? 0), 0);
+
   return (
     <Card className="component shadow-none">
       <CardHeader className="pb-2">
@@ -175,6 +180,18 @@ export const TripCard = ({ trip }: { trip: any }) => {
           <p className="text-sm font-bold">{parseFloat(trip.price_per_person).toLocaleString("ru-RU")} UZS</p>
         </div>
       </CardContent>
+      {bookings.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 border-t px-6 pt-3 text-[11px]">
+          <Users className="text-muted-foreground size-3" />
+          <span className="pill-emerald">CONFIRMED · {confirmedCount}</span>
+          {pendingCount > 0 && <span className="pill-amber">PENDING · {pendingCount}</span>}
+          {revenue > 0 && (
+            <span className="text-muted-foreground ml-auto tabular-nums">
+              В обороте: <span className="text-foreground">{revenue.toLocaleString("ru-RU")} UZS</span>
+            </span>
+          )}
+        </div>
+      )}
     </Card>
   );
 };

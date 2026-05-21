@@ -1,14 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, Clock, Flag } from "lucide-react";
+import { CheckCircle2, Clock, Flag, X } from "lucide-react";
 
 import { DateRangeValue } from "@/components/shared/DateRangePicker";
 import { OverviewChart } from "@/components/shared/layout/OverviewChart";
 import { StatCard } from "@/components/shared/StatCard";
-import { toDistribution, toUserTopList } from "@/components/shared/stats/normalize";
+import { toUserTopList } from "@/components/shared/stats/normalize";
+import { RateCard } from "@/components/shared/stats/RateCard";
+import { StatPairCard } from "@/components/shared/stats/StatPairCard";
 import { rangeToParams, StatsHeader } from "@/components/shared/stats/StatsPageShell";
-import { DistributionList, StatsSection, TopList } from "@/components/shared/stats/StatsSections";
+import { StatsSection, TopList } from "@/components/shared/stats/StatsSections";
 import { useGetReportsStats } from "@/hooks/adminHooks";
 import { formatDuration } from "@/lib/utils";
 
@@ -16,27 +18,20 @@ export const ReportsStats = () => {
   const [range, setRange] = useState<DateRangeValue>({ preset: "month" });
   const { data, isLoading } = useGetReportsStats(rangeToParams(range));
 
-  // The endpoint may use either nested {timeSeries: {created, resolved}} or flat fields.
   const ts = data?.timeSeries ?? {};
-  const createdGraph = ts.created ?? data?.createdGraph ?? data?.graph ?? [];
-  const resolvedGraph = ts.resolved ?? data?.resolvedGraph ?? [];
+  const createdGraph = ts.created ?? [];
+  const resolvedGraph = ts.resolved ?? [];
 
-  const byStatus = toDistribution(data?.byStatus, ["status"]);
-  const total = byStatus.reduce((s, x) => s + x.count, 0);
-  const pending = byStatus.find((x) => /pending/i.test(x.label))?.count ?? 0;
-  const resolved = byStatus.find((x) => /resolved/i.test(x.label))?.count ?? 0;
+  const performance = data?.performance ?? {};
+  const avgResolutionInRange = performance.avgResolutionMinutesInRange;
+  const avgResolutionAllTime = performance.avgResolutionMinutes;
 
-  const avgResolution =
-    data?.avgResolutionMinutes ?? data?.timing?.avgResolutionMinutes ?? data?.averages?.avgResolutionMinutes;
-
-  const topReasons = (
-    Array.isArray(data?.topReasons ?? data?.top?.reasons) ? (data?.topReasons ?? data?.top?.reasons) : []
-  ).map((r: any) => ({
+  const topReasons = (Array.isArray(data?.topReasons) ? data.topReasons : []).map((r: any) => ({
     label: String(r.reason ?? r.label ?? "—"),
     count: Number(r.count ?? r.value ?? 0),
   }));
 
-  const topOffenders = toUserTopList(data?.topReportedUsers ?? data?.topOffenders ?? data?.top?.reportedUsers, "count");
+  const topOffenders = toUserTopList(data?.topReportedUsers, "count");
 
   return (
     <div className="space-y-6">
@@ -47,13 +42,53 @@ export const ReportsStats = () => {
         onRangeChange={setRange}
       />
 
+      {/* Counts */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard title="Всего" value={total} icon={Flag} loading={isLoading} />
-        <StatCard title="Открытых" value={pending} icon={Flag} tone="red" highlight={pending > 0} loading={isLoading} />
-        <StatCard title="Резолвнутых" value={resolved} icon={CheckCircle2} tone="emerald" loading={isLoading} />
+        <StatPairCard title="Всего жалоб" pair={data?.counts} icon={Flag} loading={isLoading} />
+        <StatPairCard
+          title="Открытых"
+          pair={data?.byStatusTotals?.PENDING}
+          icon={Flag}
+          tone="red"
+          highlight={(data?.byStatusTotals?.PENDING?.totalInRange ?? 0) > 0}
+          loading={isLoading}
+        />
+        <StatPairCard
+          title="Резолвнутых"
+          pair={data?.byStatusTotals?.RESOLVED}
+          icon={CheckCircle2}
+          tone="emerald"
+          loading={isLoading}
+        />
+        <StatPairCard
+          title="Отклонено"
+          pair={data?.byStatusTotals?.REJECTED}
+          icon={X}
+          tone="amber"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Rates */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <RateCard
+          title="Резолюция"
+          inRange={data?.rates?.resolutionRateInRange}
+          allTime={data?.rates?.resolutionRateAllTime}
+          tone="emerald"
+          loading={isLoading}
+        />
+        <RateCard
+          title="Отклонение"
+          inRange={data?.rates?.rejectionRateInRange}
+          allTime={data?.rates?.rejectionRateAllTime}
+          tone="amber"
+          loading={isLoading}
+        />
         <StatCard
           title="Среднее время резолва"
-          value={avgResolution != null && Number(avgResolution) > 0 ? formatDuration(Number(avgResolution)) : "—"}
+          value={avgResolutionInRange != null ? formatDuration(Number(avgResolutionInRange)) : "—"}
+          subtext={avgResolutionAllTime != null ? `всего: ${formatDuration(Number(avgResolutionAllTime))}` : undefined}
           icon={Clock}
           tone="sky"
           loading={isLoading}
@@ -69,19 +104,14 @@ export const ReportsStats = () => {
             { name: "Резолвнуто", data: resolvedGraph, color: "var(--chart-1)" },
           ]}
         />
-        <StatsSection title="По статусам">
-          <DistributionList data={byStatus} loading={isLoading} />
-        </StatsSection>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
         <StatsSection title="Топ причин">
           <TopList data={topReasons} loading={isLoading} />
         </StatsSection>
-        <StatsSection title="Топ нарушителей">
-          <TopList data={topOffenders} loading={isLoading} />
-        </StatsSection>
       </div>
+
+      <StatsSection title="Топ нарушителей">
+        <TopList data={topOffenders} loading={isLoading} />
+      </StatsSection>
     </div>
   );
 };

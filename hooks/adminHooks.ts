@@ -717,6 +717,16 @@ export const useGetDauMau = () => {
   });
 };
 
+export const useGetEngagementStats = (params: RangeParams = {}) => {
+  return useQuery({
+    queryKey: queryKeys.admin.statsEngagement(params),
+    queryFn: async () => {
+      const { data } = await api.get("/admin/stats/engagement", { params: stripEmpty(params) });
+      return data.data;
+    },
+  });
+};
+
 export const useChangeTripStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({

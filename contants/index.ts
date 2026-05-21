@@ -19,6 +19,7 @@ import {
   UserStar,
   UserX,
   Wallet,
+  Zap,
   type LucideIcon,
 } from "lucide-react";
 
@@ -64,12 +65,18 @@ export const superAdminItems: NavItem[] = [
 
   { title: "Пользователи", url: "/super-admin/stats/users", icon: Users, group: "АНАЛИТИКА" },
   { title: "Поездки", url: "/super-admin/stats/trips", icon: Route, group: "АНАЛИТИКА" },
-  { title: "Бронирования", url: "/super-admin/bookings", icon: Ticket, group: "АНАЛИТИКА" },
-  { title: "Маршруты поиска", url: "/super-admin/searches", icon: Search, group: "АНАЛИТИКА" },
+  { title: "Бронирования", url: "/super-admin/stats/bookings", icon: Ticket, group: "АНАЛИТИКА", exactMatch: true },
+  { title: "Поиски", url: "/super-admin/stats/searches", icon: Search, group: "АНАЛИТИКА", exactMatch: true },
   { title: "Кошельки", url: "/super-admin/stats/wallet", icon: Wallet, group: "АНАЛИТИКА" },
   { title: "Активные сейчас", url: "/super-admin/stats/active-trips", icon: Activity, group: "АНАЛИТИКА" },
   { title: "Жалобы", url: "/super-admin/stats/reports", icon: Flag, group: "АНАЛИТИКА" },
+  { title: "DAU / MAU", url: "/super-admin/stats/dau-mau", icon: Zap, group: "АНАЛИТИКА" },
+  { title: "Engagement", url: "/super-admin/stats/engagement", icon: Activity, group: "АНАЛИТИКА" },
   { title: "Админы", url: "/super-admin/stats/admins", icon: TrendingUp, group: "АНАЛИТИКА" },
+
+  // List pages (kept separate from stats pages above)
+  { title: "Бронирования (список)", url: "/super-admin/bookings", icon: Ticket, group: "АНАЛИТИКА" },
+  { title: "Маршруты поиска", url: "/super-admin/searches", icon: Search, group: "АНАЛИТИКА" },
 
   // Operational pages mirrored from admin section
   { title: "Поиск пользователя", url: "/super-admin/users-search", icon: Users, group: "ОПЕРАЦИИ" },

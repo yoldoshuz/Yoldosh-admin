@@ -6,9 +6,13 @@ import { CarFront, Flag, ShieldAlert, Ticket, UserCheck, Users } from "lucide-re
 import { ActiveTripsSnapshotBlock } from "@/components/shared/active-trips/ActiveTripsSnapshot";
 import { DateRangePicker, DateRangeValue } from "@/components/shared/DateRangePicker";
 import { OverviewChart } from "@/components/shared/layout/OverviewChart";
-import { StatCard } from "@/components/shared/StatCard";
+import { RateCard } from "@/components/shared/stats/RateCard";
+import { pickSegmentBlock } from "@/components/shared/stats/segments";
+import { SegmentTabs } from "@/components/shared/stats/SegmentTabs";
+import { StatPairCard } from "@/components/shared/stats/StatPairCard";
 import { useGetAdminProfile, useGetAdminStats } from "@/hooks/adminHooks";
 import { formatCompactNumber } from "@/lib/utils";
+import type { Pair, UserSegment } from "@/types";
 
 const statusToneByKey: Record<string, "emerald" | "sky" | "amber" | "red" | "violet" | "default"> = {
   COMPLETED: "emerald",
@@ -24,9 +28,11 @@ const statusToneByKey: Record<string, "emerald" | "sky" | "amber" | "red" | "vio
 
 const StatusChips = ({ data }: { data: Record<string, number> | undefined }) => {
   if (!data) return null;
+  const entries = Object.entries(data);
+  if (!entries.length) return <p className="text-muted-foreground mt-3 text-sm">Нет данных</p>;
   return (
     <div className="mt-3 flex flex-wrap gap-1.5">
-      {Object.entries(data).map(([k, v]) => {
+      {entries.map(([k, v]) => {
         const tone = statusToneByKey[k] ?? "default";
         const cls =
           tone === "emerald"
@@ -42,7 +48,7 @@ const StatusChips = ({ data }: { data: Record<string, number> | undefined }) => 
                     : "pill-slate";
         return (
           <span key={k} className={cls}>
-            {k.replace("_", " ").toLowerCase()} · <span className="tabular-nums">{formatCompactNumber(v)}</span>
+            {k.replace(/_/g, " ").toLowerCase()} · <span className="tabular-nums">{formatCompactNumber(v)}</span>
           </span>
         );
       })}
@@ -57,12 +63,20 @@ const StatusChips = ({ data }: { data: Record<string, number> | undefined }) => 
  */
 export const Home = () => {
   const [range, setRange] = useState<DateRangeValue>({ preset: "month" });
+  const [segment, setSegment] = useState<UserSegment>("real");
   const { data: profile } = useGetAdminProfile();
   const { data: stats, isLoading, isError, refetch } = useGetAdminStats(range);
 
-  const pendingReports = stats?.reports?.byStatus?.PENDING ?? 0;
-  const pendingApplications = stats?.applications?.pending ?? 0;
+  const pendingReports = stats?.reports?.byStatusInRange?.PENDING ?? 0;
+  const pendingApplications = stats?.applications?.pendingCounts?.totalInRange ?? 0;
   const activeTripsSnapshot = stats?.activeTrips ?? stats?.trips?.active;
+
+  // Pull segmented counts off overview.segments (real/bots/guests/all).
+  const segmentBlock = pickSegmentBlock(stats?.segments, segment);
+  const usersPair: Pair | undefined =
+    segmentBlock != null ? { total: segmentBlock.total, totalInRange: segmentBlock.totalInRange } : undefined;
+  const driversPair = segment === "guests" ? undefined : segmentBlock?.drivers;
+  const passengersPair = segment === "guests" ? undefined : segmentBlock?.passengers;
 
   return (
     <div className="flex flex-col gap-6">
@@ -85,32 +99,42 @@ export const Home = () => {
         </div>
       )}
 
-      {/* Compact KPI grid (no financial data) */}
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Сегмент пользователей</p>
+        <SegmentTabs value={segment} onChange={setSegment} />
+      </div>
+
+      {/* Compact KPI grid */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <StatCard
-          title="Пользователи"
-          value={stats?.users?.total}
-          icon={Users}
-          tone="emerald"
-          subtext={
-            stats?.users?.newInRange != null ? `+${formatCompactNumber(stats.users.newInRange)} за период` : undefined
-          }
+        <StatPairCard title="Пользователи" pair={usersPair} icon={Users} tone="emerald" loading={isLoading} />
+        <StatPairCard title="Водители" pair={driversPair} icon={UserCheck} tone="sky" loading={isLoading} />
+        <StatPairCard title="Пассажиры" pair={passengersPair} icon={Users} tone="violet" loading={isLoading} />
+        <StatPairCard title="Поездки" pair={stats?.trips?.counts} icon={CarFront} tone="violet" loading={isLoading} />
+        <StatPairCard
+          title="Бронирования"
+          pair={stats?.bookings?.counts}
+          icon={Ticket}
+          tone="sky"
           loading={isLoading}
         />
-        <StatCard title="Водителей" value={stats?.users?.drivers} icon={UserCheck} tone="sky" loading={isLoading} />
-        <StatCard title="Поездок" value={stats?.trips?.total} icon={CarFront} tone="violet" loading={isLoading} />
-        <StatCard title="Бронирований" value={stats?.bookings?.total} icon={Ticket} tone="sky" loading={isLoading} />
-        <StatCard
+        <StatPairCard
           title="Жалоб открытых"
-          value={pendingReports}
+          pair={
+            stats?.reports
+              ? {
+                  total: stats.reports.byStatusInRange?.PENDING ?? 0,
+                  totalInRange: stats.reports.byStatusInRange?.PENDING ?? 0,
+                }
+              : undefined
+          }
           icon={Flag}
           tone={pendingReports > 0 ? "red" : "default"}
           highlight={pendingReports > 0}
           loading={isLoading}
         />
-        <StatCard
+        <StatPairCard
           title="Заявок водителей"
-          value={pendingApplications}
+          pair={stats?.applications?.pendingCounts}
           icon={ShieldAlert}
           tone={pendingApplications > 0 ? "amber" : "default"}
           highlight={pendingApplications > 0}
@@ -128,37 +152,73 @@ export const Home = () => {
         </div>
       )}
 
+      {/* Rates */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <RateCard
+          title="Завершено поездок"
+          inRange={stats?.trips?.rates?.completionRateInRange}
+          allTime={stats?.trips?.rates?.completionRateAllTime}
+          tone="emerald"
+          loading={isLoading}
+        />
+        <RateCard
+          title="Отменено поездок"
+          inRange={stats?.trips?.rates?.cancellationRateInRange}
+          allTime={stats?.trips?.rates?.cancellationRateAllTime}
+          tone="red"
+          loading={isLoading}
+        />
+        <RateCard
+          title="Подтверждено броней"
+          inRange={stats?.bookings?.rates?.confirmationRateInRange}
+          allTime={stats?.bookings?.rates?.confirmationRateAllTime}
+          tone="sky"
+          loading={isLoading}
+        />
+        <RateCard
+          title="Отменено броней"
+          inRange={stats?.bookings?.rates?.cancellationRateInRange}
+          allTime={stats?.bookings?.rates?.cancellationRateAllTime}
+          tone="red"
+          loading={isLoading}
+        />
+      </div>
+
       {/* Status distribution chips */}
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="bg-card rounded-xl border p-4">
-          <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Поездки по статусам</p>
-          <StatusChips data={stats?.trips?.byStatus} />
+          <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+            Поездки по статусам · в периоде
+          </p>
+          <StatusChips data={stats?.trips?.byStatusInRange} />
         </div>
         <div className="bg-card rounded-xl border p-4">
-          <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Бронирования</p>
-          <StatusChips data={stats?.bookings?.byStatus} />
+          <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+            Бронирования · в периоде
+          </p>
+          <StatusChips data={stats?.bookings?.byStatusInRange} />
         </div>
         <div className="bg-card rounded-xl border p-4">
-          <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Жалобы</p>
-          <StatusChips data={stats?.reports?.byStatus} />
+          <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Жалобы · в периоде</p>
+          <StatusChips data={stats?.reports?.byStatusInRange} />
         </div>
       </div>
 
       {/* Two charts only — admin doesn't need full breakdown */}
       <div className="grid gap-4 lg:grid-cols-2">
         <OverviewChart
-          title="Регистрации"
-          total={stats?.users?.newInRange}
+          title="Регистрации (real)"
+          total={stats?.users?.counts?.totalInRange?.real}
           totalSuffix="за период"
           loading={isLoading}
           series={[
-            { name: "Пользователи", data: stats?.users?.graph ?? [], color: "var(--chart-1)" },
-            { name: "Водители", data: stats?.users?.driversGraph ?? [], color: "var(--chart-2)" },
+            { name: "Реальные", data: stats?.users?.graph ?? [], color: "var(--chart-1)" },
+            { name: "Все сегменты", data: stats?.users?.graphAll ?? [], color: "var(--chart-2)" },
           ]}
         />
         <OverviewChart
           title="Поездки"
-          total={stats?.trips?.createdInRange}
+          total={stats?.trips?.counts?.totalInRange}
           totalSuffix="создано"
           loading={isLoading}
           series={[{ name: "Создано", data: stats?.trips?.graph ?? [], color: "var(--chart-1)" }]}

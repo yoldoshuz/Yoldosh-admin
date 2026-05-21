@@ -14,6 +14,7 @@ export const queryKeys = {
     statsBookings: (range: any = {}) => [...queryKeys.admin.all, "stats", "bookings", range] as const,
     statsSearches: (range: any = {}) => [...queryKeys.admin.all, "stats", "searches", range] as const,
     statsDauMau: () => [...queryKeys.admin.all, "stats", "dau-mau"] as const,
+    statsEngagement: (range: any = {}) => [...queryKeys.admin.all, "stats", "engagement", range] as const,
 
     // === Lists ===
     carApplications: (filters: any = {}) => [...queryKeys.admin.all, "car-applications", filters] as const,

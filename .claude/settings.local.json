@@ -6,7 +6,10 @@
       "Bash(npm run *)",
       "Bash(npx prettier *)",
       "Bash(npx eslint *)",
-      "Bash(echo \"exit=$?\")"
+      "Bash(echo \"exit=$?\")",
+      "Bash(rm -f tsconfig.tsbuildinfo tsc-out.txt)",
+      "Bash(rm -f tsconfig.tsbuildinfo)",
+      "Bash(xxd \"C:\\\\Users\\\\dev\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--Yoldosh-admin\\\\0558dfbe-a872-48bf-865a-190bf94c5e28\\\\tasks\\\\byfc90znn.output\")"
     ]
   }
 }

@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Banknote, CircleDollarSign, ShieldOff, Wallet } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, Banknote, CircleDollarSign, Percent, ShieldOff, Wallet } from "lucide-react";
 
 import { DateRangeValue } from "@/components/shared/DateRangePicker";
 import { OverviewChart } from "@/components/shared/layout/OverviewChart";
 import { StatCard } from "@/components/shared/StatCard";
 import { toDistribution, toUserTopList } from "@/components/shared/stats/normalize";
+import { StatPairCard } from "@/components/shared/stats/StatPairCard";
 import { rangeToParams, StatsHeader } from "@/components/shared/stats/StatsPageShell";
 import { DistributionList, StatsSection, TopList } from "@/components/shared/stats/StatsSections";
 import { useGetWalletStats } from "@/hooks/adminHooks";
@@ -28,10 +29,14 @@ export const WalletStats = () => {
   const balance = data?.balance ?? {};
   const transactions = data?.transactions ?? {};
   const topUps = data?.topUps ?? {};
+  const payments = data?.payments ?? {};
+  const refunds = data?.refunds ?? {};
+  const commission = data?.commission ?? {};
+  const withdrawals = data?.withdrawals ?? {};
   const blocked = data?.blocked ?? {};
   const top = data?.top ?? {};
 
-  // Bucket distribution: items have {bucket, count, sum}
+  // Bucket distribution
   const buckets = (Array.isArray(balance.distribution) ? balance.distribution : []).map((b: any) => ({
     label: BUCKET_LABELS[String(b.bucket)] ?? String(b.bucket),
     count: Number(b.count ?? 0),
@@ -39,6 +44,8 @@ export const WalletStats = () => {
 
   const byType = toDistribution(transactions.byType, ["type"]);
   const byStatus = toDistribution(transactions.byStatus, ["status"]);
+  const byTypeAllTime = toDistribution(transactions.byTypeAllTime, ["type"]);
+
   const sumByType = (Array.isArray(transactions.sumByCompletedType) ? transactions.sumByCompletedType : []).map(
     (t: any) => ({
       label: String(t.type ?? "—"),
@@ -57,29 +64,14 @@ export const WalletStats = () => {
         onRangeChange={setRange}
       />
 
+      {/* Snapshot row */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard
           title="Баланс на руках"
           value={balance.total != null ? `${formatNumber(balance.total)} UZS` : undefined}
           icon={Wallet}
           tone="emerald"
-          loading={isLoading}
-        />
-        <StatCard
-          title="Сумма пополнений"
-          value={topUps.total != null ? `${formatNumber(topUps.total)} UZS` : undefined}
-          icon={Banknote}
-          tone="sky"
-          subtext={topUps.count != null ? `${topUps.count} пополнений` : undefined}
-          loading={isLoading}
-        />
-        <StatCard
-          title="Средний чек"
-          value={
-            topUps.averageInRange != null ? `${formatNumber(Math.round(Number(topUps.averageInRange)))} UZS` : undefined
-          }
-          icon={CircleDollarSign}
-          tone="violet"
+          subtext="Снапшот · по всему пулу"
           loading={isLoading}
         />
         <StatCard
@@ -87,6 +79,76 @@ export const WalletStats = () => {
           value={blocked.walletBlockedUsers}
           icon={ShieldOff}
           tone="red"
+          loading={isLoading}
+        />
+        <StatPairCard
+          title="Пополнений · кол-во"
+          pair={topUps.counts}
+          icon={ArrowDownToLine}
+          tone="emerald"
+          loading={isLoading}
+        />
+        <StatPairCard
+          title="Платежей · кол-во"
+          pair={payments.counts}
+          icon={ArrowUpFromLine}
+          tone="sky"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Money flows — sums */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
+        <StatPairCard
+          title="Пополнения · сумма"
+          pair={topUps.sums}
+          money
+          icon={Banknote}
+          tone="emerald"
+          loading={isLoading}
+        />
+        <StatPairCard
+          title="Платежи · сумма"
+          pair={payments.sums}
+          money
+          icon={Banknote}
+          tone="sky"
+          loading={isLoading}
+        />
+        <StatPairCard
+          title="Возвраты · сумма"
+          pair={refunds.sums}
+          money
+          icon={Banknote}
+          tone="amber"
+          loading={isLoading}
+        />
+        <StatPairCard
+          title="Комиссия · сумма"
+          pair={commission.sums}
+          money
+          icon={Percent}
+          tone="violet"
+          loading={isLoading}
+        />
+        <StatPairCard
+          title="Выводы · сумма"
+          pair={withdrawals.sums}
+          money
+          icon={ArrowUpFromLine}
+          tone="red"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Average top-up */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
+        <StatPairCard
+          title="Средний чек пополнения"
+          pair={topUps.average}
+          money
+          icon={CircleDollarSign}
+          tone="violet"
           loading={isLoading}
         />
       </div>
@@ -101,13 +163,16 @@ export const WalletStats = () => {
         <StatsSection title="Распределение балансов">
           <DistributionList data={buckets} loading={isLoading} />
         </StatsSection>
-        <StatsSection title="Транзакции по типам">
+        <StatsSection title="Транзакции по типам · в периоде">
           <DistributionList data={byType} loading={isLoading} />
         </StatsSection>
-        <StatsSection title="Транзакции по статусам">
+        <StatsSection title="Транзакции по статусам · в периоде">
           <DistributionList data={byStatus} loading={isLoading} />
         </StatsSection>
-        <StatsSection title="Сумма по типам COMPLETED">
+        <StatsSection title="Транзакции по типам · за всё время">
+          <DistributionList data={byTypeAllTime} loading={isLoading} />
+        </StatsSection>
+        <StatsSection title="Сумма по типам COMPLETED · в периоде">
           <DistributionList data={sumByType} loading={isLoading} formatter={(v) => `${formatNumber(v)} UZS`} />
         </StatsSection>
       </div>

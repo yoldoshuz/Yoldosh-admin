@@ -384,50 +384,375 @@ export type Report = {
   createdAt: string;
 };
 
-// ============= New Stats Overview =============
+// ============= New Stats v2 (real/bots/guests segmentation + total/totalInRange) =============
+
+export type UserSegment = "real" | "bots" | "guests" | "all";
+
+export type Pair = { total: number; totalInRange: number };
+
+export type SegmentTriplet = { real: number; bots: number; all: number };
+
+export type CountsPair = { total: SegmentTriplet; totalInRange: SegmentTriplet };
+
+export type SegmentBlock = {
+  total: number;
+  totalInRange: number;
+  drivers?: Pair;
+  passengers?: Pair;
+};
+
+export type OverviewSegments = {
+  real: SegmentBlock;
+  bots: SegmentBlock;
+  guests: { total: number; totalInRange: number };
+  all: SegmentBlock;
+};
+
+export type StatusPair<K extends string> = Record<K, Pair>;
+
 export type StatsOverview = {
   range: DateRangePreset;
   from: string;
   to: string;
   users: {
-    total: number;
-    passengers: number;
-    drivers: number;
-    verified: number;
-    banned: number;
-    newInRange: number;
-    newDriversInRange: number;
-    graph: GraphPoint[];
-    driversGraph: GraphPoint[];
+    // legacy (still emitted by backend but ignored by FE)
+    total?: number;
+    passengers?: number;
+    drivers?: number;
+    verified?: number;
+    banned?: number;
+    newInRange?: number;
+    newDriversInRange?: number;
+    graph?: GraphPoint[];
+    driversGraph?: GraphPoint[];
     bySource?: SourceSegmentation;
     newBySource?: SourceSegmentation;
     dauMau?: DauMau;
+    // new
+    counts: CountsPair;
+    passengersCounts: CountsPair;
+    driversCounts: CountsPair;
+    flags: {
+      verified: Pair;
+      banned: Pair;
+    };
+    graphAll?: GraphPoint[];
   };
   trips: {
-    total: number;
-    byStatus: Record<string, number>;
-    createdInRange: number;
-    completedInRange: number;
-    graph: GraphPoint[];
+    total?: number;
+    byStatus?: Record<string, number>;
+    createdInRange?: number;
+    completedInRange?: number;
+    graph?: GraphPoint[];
+    active?: ActiveTripsSnapshot;
+    // new
+    counts: Pair;
+    byStatusInRange: Record<"CREATED" | "IN_PROGRESS" | "COMPLETED" | "CANCELED", number>;
+    rates: {
+      completionRateAllTime: number;
+      completionRateInRange: number;
+      cancellationRateAllTime: number;
+      cancellationRateInRange: number;
+    };
   };
   bookings: {
-    total: number;
-    byStatus: Record<string, number>;
-    graph: GraphPoint[];
+    total?: number;
+    byStatus?: Record<string, number>;
+    graph?: GraphPoint[];
+    // new
+    counts: Pair;
+    byStatusInRange: Record<"CONFIRMED" | "PENDING" | "CANCELLED", number>;
+    rates: {
+      confirmationRateAllTime: number;
+      confirmationRateInRange: number;
+      cancellationRateAllTime: number;
+      cancellationRateInRange: number;
+    };
   };
   reports: {
-    total: number;
-    byStatus: Record<string, number>;
-    graph: GraphPoint[];
+    total?: number;
+    newInRange?: number;
+    byStatus?: Record<string, number>;
+    graph?: GraphPoint[];
+    // new
+    counts: Pair;
+    byStatusInRange: Record<"PENDING" | "RESOLVED" | "REJECTED", number>;
   };
   wallet: {
-    totalBalance: number;
-    topUpsInRange: number;
-    graph: GraphPoint[];
+    totalBalance?: number;
+    topUpsInRange?: number;
+    graph?: GraphPoint[];
+    // new
+    balance: { total: number };
+    topUps: Pair;
+    payments: Pair;
+    refunds: Pair;
   };
-  applications: { pending: number; verified: number };
+  applications: {
+    pending?: number;
+    verified?: number;
+    pendingCounts: Pair;
+    verifiedCounts: Pair;
+  };
   admins: { admins: number; superAdmins: number };
-  guests: { uniqueInRange: number };
+  guests: {
+    uniqueInRange?: number;
+    counts: Pair;
+  };
+  segments: OverviewSegments;
+  activeTrips?: ActiveTripsSnapshot;
+};
+
+// ============= Stats — users (v2) =============
+export type StatsUsers = {
+  range: DateRangePreset;
+  from: string;
+  to: string;
+  // legacy passthrough
+  total?: number;
+  totalInRange?: number;
+  passengerInRange?: number;
+  driversInRange?: number;
+  distribution?: any;
+  segmentation?: any;
+  registrations?: {
+    graph?: GraphPoint[];
+    graphAll?: GraphPoint[];
+    byHourOfDay?: any[];
+  };
+  top?: any;
+  dauMau?: DauMau;
+  // new
+  counts: CountsPair;
+  driversCounts: CountsPair;
+  passengersCounts: CountsPair;
+  guestsCounts: Pair;
+  flags: {
+    verified?: number;
+    passportVerified?: number;
+    banned?: number;
+    walletBlocked?: number;
+    withPromocode?: number;
+    verifiedCounts: Pair;
+    passportVerifiedCounts: Pair;
+    bannedCounts: Pair;
+    walletBlockedCounts: Pair;
+    withPromocodeCounts: Pair;
+  };
+  segments: OverviewSegments;
+};
+
+// ============= Stats — trips (v2) =============
+export type StatsTrips = {
+  // legacy passthrough used by current pages
+  byStatus?: any[];
+  byBookingType?: any[];
+  timeSeries?: { created?: GraphPoint[]; completed?: GraphPoint[]; canceled?: GraphPoint[] };
+  averages?: any;
+  top?: any;
+  active?: ActiveTripsSnapshot;
+  // new
+  counts: Pair;
+  byStatusTotals: Record<"CREATED" | "IN_PROGRESS" | "COMPLETED" | "CANCELED", Pair>;
+  rates: {
+    completionRateAllTime: number;
+    completionRateInRange: number;
+    cancellationRateAllTime: number;
+    cancellationRateInRange: number;
+  };
+};
+
+// ============= Stats — bookings (v2) =============
+export type StatsBookings = {
+  total?: number;
+  byStatus?: any[];
+  timeSeries?: { created?: GraphPoint[]; confirmed?: GraphPoint[]; cancelled?: GraphPoint[] };
+  financials?: {
+    revenueInRange?: number;
+    revenueAllTime?: number;
+    avgBookingPrice?: number;
+    avgSeatsBooked?: number;
+  };
+  top?: any;
+  segmentation?: {
+    bySource?: Record<RegistrationSourceAlias, number>;
+    bySourceInRange?: Record<RegistrationSourceAlias, number>;
+    bySourceAllTime?: Record<RegistrationSourceAlias, number>;
+  };
+  // new
+  counts: Pair;
+  byStatusTotals: Record<"CONFIRMED" | "PENDING" | "CANCELLED" | "REJECTED" | "FAILED", Pair>;
+  rates: {
+    confirmationRateAllTime: number;
+    confirmationRateInRange: number;
+    cancellationRateAllTime: number;
+    cancellationRateInRange: number;
+    rejectionRateAllTime: number;
+    rejectionRateInRange: number;
+  };
+};
+
+// ============= Stats — reports (v2) =============
+export type StatsReports = {
+  byStatus?: any[];
+  timeSeries?: { created?: GraphPoint[]; resolved?: GraphPoint[] };
+  performance?: { avgResolutionMinutes?: number; avgResolutionMinutesInRange?: number };
+  topReasons?: any[];
+  topReportedUsers?: any[];
+  counts: Pair;
+  byStatusTotals: Record<"PENDING" | "RESOLVED" | "REJECTED", Pair>;
+  rates: {
+    resolutionRateAllTime: number;
+    resolutionRateInRange: number;
+    rejectionRateAllTime: number;
+    rejectionRateInRange: number;
+  };
+};
+
+// ============= Stats — wallet (v2) =============
+export type StatsWallet = {
+  balance: { total: number; distribution?: any[] };
+  transactions?: {
+    byType?: any[];
+    byStatus?: any[];
+    sumByCompletedType?: any[];
+    byTypeAllTime?: any[];
+    byStatusAllTime?: any[];
+    sumByCompletedTypeAllTime?: any[];
+  };
+  topUps: {
+    graph?: GraphPoint[];
+    counts: Pair;
+    sums: Pair;
+    average: Pair;
+  };
+  payments: { counts: Pair; sums: Pair };
+  refunds: { sums: Pair };
+  commission: { sums: Pair };
+  withdrawals: { sums: Pair };
+  blocked?: { walletBlockedUsers?: number };
+  top?: any;
+  financials?: { revenueInRange?: number; revenueAllTime?: number };
+};
+
+// ============= Stats — searches (v2) =============
+export type SearchesSegment = { searches: number; uniqueActors: number };
+export type StatsSearches = {
+  counts: {
+    totalSearches?: number;
+    uniqueUsers?: number;
+    uniqueGuests?: number;
+    total: number;
+    totalInRange: number;
+    uniqueUsersTotal: number;
+    uniqueUsersTotalInRange: number;
+    uniqueGuestsTotal: number;
+    uniqueGuestsTotalInRange: number;
+  };
+  segmentation: {
+    inRange: {
+      real: SearchesSegment;
+      bots: SearchesSegment;
+      guests: SearchesSegment;
+      unknown: SearchesSegment;
+      all: SearchesSegment;
+    };
+    allTime: {
+      real: SearchesSegment;
+      bots: SearchesSegment;
+      guests: SearchesSegment;
+      unknown: SearchesSegment;
+      all: SearchesSegment;
+    };
+  };
+  top?: any;
+  unmatched?: { routes?: any[] };
+};
+
+// ============= DAU / MAU (v2) =============
+export type DauMauSegmentRow = {
+  dau: { count: number; drivers?: number; passengers?: number };
+  mau: { count: number; drivers?: number; passengers?: number };
+  stickiness: number;
+};
+export type DauMauV2 = {
+  now: string;
+  // legacy fields
+  dau?: DauMauBlock;
+  mau?: DauMauBlock;
+  stickiness?: number;
+  totals?: SourceSegmentation;
+  // new
+  windows: { dauStart: string; mauStart: string };
+  bySegment: {
+    real: DauMauSegmentRow;
+    bots: DauMauSegmentRow;
+    all: DauMauSegmentRow;
+    guests: DauMauSegmentRow;
+  };
+  totalsBySegment: {
+    real: { all: number; drivers: number; passengers: number };
+    bots: { all: number; drivers: number; passengers: number };
+    all: { all: number; drivers: number; passengers: number };
+  };
+};
+
+// ============= Engagement (v2 — real-users-only) =============
+export type FunnelCohort = {
+  signups: number;
+  withSearch: number;
+  withBooking: number;
+  withConfirmedBooking: number;
+  withCompletedTrip: number;
+  conversion: {
+    signupToSearch: number;
+    signupToBooking: number;
+    signupToConfirmed: number;
+    signupToCompletedTrip: number;
+    searchToBooking: number;
+    bookingToConfirmed: number;
+  };
+};
+
+export type EngagementStats = {
+  range: DateRangePreset;
+  from: string;
+  to: string;
+  scope: "real-users-only";
+  signups: Pair;
+  funnel: { cohort: FunnelCohort; allTime: FunnelCohort };
+  activity: {
+    avgSearchesPerUser: Pair;
+    avgBookingsPerPassenger: Pair;
+    avgTripsPerDriver: Pair;
+  };
+  drivers: {
+    totalReal: number;
+    withAnyTrip: number;
+    with10PlusTrips: number;
+    activeLast30Days: number;
+    zeroTripRate: number;
+    activationRate: number;
+  };
+  repeatPassengers: {
+    with2PlusConfirmed: number;
+    with5PlusConfirmed: number;
+  };
+  conversion: {
+    searchToBookingRateInRange: number;
+    bookingToConfirmedRateInRange: number;
+    bookingToCompletedTripRateInRange: number;
+    raw: {
+      searchesInRange: number;
+      bookingsInRange: number;
+      confirmedBookingsInRange: number;
+      completedTripsInRange: number;
+    };
+  };
+  timing: {
+    daysFromSignupToFirstBooking: { avg: number | null; median: number | null };
+    daysFromSignupToFirstTrip: { avg: number | null; median: number | null };
+  };
 };
 
 // ============= Admin logs =============

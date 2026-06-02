@@ -215,10 +215,7 @@ export const useUpdateApplicationFull = () => {
       user?: Record<string, any>;
     }) => {
       const { applicationId, ...rest } = payload;
-      const { data } = await api.patch(
-        `/admin/applications/${applicationId}/data`,
-        rest
-      );
+      const { data } = await api.patch(`/admin/applications/${applicationId}/data`, rest);
       return data;
     },
     onSuccess: () => {
@@ -661,14 +658,14 @@ type BookingsFilters = {
   page?: number;
   limit?: number;
   sortBy?:
-  | "createdAt"
-  | "updatedAt"
-  | "totalPrice"
-  | "seatsBooked"
-  | "status"
-  | "departure_ts"
-  | "passenger.firstName"
-  | "driver.firstName";
+    | "createdAt"
+    | "updatedAt"
+    | "totalPrice"
+    | "seatsBooked"
+    | "status"
+    | "departure_ts"
+    | "passenger.firstName"
+    | "driver.firstName";
   sortOrder?: "ASC" | "DESC";
   search?: string;
   status?: "PENDING" | "CONFIRMED" | "CANCELLED" | "FAILED";

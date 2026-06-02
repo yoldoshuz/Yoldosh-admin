@@ -327,8 +327,9 @@ export const ApplicationCard = ({
                   key={c.id}
                   type="button"
                   onClick={() => setActiveCarIndex(i)}
-                  className={`rounded-full border px-2.5 py-0.5 text-[10px] font-medium transition ${i === activeCarIndex ? "border-emerald-500 bg-emerald-500 text-white" : "hover:border-emerald-500"
-                    }`}
+                  className={`rounded-full border px-2.5 py-0.5 text-[10px] font-medium transition ${
+                    i === activeCarIndex ? "border-emerald-500 bg-emerald-500 text-white" : "hover:border-emerald-500"
+                  }`}
                 >
                   {c.govNumber || `#${i + 1}`}
                 </button>

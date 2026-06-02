@@ -205,6 +205,32 @@ export const useUpdateCarApplicationStatus = () => {
   });
 };
 
+export const useUpdateApplicationFull = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: {
+      applicationId: string;
+      application?: Record<string, any>;
+      car?: Record<string, any>;
+      user?: Record<string, any>;
+    }) => {
+      const { applicationId, ...rest } = payload;
+      const { data } = await api.patch(
+        `/admin/applications/${applicationId}/data`,
+        rest
+      );
+      return data;
+    },
+    onSuccess: () => {
+      toast.success("Данные успешно обновлены");
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.carApplications({}),
+        refetchType: "all",
+      });
+    },
+  });
+};
+
 // --- Reports Hooks (Keep as is, assuming backend is correct) ---
 export const useGetReports = (filters: { [key: string]: any }) => {
   return useInfiniteQuery({
@@ -635,14 +661,14 @@ type BookingsFilters = {
   page?: number;
   limit?: number;
   sortBy?:
-    | "createdAt"
-    | "updatedAt"
-    | "totalPrice"
-    | "seatsBooked"
-    | "status"
-    | "departure_ts"
-    | "passenger.firstName"
-    | "driver.firstName";
+  | "createdAt"
+  | "updatedAt"
+  | "totalPrice"
+  | "seatsBooked"
+  | "status"
+  | "departure_ts"
+  | "passenger.firstName"
+  | "driver.firstName";
   sortOrder?: "ASC" | "DESC";
   search?: string;
   status?: "PENDING" | "CONFIRMED" | "CANCELLED" | "FAILED";

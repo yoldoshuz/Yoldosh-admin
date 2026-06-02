@@ -39,6 +39,7 @@ import { useBasePath } from "@/hooks/useBasePath";
 import { rejectionSchema } from "@/lib/schemas";
 import { formatDate, formatDocUrl, getStatusColor, isRealImagePath } from "@/lib/utils";
 import { ApplicationCar, CarApplication } from "@/types";
+import { EditApplicationDialog } from "./EditApplicationDialog";
 
 const formatPhone = (phone?: string | null) =>
   phone ? phone.replace(/^\+?(\d{3})(\d{2})(\d{3})(\d{2})(\d{2})$/, "+$1 $2 $3 $4 $5") : "—";
@@ -232,6 +233,8 @@ export const ApplicationCard = ({
             {application.status}
           </span>
 
+          <EditApplicationDialog application={application} activeCar={activeCar} />
+
           {application.status === "PENDING" && (
             <div className="flex items-center gap-1.5">
               <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
@@ -324,9 +327,8 @@ export const ApplicationCard = ({
                   key={c.id}
                   type="button"
                   onClick={() => setActiveCarIndex(i)}
-                  className={`rounded-full border px-2.5 py-0.5 text-[10px] font-medium transition ${
-                    i === activeCarIndex ? "border-emerald-500 bg-emerald-500 text-white" : "hover:border-emerald-500"
-                  }`}
+                  className={`rounded-full border px-2.5 py-0.5 text-[10px] font-medium transition ${i === activeCarIndex ? "border-emerald-500 bg-emerald-500 text-white" : "hover:border-emerald-500"
+                    }`}
                 >
                   {c.govNumber || `#${i + 1}`}
                 </button>

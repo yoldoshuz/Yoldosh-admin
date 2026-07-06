@@ -617,6 +617,76 @@ export const useUploadBlogImage = () => {
   });
 };
 
+// --- Banner (CMS) Hooks ---
+export const useGetBannersAdmin = (filters: { [key: string]: any }) => {
+  return useQuery({
+    queryKey: ["admin", "banners", filters],
+    queryFn: async () => {
+      const { data } = await api.get("/admin/banner", { params: filters });
+      return data.data;
+    },
+  });
+};
+
+export const useCreateBanner = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (values: any) => {
+      await api.post("/admin/banner", values);
+    },
+    onSuccess: () => {
+      toast.success("Баннер успешно создан");
+      queryClient.invalidateQueries({ queryKey: ["admin", "banners"] });
+    },
+  });
+};
+
+export const useUpdateBanner = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      await api.put(`/admin/banner/${id}`, data);
+    },
+    onSuccess: () => {
+      toast.success("Баннер успешно обновлён");
+      queryClient.invalidateQueries({ queryKey: ["admin", "banners"] });
+    },
+  });
+};
+
+export const useDeleteBanner = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/admin/banner/${id}`);
+    },
+    onSuccess: () => {
+      toast.success("Баннер удалён");
+      queryClient.invalidateQueries({ queryKey: ["admin", "banners"] });
+    },
+  });
+};
+
+// Multipart upload straight into our API (field name "media"). The API stores
+// the file in MinIO and returns a ready public url. Returns { url, type }
+// ready to drop into banner.media. Presign flow is NOT used (endpoint is 404).
+export const useUploadBannerMedia = () => {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("media", file);
+      const { data } = await api.post("/admin/banner/media", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      return {
+        url: data.data.url as string,
+        type: file.type.startsWith("video/") ? ("video" as const) : ("image" as const),
+      };
+    },
+  });
+};
+
 export const useChangeBookingStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({

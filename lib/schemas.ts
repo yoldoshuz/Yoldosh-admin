@@ -131,6 +131,30 @@ const langObject = (required = false) =>
     en: z.string().trim(),
   });
 
+// Banner (CMS) Schema
+export const bannerTypes = ["popup", "inline_banner", "carousel", "fullscreen"] as const;
+export const bannerMediaTypes = ["image", "video"] as const;
+
+export const bannerSchema = z.object({
+  type: z.enum(bannerTypes, "Выберите тип баннера"),
+  placement: z.string().trim().min(1, "Укажите placement (напр. home)"),
+  title: langObject(false),
+  body: langObject(false),
+  media: z
+    .object({
+      type: z.enum(bannerMediaTypes),
+      url: z.string().trim(),
+    })
+    .nullable(),
+  action_url: z.string().trim(),
+  priority: z.number().int("Приоритет должен быть целым числом"),
+  start_at: z.string().trim(),
+  end_at: z.string().trim(),
+  is_active: z.boolean(),
+});
+
+export type BannerFormValues = z.infer<typeof bannerSchema>;
+
 export const blogSchema = z.object({
   title: langObject(true),
   subtitle: langObject(false),

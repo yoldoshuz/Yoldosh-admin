@@ -7,6 +7,7 @@ import {
   GalleryVertical,
   Home,
   Logs,
+  Megaphone,
   Route,
   Search,
   ShieldAlert,
@@ -56,6 +57,7 @@ export const adminItems: NavItem[] = [
   { title: "Промокоды", url: "/admin/promocodes", icon: TicketPercent, permission: AdminPermission.PROMOCODES },
   { title: "Модерация", url: "/admin/moderation", icon: ShieldAlert, permission: AdminPermission.MODERATION },
   { title: "Блог", url: "/admin/blogs", icon: GalleryVertical, permission: AdminPermission.BLOGS },
+  { title: "Баннеры", url: "/admin/banners", icon: Megaphone, permission: AdminPermission.BLOGS },
 ];
 
 // =========== SuperAdmin sidebar items ===========
@@ -88,6 +90,7 @@ export const superAdminItems: NavItem[] = [
   { title: "Промокоды", url: "/super-admin/promocodes", icon: TicketPercent, group: "ОПЕРАЦИИ" },
   { title: "Модерация", url: "/super-admin/moderation", icon: ShieldAlert, group: "ОПЕРАЦИИ" },
   { title: "Блог", url: "/super-admin/blogs", icon: GalleryVertical, group: "ОПЕРАЦИИ" },
+  { title: "Баннеры", url: "/super-admin/banners", icon: Megaphone, group: "ОПЕРАЦИИ" },
 
   { title: "Финансы", url: "/super-admin/wallets", icon: CircleDollarSign, group: "СПИСКИ" },
   { title: "Гости", url: "/super-admin/guests", icon: ShieldUser, group: "СПИСКИ" },

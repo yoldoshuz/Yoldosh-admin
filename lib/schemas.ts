@@ -36,6 +36,8 @@ export const globalNotificationSchema = z.object({
   content: z.string().min(1, "Содержание обязательно"),
   type: z.enum(["general", "trips", "promotionAndDiscounts", "newsAndAgreement", "messages"]),
   targetAudience: z.enum(["ALL", "DRIVERS", "PASSENGERS"]),
+  // Готовый URL картинки (как у баннеров). Необязателен.
+  image: z.string().trim().optional(),
 });
 // Car Model Schema
 export const carModelSchema = z.object({

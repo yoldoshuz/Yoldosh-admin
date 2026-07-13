@@ -437,6 +437,21 @@ export const useCreateGlobalNotification = () => {
   });
 };
 
+// Загружает картинку уведомления через общий media-эндпоинт (MinIO) и
+// возвращает готовый публичный URL для поля `image` — тот же поток, что у баннеров.
+export const useUploadNotificationImage = () => {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("media", file);
+      const { data } = await api.post("/admin/banner/media", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return data.data.url as string;
+    },
+  });
+};
+
 // --- Word Moderation Hooks (Keep as is) ---
 export const useGetRestrictedWords = (filters: { [key: string]: any }) => {
   return useInfiniteQuery({

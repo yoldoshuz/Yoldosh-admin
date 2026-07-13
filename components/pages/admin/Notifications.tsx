@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { Bell, Calendar as CalendarIcon, Filter, Search } from "lucide-react";
+import { Bell, Calendar as CalendarIcon, Filter, ImagePlus, Search, X } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { useDebounceValue, useIntersectionObserver } from "usehooks-ts";
 import { z } from "zod";
 
@@ -25,9 +26,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/sonner";
 import { Textarea } from "@/components/ui/textarea";
-import { useCreateGlobalNotification, useGetNotifications } from "@/hooks/adminHooks";
+import { useCreateGlobalNotification, useGetNotifications, useUploadNotificationImage } from "@/hooks/adminHooks";
 import { globalNotificationSchema } from "@/lib/schemas";
 import { formatDate, getStatusColor } from "@/lib/utils";
+
+const ACCEPT_IMAGE = "image/jpeg,image/png,image/webp,image/gif";
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 МБ
 
 export const Notifications = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -49,6 +53,9 @@ export const Notifications = () => {
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetNotifications(filters);
   const { mutate: sendNotification, isPending } = useCreateGlobalNotification();
+  const { mutateAsync: uploadImage, isPending: isUploading } = useUploadNotificationImage();
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof globalNotificationSchema>>({
     resolver: zodResolver(globalNotificationSchema),
@@ -57,11 +64,34 @@ export const Notifications = () => {
       content: "",
       type: "general",
       targetAudience: "ALL",
+      image: "",
     },
   });
 
+  const imageValue = form.watch("image");
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > MAX_IMAGE_SIZE) {
+      toast.error("Файл слишком большой. Максимум 10 МБ.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    try {
+      const url = await uploadImage(file);
+      form.setValue("image", url, { shouldDirty: true });
+    } catch {
+      toast.error("Не удалось загрузить изображение");
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   const onSubmit = (values: z.infer<typeof globalNotificationSchema>) => {
-    sendNotification(values, { onSuccess: () => form.reset() });
+    // Пустую строку не шлём — image остаётся необязательным.
+    const payload = { ...values, image: values.image?.trim() ? values.image.trim() : undefined };
+    sendNotification(payload, { onSuccess: () => form.reset() });
   };
 
   useEffect(() => {
@@ -106,6 +136,55 @@ export const Notifications = () => {
                     <FormLabel>Содержание</FormLabel>
                     <FormControl>
                       <Textarea placeholder="Текст уведомления..." className="component-dark min-h-[60px]" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Изображение (необязательно) — грузится отдельно, в payload идёт готовый URL */}
+              <FormField
+                control={form.control}
+                name="image"
+                render={() => (
+                  <FormItem>
+                    <FormLabel>Изображение (необязательно)</FormLabel>
+                    <FormControl>
+                      <div className="space-y-2">
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept={ACCEPT_IMAGE}
+                          className="hidden"
+                          onChange={handleImageUpload}
+                        />
+                        {imageValue ? (
+                          <div className="relative w-full overflow-hidden rounded-lg border">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={imageValue} alt="Превью" className="max-h-48 w-full object-cover" />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon"
+                              className="absolute top-2 right-2 size-8"
+                              onClick={() => form.setValue("image", "", { shouldDirty: true })}
+                            >
+                              <X className="size-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="component-dark w-full"
+                            disabled={isUploading}
+                            onClick={() => fileInputRef.current?.click()}
+                          >
+                            <ImagePlus className="mr-2 size-4" />
+                            {isUploading ? "Загрузка..." : "Загрузить изображение"}
+                          </Button>
+                        )}
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -160,7 +239,7 @@ export const Notifications = () => {
                 )}
               />
 
-              <Button type="submit" className="btn-primary shadow-glow w-full" disabled={isPending}>
+              <Button type="submit" className="btn-primary shadow-glow w-full" disabled={isPending || isUploading}>
                 {isPending ? "Отправка..." : "Отправить"}
               </Button>
             </form>
@@ -247,6 +326,15 @@ export const Notifications = () => {
                         {/* ✅ Display Title */}
                         <span className="text-lg font-bold">{notif.title}</span>
                         <span className="text-muted-foreground text-sm">{notif.message}</span>
+
+                        {notif.image && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={notif.image}
+                            alt=""
+                            className="mt-1 max-h-32 rounded-lg border object-cover"
+                          />
+                        )}
 
                         <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(notif.type)}`}>
                           {notif.type}

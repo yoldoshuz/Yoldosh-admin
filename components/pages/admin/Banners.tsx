@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -341,7 +342,7 @@ export const Banners = () => {
                         <FormItem>
                           <FormLabel>Начало показа</FormLabel>
                           <FormControl>
-                            <Input type="datetime-local" {...field} />
+                            <DateTimePicker value={field.value} onChange={field.onChange} placeholder="Начало показа" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -355,7 +356,7 @@ export const Banners = () => {
                         <FormItem>
                           <FormLabel>Конец показа</FormLabel>
                           <FormControl>
-                            <Input type="datetime-local" {...field} />
+                            <DateTimePicker value={field.value} onChange={field.onChange} placeholder="Конец показа" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

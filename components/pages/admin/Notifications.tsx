@@ -329,11 +329,7 @@ export const Notifications = () => {
 
                         {notif.image && (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={notif.image}
-                            alt=""
-                            className="mt-1 max-h-32 rounded-lg border object-cover"
-                          />
+                          <img src={notif.image} alt="" className="mt-1 max-h-32 rounded-lg border object-cover" />
                         )}
 
                         <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(notif.type)}`}>

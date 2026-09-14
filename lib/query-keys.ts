@@ -32,6 +32,35 @@ export const queryKeys = {
     searchUsers: (query: string) => [...queryKeys.admin.all, "users", "search", query] as const,
     promoCodes: (type: string) => [...queryKeys.admin.all, "promo-codes", type] as const,
   },
+  // ============================================================
+  // Product analytics (Yoldosh Analytics) — {api}/admin/analytics/*
+  // Все ключи включают фильтры (from/to/platform/app_version/role),
+  // потому что каждый набор фильтров — отдельная витрина.
+  // ============================================================
+  analytics: {
+    all: ["analytics"] as const,
+    overview: (q: any = {}) => [...queryKeys.analytics.all, "overview", q] as const,
+    events: (q: any = {}) => [...queryKeys.analytics.all, "events", q] as const,
+    eventSeries: (name: string, q: any = {}) => [...queryKeys.analytics.all, "events", "series", name, q] as const,
+    funnel: (funnel: string, q: any = {}) => [...queryKeys.analytics.all, "funnel", funnel, q] as const,
+    signupSources: (q: any = {}) => [...queryKeys.analytics.all, "signup-sources", q] as const,
+    nav: (q: any = {}) => [...queryKeys.analytics.all, "nav", q] as const,
+    searchInputs: (q: any = {}) => [...queryKeys.analytics.all, "search", "inputs", q] as const,
+    searchQueries: (q: any = {}) => [...queryKeys.analytics.all, "search", "queries", q] as const,
+    searchDemand: (q: any = {}) => [...queryKeys.analytics.all, "search", "demand", q] as const,
+    searchFilters: (q: any = {}) => [...queryKeys.analytics.all, "search", "filters", q] as const,
+    forms: (q: any = {}) => [...queryKeys.analytics.all, "forms", q] as const,
+    formDetails: (form: string, q: any = {}) => [...queryKeys.analytics.all, "forms", form, q] as const,
+    tripStats: (tripId: string) => [...queryKeys.analytics.all, "trips", tripId] as const,
+    topTrips: (q: any = {}) => [...queryKeys.analytics.all, "trips", "top", q] as const,
+    chats: (q: any = {}) => [...queryKeys.analytics.all, "chats", q] as const,
+    userTimeline: (userId: string, q: any = {}) => [...queryKeys.analytics.all, "timeline", userId, q] as const,
+    retention: (q: any = {}) => [...queryKeys.analytics.all, "retention", q] as const,
+    errors: (q: any = {}) => [...queryKeys.analytics.all, "errors", q] as const,
+    config: () => [...queryKeys.analytics.all, "config"] as const,
+    registry: () => [...queryKeys.analytics.all, "registry"] as const,
+    unknownEvents: () => [...queryKeys.analytics.all, "registry", "unknown"] as const,
+  },
   superAdmin: {
     all: ["super-admin"] as const,
     profile: () => [...queryKeys.superAdmin.all, "profile"] as const,

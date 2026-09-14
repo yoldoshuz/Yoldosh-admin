@@ -27,6 +27,7 @@ import {
   Warehouse,
 } from "lucide-react";
 
+import { TripAnalyticsBlock } from "@/components/shared/analytics/TripAnalyticsBlock";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -412,6 +413,9 @@ export const TripDetails = ({ tripId }: { tripId: string }) => {
           </Card>
         )}
       </div>
+
+      {/* ============================ ANALYTICS ============================ */}
+      <TripAnalyticsBlock tripId={trip.id} />
 
       {/* ============================ BOOKINGS ============================ */}
       <Card className="component shadow-none">

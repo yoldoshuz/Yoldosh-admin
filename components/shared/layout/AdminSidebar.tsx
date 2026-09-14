@@ -34,6 +34,19 @@ export const AdminSidebar = () => {
 
   const allowedItems = adminItems.filter((i) => !i.permission || hasPermission(i.permission));
 
+  // Группируем с сохранением порядка: пункты без группы (основной раздел)
+  // идут первыми и без заголовка, аналитика — отдельным блоком.
+  const groups: { name: string; items: NavItem[] }[] = [];
+  for (const it of allowedItems) {
+    const name = it.group ?? "";
+    let bucket = groups.find((b) => b.name === name);
+    if (!bucket) {
+      bucket = { name, items: [] };
+      groups.push(bucket);
+    }
+    bucket.items.push(it);
+  }
+
   return (
     <Sidebar collapsible="icon">
       <SidebarContent className="bg-sidebar">
@@ -52,29 +65,36 @@ export const AdminSidebar = () => {
 
           <SidebarGroupContent className="h-full pt-2">
             <SidebarMenu className="flex h-full flex-col gap-0.5">
-              <div className="space-y-1">
-                {allowedItems.map((item) => {
-                  const active = isActive(pathname, item);
-                  return (
-                    <SidebarMenuItem key={`${item.url}-${item.title}`}>
-                      <SidebarMenuButton
-                        asChild
-                        className={cn(
-                          "h-9 px-2.5 text-sm transition",
-                          active
-                            ? "bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/15 dark:bg-emerald-500/15 dark:text-emerald-300"
-                            : "hover:bg-muted text-muted-foreground hover:text-foreground"
-                        )}
-                      >
-                        <Link href={item.url} className="flex items-center gap-2.5">
-                          <item.icon className="size-4 shrink-0" />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </div>
+              {groups.map((group) => (
+                <div key={group.name || "main"} className="space-y-1">
+                  {!!group.name && (
+                    <p className="text-muted-foreground/70 px-3 pt-3 pb-1 text-[10px] font-semibold tracking-wider uppercase">
+                      {group.name}
+                    </p>
+                  )}
+                  {group.items.map((item) => {
+                    const active = isActive(pathname, item);
+                    return (
+                      <SidebarMenuItem key={`${item.url}-${item.title}`}>
+                        <SidebarMenuButton
+                          asChild
+                          className={cn(
+                            "h-9 px-2.5 text-sm transition",
+                            active
+                              ? "bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/15 dark:bg-emerald-500/15 dark:text-emerald-300"
+                              : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          <Link href={item.url} className="flex items-center gap-2.5">
+                            <item.icon className="size-4 shrink-0" />
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </div>
+              ))}
 
               <div className="mt-auto space-y-2 pt-3">
                 {profile && (

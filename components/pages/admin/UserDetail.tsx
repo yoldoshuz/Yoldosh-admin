@@ -15,6 +15,7 @@ import {
   Cigarette,
   Compass,
   Dog,
+  History,
   IdCard,
   Languages,
   Mail,
@@ -225,6 +226,14 @@ export const UserDetail = ({ userId }: { userId: string }) => {
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              {/* Таймлайн аналитики: поддержка открывает жалобу «не смог
+                  забронировать» и видит, где именно человек отвалился. */}
+              <Button asChild variant="outline" className="gap-2">
+                <Link href={`/${base}/analytics/users/${userId}`}>
+                  <History className="h-4 w-4" />
+                  Таймлайн действий
+                </Link>
+              </Button>
               {user.isBanned ? (
                 <Button
                   variant="outline"

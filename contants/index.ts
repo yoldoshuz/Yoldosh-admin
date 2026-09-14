@@ -2,19 +2,27 @@ import {
   Activity,
   BarChart3,
   Bell,
+  CalendarDays,
+  CircleAlert,
   CircleDollarSign,
+  ClipboardList,
+  Filter,
   Flag,
   GalleryVertical,
   Home,
+  LayoutGrid,
   Logs,
   Megaphone,
+  MessagesSquare,
   Route,
   Search,
+  Settings2,
   ShieldAlert,
   ShieldUser,
   Ticket,
   TicketPercent,
   TrendingUp,
+  UserPlus,
   UserRoundCheck,
   Users,
   UserStar,
@@ -34,6 +42,40 @@ export type NavItem = {
   superAdminOnly?: boolean;
   group?: string;
   exactMatch?: boolean;
+};
+
+// =========== Product analytics (Yoldosh Analytics) ===========
+// Порядок — приоритет разработки из документации бэкенда:
+// Обзор → Воронки → Регистрации + Меню закрывают ~80% реальных
+// вопросов бизнеса и поддержки, остальное идёт следом.
+//
+// Таймлайн пользователя в меню не выносим: он требует userId и
+// открывается из карточки пользователя.
+export const ANALYTICS_GROUP = "АНАЛИТИКА ПРОДУКТА";
+
+const analyticsItems = (root: "admin" | "super-admin"): NavItem[] => {
+  const item = (title: string, path: string, icon: LucideIcon, exactMatch = false): NavItem => ({
+    title,
+    url: `/${root}/analytics${path}`,
+    icon,
+    group: ANALYTICS_GROUP,
+    exactMatch,
+  });
+
+  return [
+    item("Обзор", "", BarChart3, true),
+    item("Воронки", "/funnels", Filter),
+    item("Регистрации", "/signups", UserPlus),
+    item("Меню", "/nav", LayoutGrid),
+    item("Поиск", "/search", Search),
+    item("Трипы", "/trips", Route),
+    item("Чаты", "/chats", MessagesSquare),
+    item("Формы", "/forms", ClipboardList),
+    item("События", "/events", Activity),
+    item("Ретеншн", "/retention", CalendarDays),
+    item("Ошибки", "/errors", CircleAlert),
+    item("Настройки трекинга", "/settings", Settings2),
+  ];
 };
 
 // =========== Admin sidebar items ===========
@@ -58,6 +100,8 @@ export const adminItems: NavItem[] = [
   { title: "Модерация", url: "/admin/moderation", icon: ShieldAlert, permission: AdminPermission.MODERATION },
   { title: "Блог", url: "/admin/blogs", icon: GalleryVertical, permission: AdminPermission.BLOGS },
   { title: "Баннеры", url: "/admin/banners", icon: Megaphone, permission: AdminPermission.BLOGS },
+
+  ...analyticsItems("admin"),
 ];
 
 // =========== SuperAdmin sidebar items ===========
@@ -99,4 +143,6 @@ export const superAdminItems: NavItem[] = [
 
   { title: "Админы", url: "/super-admin/admins", icon: UserStar, group: "УПРАВЛЕНИЕ" },
   { title: "Журнал действий", url: "/super-admin/logs", icon: Logs, group: "УПРАВЛЕНИЕ" },
+
+  ...analyticsItems("super-admin"),
 ];

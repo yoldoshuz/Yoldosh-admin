@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAnalyticsErrors } from "@/hooks/analyticsHooks";
 import { useAnalyticsFilters } from "@/hooks/useAnalyticsFilters";
+import { num } from "@/lib/analytics";
 import { cn, formatNumber } from "@/lib/utils";
 
 // ============================================================
@@ -18,7 +19,8 @@ import { cn, formatNumber } from "@/lib/utils";
 // на конкретной версии. Поэтому разбивка по app_version здесь ключевая.
 // ============================================================
 
-const statusTone = (status: number): string => {
+const statusTone = (status: number | null | undefined): string => {
+  if (status == null) return "bg-muted text-muted-foreground";
   if (status >= 500) return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300";
   if (status >= 400) return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300";
   return "bg-muted text-muted-foreground";
@@ -26,17 +28,17 @@ const statusTone = (status: number): string => {
 
 export const AnalyticsErrorsPage = () => {
   const { filters, setFilters, query } = useAnalyticsFilters();
-  const { data, isLoading } = useAnalyticsErrors({ ...query, limit: 50 });
+  const { data, isLoading, isError, refetch } = useAnalyticsErrors({ ...query, limit: 50 });
 
   const items = data?.data ?? [];
-  const totalErrors = items.reduce((acc, i) => acc + i.cnt, 0);
-  const affectedUsers = items.reduce((acc, i) => Math.max(acc, i.users), 0);
-  const server5xx = items.filter((i) => i.status >= 500).reduce((acc, i) => acc + i.cnt, 0);
+  const totalErrors = items.reduce((acc, i) => acc + num(i.cnt), 0);
+  const affectedUsers = items.reduce((acc, i) => Math.max(acc, num(i.users)), 0);
+  const server5xx = items.filter((i) => num(i.status) >= 500).reduce((acc, i) => acc + num(i.cnt), 0);
 
   const byVersion = Object.entries(
     items.reduce<Record<string, number>>((acc, i) => {
       const v = i.app_version ?? "—";
-      acc[v] = (acc[v] ?? 0) + i.cnt;
+      acc[v] = (acc[v] ?? 0) + num(i.cnt);
       return acc;
     }, {})
   ).map(([label, count]) => ({ label, count }));
@@ -50,6 +52,8 @@ export const AnalyticsErrorsPage = () => {
       filters={filters}
       onFiltersChange={setFilters}
       withRole={false}
+      isError={isError}
+      onRetry={refetch}
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard title="Всего ошибок" value={totalErrors} icon={CircleAlert} tone="red" loading={isLoading} />
@@ -93,7 +97,7 @@ export const AnalyticsErrorsPage = () => {
                 <TableBody>
                   {items.map((e, i) => (
                     <TableRow key={`${e.endpoint}-${e.status}-${e.app_version ?? ""}-${i}`}>
-                      <TableCell className="font-mono text-xs font-medium">{e.endpoint}</TableCell>
+                      <TableCell className="font-mono text-xs font-medium">{e.endpoint ?? "—"}</TableCell>
                       <TableCell>
                         <span
                           className={cn(
@@ -101,7 +105,7 @@ export const AnalyticsErrorsPage = () => {
                             statusTone(e.status)
                           )}
                         >
-                          {e.status}
+                          {e.status ?? "—"}
                         </span>
                       </TableCell>
                       <TableCell className="text-muted-foreground font-mono text-[11px]">

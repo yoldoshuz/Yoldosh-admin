@@ -64,14 +64,16 @@ export const rangeLengthDays = (from: string, to: string): number => {
 };
 
 /** Человекочитаемая дата дня витрины: «14 сен». */
-export const formatDay = (ymd: string): string => {
+export const formatDay = (ymd: string | null | undefined): string => {
+  if (!ymd) return "—";
   const dt = new Date(`${ymd}T00:00:00Z`);
   if (Number.isNaN(dt.getTime())) return ymd;
   return dt.toLocaleDateString("ru-RU", { day: "numeric", month: "short", timeZone: "UTC" });
 };
 
 /** Точка на оси: день → «14 сен», час → «14:00». */
-export const formatSeriesTick = (t: string, granularity: AnalyticsGranularity = "day"): string => {
+export const formatSeriesTick = (t: string | null | undefined, granularity: AnalyticsGranularity = "day"): string => {
+  if (!t) return "—";
   if (granularity === "hour") {
     const dt = new Date(t);
     if (Number.isNaN(dt.getTime())) return t;
@@ -174,7 +176,22 @@ export const isPartialToday = (meta: AnalyticsMeta | undefined, to?: string): bo
 
 // ============================================================
 // Форматирование значений витрин.
+//
+// Витрины наполняются постепенно, и бэк регулярно отдаёт объекты
+// без части полей. Поэтому арифметику ведём через `num`, а проценты
+// считаем через `pctOf`: пустая витрина должна показывать «0» и «—»,
+// а не ронять экран.
 // ============================================================
+
+/** Безопасное число: undefined / null / NaN → 0. */
+export const num = (value: number | null | undefined): number => (Number.isFinite(value) ? (value as number) : 0);
+
+/** Доля в процентах; null, если знаменатель пуст — делить не на что. */
+export const pctOf = (numerator: number | null | undefined, denominator: number | null | undefined): number | null => {
+  const d = num(denominator);
+  if (d <= 0) return null;
+  return (num(numerator) / d) * 100;
+};
 
 export const formatPct = (value: number | null | undefined, digits = 1): string => {
   if (value == null || Number.isNaN(value)) return "—";
@@ -198,14 +215,14 @@ export const formatMs = (ms: number | null | undefined): string => {
 };
 
 /** `trip_card_tap` → «Trip card tap» — читаемо, но узнаваемо. */
-export const humanizeEventName = (name: string): string => {
+export const humanizeEventName = (name: string | null | undefined): string => {
   if (!name) return "—";
   const clean = name.replace(/^srv_/, "").replace(/_/g, " ");
   return clean.charAt(0).toUpperCase() + clean.slice(1);
 };
 
 /** Серверные факты (`srv_*`) отличаем визуально — это не клик, а запись в базе. */
-export const isServerEvent = (name: string): boolean => name.startsWith("srv_");
+export const isServerEvent = (name: string | null | undefined): boolean => !!name && name.startsWith("srv_");
 
 // ============================================================
 // Словари раздела.

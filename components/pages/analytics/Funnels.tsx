@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAnalyticsFunnel } from "@/hooks/analyticsHooks";
 import { useAnalyticsFilters } from "@/hooks/useAnalyticsFilters";
-import { formatDay, formatPct, FUNNELS, humanizeEventName, previousPeriod } from "@/lib/analytics";
+import { formatDay, formatPct, FUNNELS, humanizeEventName, num, previousPeriod } from "@/lib/analytics";
 import { formatNumber } from "@/lib/utils";
 import type { AnalyticsFunnelCode } from "@/types";
 
@@ -28,7 +28,7 @@ export const AnalyticsFunnelsPage = () => {
   const { filters, setFilters, query } = useAnalyticsFilters();
   const [funnel, setFunnel] = useState<AnalyticsFunnelCode>("search_to_booking");
 
-  const { data, isLoading } = useAnalyticsFunnel(funnel, query);
+  const { data, isLoading, isError, refetch } = useAnalyticsFunnel(funnel, query);
   const prevRange = previousPeriod(filters.from, filters.to);
   const { data: prevData } = useAnalyticsFunnel(funnel, { ...query, ...prevRange });
 
@@ -38,10 +38,10 @@ export const AnalyticsFunnelsPage = () => {
   const startUsers = steps[0]?.users;
   const last = steps[steps.length - 1];
   const prevLast = prevSteps[prevSteps.length - 1];
+  // Дельта сквозной конверсии: считаем только когда есть с чем сравнивать.
+  const prevEndToEnd = num(prevLast?.conv_from_start);
   const endToEndDelta =
-    last && prevLast && prevLast.conv_from_start > 0
-      ? ((last.conv_from_start - prevLast.conv_from_start) / prevLast.conv_from_start) * 100
-      : null;
+    last && prevLast && prevEndToEnd > 0 ? ((num(last.conv_from_start) - prevEndToEnd) / prevEndToEnd) * 100 : null;
 
   return (
     <AnalyticsPageShell
@@ -51,6 +51,8 @@ export const AnalyticsFunnelsPage = () => {
       meta={data?.meta}
       filters={filters}
       onFiltersChange={setFilters}
+      isError={isError}
+      onRetry={refetch}
       actions={
         <>
           <Select value={funnel} onValueChange={(v) => setFunnel(v as AnalyticsFunnelCode)}>
@@ -74,9 +76,9 @@ export const AnalyticsFunnelsPage = () => {
       <StatsSection
         title={meta?.label ?? funnel}
         description={
-          data?.data
+          data?.data?.window_minutes != null
             ? `Окно между соседними шагами — ${data.data.window_minutes} мин. Единица воронки — пользователь за сутки.`
-            : undefined
+            : "Единица воронки — пользователь за сутки, а не сессия."
         }
       >
         <FunnelSteps steps={steps} loading={isLoading} />
@@ -111,11 +113,12 @@ export const AnalyticsFunnelsPage = () => {
                 <TableBody>
                   {steps.map((s, i) => {
                     const prev = prevSteps.find((x) => x.name === s.name);
-                    const d = prev && prev.users > 0 ? ((s.users - prev.users) / prev.users) * 100 : null;
+                    const prevUsers = num(prev?.users);
+                    const d = prev && prevUsers > 0 ? ((num(s.users) - prevUsers) / prevUsers) * 100 : null;
                     return (
                       <TableRow key={`${s.step}-${s.name}`}>
                         <TableCell className="font-medium">
-                          <span className="text-muted-foreground mr-2 tabular-nums">{s.step}.</span>
+                          <span className="text-muted-foreground mr-2 tabular-nums">{s.step ?? i + 1}.</span>
                           {humanizeEventName(s.name)}
                         </TableCell>
                         <TableCell className="text-right tabular-nums">{formatNumber(s.users)}</TableCell>

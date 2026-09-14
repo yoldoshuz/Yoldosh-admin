@@ -24,7 +24,8 @@ import type { AnalyticsTimelineEvent } from "@/types";
 // пишется на бэке в admin_logs.
 // ============================================================
 
-const eventTime = (ts: string) => {
+const eventTime = (ts: string | null | undefined) => {
+  if (!ts) return "—";
   const d = new Date(ts);
   if (Number.isNaN(d.getTime())) return "—";
   return d.toLocaleTimeString("ru-RU", {
@@ -72,10 +73,8 @@ export const AnalyticsUserTimelinePage = ({ userId }: { userId: string }) => {
   const { hasPermission, isLoading: permLoading } = usePermission();
   const allowed = hasPermission(AdminPermission.USERS);
 
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useAnalyticsUserTimeline(
-    allowed ? userId : "",
-    { from: filters.from, to: filters.to }
-  );
+  const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useAnalyticsUserTimeline(allowed ? userId : "", { from: filters.from, to: filters.to });
 
   const sessions = (data?.pages ?? []).flatMap((p) => p.data?.sessions ?? []);
   const meta = data?.pages?.[0]?.meta;
@@ -107,6 +106,8 @@ export const AnalyticsUserTimelinePage = ({ userId }: { userId: string }) => {
       filters={filters}
       onFiltersChange={setFilters}
       withRole={false}
+      isError={isError}
+      onRetry={refetch}
       actions={
         <Button asChild variant="outline" size="sm" className="h-9 gap-1.5">
           <Link href={`/${base}/users-search/${userId}`}>
@@ -139,7 +140,7 @@ export const AnalyticsUserTimelinePage = ({ userId }: { userId: string }) => {
         <>
           {sessions.map((s) => (
             <StatsSection
-              key={s.session_id}
+              key={s.session_id ?? s.started_at}
               title={formatDate(s.started_at)}
               description={`${formatSeconds(s.duration_sec)} · ${s.events?.length ?? 0} событий`}
             >
@@ -148,7 +149,7 @@ export const AnalyticsUserTimelinePage = ({ userId }: { userId: string }) => {
                   <Smartphone className="size-3" /> {s.platform ?? "—"}
                   {s.app_version ? ` · ${s.app_version}` : ""}
                 </span>
-                <span className="font-mono">{s.session_id}</span>
+                <span className="font-mono">{s.session_id ?? "—"}</span>
               </div>
               <ul className="space-y-0.5">
                 {(s.events ?? []).map((e, i) => (

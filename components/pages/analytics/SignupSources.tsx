@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAnalyticsSignupSources } from "@/hooks/analyticsHooks";
 import { useAnalyticsFilters } from "@/hooks/useAnalyticsFilters";
-import { entryPointLabel, formatPct } from "@/lib/analytics";
+import { entryPointLabel, formatPct, num } from "@/lib/analytics";
 import { formatNumber } from "@/lib/utils";
 
 // ============================================================
@@ -23,13 +23,15 @@ import { formatNumber } from "@/lib/utils";
 
 export const AnalyticsSignupSourcesPage = () => {
   const { filters, setFilters, query } = useAnalyticsFilters();
-  const { data, isLoading } = useAnalyticsSignupSources(query);
+  const { data, isLoading, isError, refetch } = useAnalyticsSignupSources(query);
 
   const items = data?.data?.items ?? [];
   const total = data?.data?.total_signups ?? 0;
-  const best = items.length ? [...items].sort((a, b) => b.conv_from_wall_pct - a.conv_from_wall_pct)[0] : null;
-  const biggest = items.length ? [...items].sort((a, b) => b.signups - a.signups)[0] : null;
-  const maxSignups = Math.max(...items.map((i) => i.signups), 1);
+  const best = items.length
+    ? [...items].sort((a, b) => num(b.conv_from_wall_pct) - num(a.conv_from_wall_pct))[0]
+    : null;
+  const biggest = items.length ? [...items].sort((a, b) => num(b.signups) - num(a.signups))[0] : null;
+  const maxSignups = Math.max(...items.map((i) => num(i.signups)), 1);
 
   return (
     <AnalyticsPageShell
@@ -39,6 +41,8 @@ export const AnalyticsSignupSourcesPage = () => {
       meta={data?.meta}
       filters={filters}
       onFiltersChange={setFilters}
+      isError={isError}
+      onRetry={refetch}
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard title="Всего регистраций" value={total} icon={UserPlus} loading={isLoading} />
@@ -95,7 +99,7 @@ export const AnalyticsSignupSourcesPage = () => {
                         <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
                           <div
                             className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500"
-                            style={{ width: `${Math.max(2, (it.signups / maxSignups) * 100)}%` }}
+                            style={{ width: `${Math.max(2, (num(it.signups) / maxSignups) * 100)}%` }}
                           />
                         </div>
                         <span className="text-muted-foreground w-12 shrink-0 text-right text-xs tabular-nums">
@@ -108,7 +112,9 @@ export const AnalyticsSignupSourcesPage = () => {
                         pct={it.conv_from_wall_pct}
                         numerator={it.signups}
                         denominator={
-                          it.conv_from_wall_pct > 0 ? Math.round((it.signups / it.conv_from_wall_pct) * 100) : null
+                          num(it.conv_from_wall_pct) > 0
+                            ? Math.round((num(it.signups) / num(it.conv_from_wall_pct)) * 100)
+                            : null
                         }
                         label="Зарегались из увидевших стену"
                         className="font-medium"

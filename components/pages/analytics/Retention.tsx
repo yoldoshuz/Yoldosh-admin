@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAnalyticsRetention } from "@/hooks/analyticsHooks";
 import { useAnalyticsFilters } from "@/hooks/useAnalyticsFilters";
-import { formatDay, LOW_SAMPLE_THRESHOLD } from "@/lib/analytics";
+import { formatDay, LOW_SAMPLE_THRESHOLD, num } from "@/lib/analytics";
 import { cn, formatNumber } from "@/lib/utils";
 
 // ============================================================
@@ -35,7 +35,7 @@ export const AnalyticsRetentionPage = () => {
   const { filters, setFilters, query } = useAnalyticsFilters();
   const [depth, setDepth] = useState(7);
 
-  const { data, isLoading } = useAnalyticsRetention({ ...query, depth });
+  const { data, isLoading, isError, refetch } = useAnalyticsRetention({ ...query, depth });
   const rows = data?.data ?? [];
   const columns = Math.max(...rows.map((r) => r.retention?.length ?? 0), depth + 1);
 
@@ -47,6 +47,8 @@ export const AnalyticsRetentionPage = () => {
       meta={data?.meta}
       filters={filters}
       onFiltersChange={setFilters}
+      isError={isError}
+      onRetry={refetch}
       actions={
         <Select value={String(depth)} onValueChange={(v) => setDepth(Number(v))}>
           <SelectTrigger className="h-9 w-[140px] text-xs">
@@ -86,16 +88,17 @@ export const AnalyticsRetentionPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((r) => {
-                  const small = r.size < LOW_SAMPLE_THRESHOLD;
+                {rows.map((r, rowIndex) => {
+                  const size = num(r.size);
+                  const small = size < LOW_SAMPLE_THRESHOLD;
                   return (
-                    <tr key={r.cohort}>
+                    <tr key={r.cohort ?? rowIndex}>
                       <td className="px-2 py-1 font-medium whitespace-nowrap">{formatDay(r.cohort)}</td>
                       <td
                         className={cn("px-2 py-1 text-right tabular-nums", small && "text-muted-foreground")}
                         title={small ? `Меньше ${LOW_SAMPLE_THRESHOLD} польз. — выводы ненадёжны` : undefined}
                       >
-                        {formatNumber(r.size)}
+                        {formatNumber(size)}
                         {small && " *"}
                       </td>
                       {Array.from({ length: columns }).map((_, i) => {
@@ -113,12 +116,13 @@ export const AnalyticsRetentionPage = () => {
                                       small && "opacity-60"
                                     )}
                                   >
-                                    {pct.toFixed(0)}
+                                    {num(pct).toFixed(0)}
                                   </div>
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p className="text-xs">
-                                    День {i}: {formatNumber(Math.round((r.size * pct) / 100))} из {formatNumber(r.size)}
+                                    День {i}: {formatNumber(Math.round((size * num(pct)) / 100))} из{" "}
+                                    {formatNumber(size)}
                                   </p>
                                 </TooltipContent>
                               </Tooltip>

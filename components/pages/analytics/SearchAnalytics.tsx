@@ -18,7 +18,7 @@ import {
   useAnalyticsSearchQueries,
 } from "@/hooks/analyticsHooks";
 import { useAnalyticsFilters } from "@/hooks/useAnalyticsFilters";
-import { formatMs, formatPct, searchFieldLabel, searchMethodLabel } from "@/lib/analytics";
+import { formatMs, formatPct, num, pctOf, searchFieldLabel, searchMethodLabel } from "@/lib/analytics";
 import { formatNumber } from "@/lib/utils";
 
 // ============================================================
@@ -29,6 +29,9 @@ import { formatNumber } from "@/lib/utils";
 // сигнал, где не хватает водителей. Ненайденные запросы с
 // unmatched=true — готовый список городов и синонимов для справочника.
 // ============================================================
+
+/** Направление может прийти без одного из городов — не показываем «undefined». */
+const routeLabel = (from?: string, to?: string) => `${from ?? "—"} → ${to ?? "—"}`;
 
 const TableSkeleton = ({ rows = 6 }: { rows?: number }) => (
   <div className="space-y-2">
@@ -54,9 +57,18 @@ export const AnalyticsSearchPage = () => {
 
   // «Не хватает водителей»: сначала много спроса, потом много пустой выдачи.
   const starving = [...demand]
-    .filter((d) => d.zero_results > 0)
-    .sort((a, b) => b.zero_results - a.zero_results)
+    .filter((d) => num(d.zero_results) > 0)
+    .sort((a, b) => num(b.zero_results) - num(a.zero_results))
     .slice(0, 10);
+
+  // Вкладки грузятся независимо: падение любой из них стоит показать явно.
+  const isError = demandQ.isError || inputsQ.isError || queriesQ.isError || filtersQ.isError;
+  const retryAll = () => {
+    demandQ.refetch();
+    inputsQ.refetch();
+    queriesQ.refetch();
+    filtersQ.refetch();
+  };
 
   const inputsByField = inputs.reduce<Record<string, typeof inputs>>((acc, row) => {
     (acc[row.field] ??= []).push(row);
@@ -71,6 +83,8 @@ export const AnalyticsSearchPage = () => {
       meta={demandQ.data?.meta}
       filters={filters}
       onFiltersChange={setFilters}
+      isError={isError}
+      onRetry={retryAll}
       actions={<ExportButton report="search" filters={filters} />}
     >
       <Tabs defaultValue="demand" className="w-full">
@@ -95,14 +109,12 @@ export const AnalyticsSearchPage = () => {
               <ul className="grid gap-2 sm:grid-cols-2">
                 {starving.map((d) => (
                   <li
-                    key={`${d.from_city}-${d.to_city}`}
+                    key={routeLabel(d.from_city, d.to_city)}
                     className="flex items-center justify-between gap-3 rounded-lg border border-amber-300/50 bg-amber-50/60 px-3 py-2 text-sm dark:border-amber-900/40 dark:bg-amber-900/10"
                   >
                     <span className="inline-flex min-w-0 items-center gap-2">
                       <TriangleAlert className="size-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
-                      <span className="truncate font-medium">
-                        {d.from_city} → {d.to_city}
-                      </span>
+                      <span className="truncate font-medium">{routeLabel(d.from_city, d.to_city)}</span>
                     </span>
                     <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
                       {formatNumber(d.zero_results)} пусто / {formatNumber(d.searches)} поисков
@@ -133,16 +145,14 @@ export const AnalyticsSearchPage = () => {
                   </TableHeader>
                   <TableBody>
                     {demand.map((d) => (
-                      <TableRow key={`${d.from_city}-${d.to_city}`}>
-                        <TableCell className="font-medium">
-                          {d.from_city} → {d.to_city}
-                        </TableCell>
+                      <TableRow key={routeLabel(d.from_city, d.to_city)}>
+                        <TableCell className="font-medium">{routeLabel(d.from_city, d.to_city)}</TableCell>
                         <TableCell className="text-right tabular-nums">{formatNumber(d.searches)}</TableCell>
                         <TableCell className="text-muted-foreground text-right tabular-nums">
                           {formatNumber(d.users)}
                         </TableCell>
                         <TableCell className="text-right tabular-nums">
-                          {d.zero_results > 0 ? (
+                          {num(d.zero_results) > 0 ? (
                             <span className="font-medium text-amber-600 dark:text-amber-400">
                               {formatNumber(d.zero_results)}
                             </span>
@@ -213,7 +223,7 @@ export const AnalyticsSearchPage = () => {
                           <TableCell className="text-right tabular-nums">{formatNumber(r.searches)}</TableCell>
                           <TableCell className="text-right tabular-nums">
                             <Conversion
-                              pct={r.searches > 0 ? (r.zero_results / r.searches) * 100 : null}
+                              pct={pctOf(r.zero_results, r.searches)}
                               numerator={r.zero_results}
                               denominator={r.searches}
                               label="Пустая выдача"

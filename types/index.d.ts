@@ -880,6 +880,13 @@ export type ChartData = GraphPoint;
 //   { success, message, data, meta }
 // `meta` обязателен для UI: подпись «Обновлено в 14:32» и пометка
 // неполного сегодняшнего дня.
+//
+// ВАЖНО про необязательные поля. Витрины наполняются постепенно, и
+// на практике бэк отдаёт частичные объекты: проценты, массивы и
+// вложенные блоки приходят не всегда. Поэтому здесь обязательны
+// только идентификаторы, а всё остальное помечено `?` — чтобы
+// компилятор заставлял писать безопасный рендер, а не падать в
+// проде на `undefined.toFixed()`.
 // ============================================================
 
 export type AnalyticsMeta = {
@@ -917,54 +924,54 @@ export type AnalyticsQuery = {
 
 // ===== 2.1 Обзор =====
 export type AnalyticsOverviewPoint = {
-  day: string;
-  dau: number;
-  new_users: number;
-  sessions: number;
+  day?: string;
+  dau?: number;
+  new_users?: number;
+  sessions?: number;
 };
 
 export type AnalyticsTopScreen = {
-  screen: string;
-  views: number;
-  avg_sec: number;
+  screen?: string;
+  views?: number;
+  avg_sec?: number;
 };
 
 export type AnalyticsOverview = {
-  dau: number;
-  wau: number;
-  mau: number;
-  new_users: number;
-  sessions: number;
-  avg_session_sec: number;
-  events_total: number;
-  series: AnalyticsOverviewPoint[];
-  by_platform: Record<string, number>;
-  top_screens: AnalyticsTopScreen[];
+  dau?: number;
+  wau?: number;
+  mau?: number;
+  new_users?: number;
+  sessions?: number;
+  avg_session_sec?: number;
+  events_total?: number;
+  series?: AnalyticsOverviewPoint[];
+  by_platform?: Record<string, number>;
+  top_screens?: AnalyticsTopScreen[];
 };
 
 // ===== 2.2 События =====
 export type AnalyticsEventRow = {
   name: string;
-  cnt: number;
-  users: number;
-  sessions: number;
+  cnt?: number;
+  users?: number;
+  sessions?: number;
   /** Динамика к предыдущему периоду такой же длины, в процентах. */
-  delta_pct: number | null;
+  delta_pct?: number | null;
 };
 
 export type AnalyticsEventsResponse = {
-  items: AnalyticsEventRow[];
-  total: number;
+  items?: AnalyticsEventRow[];
+  total?: number;
 };
 
 export type AnalyticsEventPoint = {
-  t: string;
-  cnt: number;
-  users: number;
+  t?: string;
+  cnt?: number;
+  users?: number;
 };
 
 export type AnalyticsEventTimeseries = {
-  points: AnalyticsEventPoint[];
+  points?: AnalyticsEventPoint[];
 };
 
 // ===== 2.3 Воронки =====
@@ -972,54 +979,54 @@ export type AnalyticsFunnelCode =
   "search_to_booking" | "signup" | "trip_create" | "parcel" | "topup" | "chat_to_booking";
 
 export type AnalyticsFunnelStep = {
-  step: number;
+  step?: number;
   name: string;
-  users: number;
+  users?: number;
   /** Конверсия от предыдущего шага, %. */
-  conv_from_prev: number;
+  conv_from_prev?: number;
   /** Конверсия от первого шага, %. */
-  conv_from_start: number;
+  conv_from_start?: number;
   /** Вспомогательное: в скольких сессиях встречался шаг (без учёта порядка). */
   sessions?: number;
 };
 
 export type AnalyticsFunnel = {
-  funnel: AnalyticsFunnelCode | string;
-  steps: AnalyticsFunnelStep[];
+  funnel?: AnalyticsFunnelCode | string;
+  steps?: AnalyticsFunnelStep[];
   /** Окно между соседними шагами, минуты. */
-  window_minutes: number;
+  window_minutes?: number;
 };
 
 // ===== 2.4 Источники регистраций =====
 export type AnalyticsSignupSource = {
   entry_point: string;
-  signups: number;
-  share_pct: number;
+  signups?: number;
+  share_pct?: number;
   /** Доля увидевших стену авторизации в этой точке и всё-таки зарегавшихся. */
-  conv_from_wall_pct: number;
+  conv_from_wall_pct?: number;
 };
 
 export type AnalyticsSignupSources = {
-  items: AnalyticsSignupSource[];
-  total_signups: number;
+  items?: AnalyticsSignupSource[];
+  total_signups?: number;
 };
 
 // ===== 2.4.1 Нижнее меню (таб-бар) =====
 export type AnalyticsNavTab = {
   tab: string;
-  taps: number;
-  users: number;
-  guest_taps: number;
-  blocked_by_auth: number;
-  signups: number;
-  block_rate_pct: number;
-  signup_conv_pct: number;
-  share_of_signups_pct: number;
+  taps?: number;
+  users?: number;
+  guest_taps?: number;
+  blocked_by_auth?: number;
+  signups?: number;
+  block_rate_pct?: number;
+  signup_conv_pct?: number;
+  share_of_signups_pct?: number;
 };
 
 export type AnalyticsNav = {
-  items: AnalyticsNavTab[];
-  total_signups: number;
+  items?: AnalyticsNavTab[];
+  total_signups?: number;
 };
 
 // ===== 2.4.2 Ввод «откуда / куда» =====
@@ -1028,94 +1035,90 @@ export type AnalyticsSearchInputMethod = "typed" | "suggest" | "recent" | "map" 
 export type AnalyticsSearchInput = {
   field: string;
   method: string;
-  cnt: number;
-  users: number;
-  avg_time_ms: number;
-  searches: number;
-  zero_results: number;
-  share_in_field_pct: number;
+  cnt?: number;
+  users?: number;
+  avg_time_ms?: number;
+  searches?: number;
+  zero_results?: number;
+  share_in_field_pct?: number;
 };
 
 export type AnalyticsSearchQuery = {
   field: string;
   query: string;
-  cnt: number;
-  users: number;
-  matched: number;
-  unmatched: number;
-  unmatched_pct: number;
+  cnt?: number;
+  users?: number;
+  matched?: number;
+  unmatched?: number;
+  unmatched_pct?: number;
 };
 
 // ===== 2.5 Формы =====
 export type AnalyticsFormListItem = {
   form: string;
-  started: number;
-  submitted: number;
-  completion_pct: number;
+  started?: number;
+  submitted?: number;
+  completion_pct?: number;
   avg_time_sec?: number;
 };
 
 export type AnalyticsFormField = {
   field: string;
-  index: number;
-  focused: number;
-  filled: number;
-  abandoned_here: number;
-  avg_fill_ms: number;
-  errors: number;
+  index?: number;
+  focused?: number;
+  filled?: number;
+  abandoned_here?: number;
+  avg_fill_ms?: number;
+  errors?: number;
 };
 
 export type AnalyticsFormDropOff = {
   field: string;
-  users: number;
-  share_pct: number;
+  users?: number;
+  share_pct?: number;
 };
 
 export type AnalyticsFormDetails = {
-  form: string;
-  started: number;
-  submitted: number;
-  completion_pct: number;
-  avg_time_sec: number;
-  fields: AnalyticsFormField[];
-  drop_off_top: AnalyticsFormDropOff[];
+  form?: string;
+  started?: number;
+  submitted?: number;
+  completion_pct?: number;
+  avg_time_sec?: number;
+  fields?: AnalyticsFormField[];
+  drop_off_top?: AnalyticsFormDropOff[];
 };
 
 // ===== 2.6 Поиск =====
 export type AnalyticsSearchDemandRow = {
-  from_city: string;
-  to_city: string;
-  searches: number;
-  users: number;
-  zero_results: number;
-  bookings: number;
-  conv_pct: number;
-};
-
-export type AnalyticsSearchDemand = {
-  items: AnalyticsSearchDemandRow[];
+  from_city?: string;
+  to_city?: string;
+  searches?: number;
+  users?: number;
+  zero_results?: number;
+  bookings?: number;
+  conv_pct?: number;
 };
 
 export type AnalyticsSearchFilterRow = {
   filter: string;
   value?: string | null;
-  uses: number;
-  users: number;
+  uses?: number;
+  users?: number;
   share_pct?: number;
 };
 
 // ===== 2.7 Трипы =====
 export type AnalyticsTripStats = {
-  trip_id: string;
-  card_impressions: number;
-  card_taps: number;
-  detail_views: number;
-  unique_viewers: number;
-  chats_started: number;
-  booking_starts: number;
-  bookings: number;
-  ctr_pct: number;
-  view_to_book_pct: number;
+  trip_id?: string;
+  card_impressions?: number;
+  card_taps?: number;
+  detail_views?: number;
+  unique_viewers?: number;
+  chats_started?: number;
+  booking_starts?: number;
+  bookings?: number;
+  ctr_pct?: number;
+  view_to_book_pct?: number;
 };
 
 export type AnalyticsTopTripMetric = "views" | "bookings" | "ctr";
@@ -1129,59 +1132,55 @@ export type AnalyticsTopTrip = AnalyticsTripStats & {
 
 // ===== 2.8 Чаты =====
 export type AnalyticsChatsStats = {
-  chats_created: number;
-  chat_opens: number;
-  unique_users: number;
-  messages_sent: number;
-  avg_messages_per_chat: number;
-  first_response_median_sec: number;
-  chat_to_booking_pct: number;
-  by_source: Record<string, number>;
+  chats_created?: number;
+  chat_opens?: number;
+  unique_users?: number;
+  messages_sent?: number;
+  avg_messages_per_chat?: number;
+  first_response_median_sec?: number;
+  chat_to_booking_pct?: number;
+  by_source?: Record<string, number>;
 };
 
 // ===== 2.9 Таймлайн пользователя =====
 export type AnalyticsTimelineEvent = {
-  ts: string;
-  name: string;
+  ts?: string;
+  name?: string;
   screen?: string | null;
   entity_id?: string | null;
   props?: Record<string, any> | null;
 };
 
 export type AnalyticsTimelineSession = {
-  session_id: string;
-  started_at: string;
-  duration_sec: number;
+  session_id?: string;
+  started_at?: string;
+  duration_sec?: number;
   platform?: string | null;
   app_version?: string | null;
-  events: AnalyticsTimelineEvent[];
+  events?: AnalyticsTimelineEvent[];
 };
 
 export type AnalyticsTimeline = {
-  sessions: AnalyticsTimelineSession[];
+  sessions?: AnalyticsTimelineSession[];
   next_cursor?: string | null;
 };
 
 // ===== 2.10 Ретеншн и когорты =====
 export type AnalyticsRetentionRow = {
-  cohort: string;
-  size: number;
+  cohort?: string;
+  size?: number;
   /** retention[0] всегда 100; длина = depth + 1. */
-  retention: number[];
+  retention?: number[];
 };
 
 // ===== 2.11 Ошибки клиента =====
 export type AnalyticsErrorRow = {
-  endpoint: string;
-  status: number;
+  endpoint?: string;
+  status?: number;
   error_code?: string | null;
-  cnt: number;
-  users: number;
+  cnt?: number;
+  users?: number;
   app_version?: string | null;
-};
-
-export type AnalyticsErrors = {
-  items: AnalyticsErrorRow[];
 };
 
 // ===== 2.12 Экспорт =====
@@ -1189,14 +1188,14 @@ export type AnalyticsExportReport = "events" | "funnel" | "forms" | "search";
 
 // ===== 2.13 Управление трекингом =====
 export type AnalyticsConfig = {
-  enabled: boolean;
-  batch_size: number;
-  flush_interval_sec: number;
-  max_queue_days: number;
+  enabled?: boolean;
+  batch_size?: number;
+  flush_interval_sec?: number;
+  max_queue_days?: number;
   /** Доля отправляемых событий: 0..1, либо мапа «событие → доля». */
-  sampling: number | Record<string, number>;
-  disabled_events: string[];
-  version: number;
+  sampling?: number | Record<string, number>;
+  disabled_events?: string[];
+  version?: number;
 };
 
 export type AnalyticsConfigPatch = Partial<Omit<AnalyticsConfig, "version">>;
@@ -1208,14 +1207,14 @@ export type AnalyticsRegistryEvent = {
 };
 
 export type AnalyticsRegistry = {
-  events: AnalyticsRegistryEvent[];
-  funnels: { code: string; steps: string[]; window_minutes?: number }[];
-  forms: { form: string; fields: string[] }[];
+  events?: AnalyticsRegistryEvent[];
+  funnels?: { code: string; steps?: string[]; window_minutes?: number }[];
+  forms?: { form: string; fields?: string[] }[];
 };
 
 export type AnalyticsUnknownEvent = {
   name: string;
-  cnt: number;
+  cnt?: number;
   first_seen?: string | null;
   last_seen?: string | null;
   app_version?: string | null;

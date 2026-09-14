@@ -44,7 +44,7 @@ export const AnalyticsEventsPage = () => {
   const hourlyAllowed = days <= MAX_HOURLY_DAYS;
   const effectiveGranularity: AnalyticsGranularity = hourlyAllowed ? granularity : "day";
 
-  const { data, isLoading } = useAnalyticsEvents({
+  const { data, isLoading, isError, refetch } = useAnalyticsEvents({
     ...query,
     search: search || undefined,
     limit: PAGE_SIZE,
@@ -106,6 +106,8 @@ export const AnalyticsEventsPage = () => {
       meta={data?.meta}
       filters={filters}
       onFiltersChange={setFilters}
+      isError={isError}
+      onRetry={refetch}
       actions={<ExportButton report="events" filters={filters} />}
     >
       <StatsSection title="Все события" description={`Найдено: ${formatNumber(total)}`}>

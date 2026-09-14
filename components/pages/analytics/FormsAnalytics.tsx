@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAnalyticsFormDetails, useAnalyticsForms } from "@/hooks/analyticsHooks";
 import { useAnalyticsFilters } from "@/hooks/useAnalyticsFilters";
-import { formatMs, formatPct, formatSeconds, humanizeEventName } from "@/lib/analytics";
+import { formatMs, formatPct, formatSeconds, humanizeEventName, num, pctOf } from "@/lib/analytics";
 import { cn, formatNumber } from "@/lib/utils";
 
 // ============================================================
@@ -37,7 +37,7 @@ export const AnalyticsFormsPage = () => {
 
   const detailsQ = useAnalyticsFormDetails(form, query);
   const d = detailsQ.data?.data;
-  const maxFocused = Math.max(...(d?.fields ?? []).map((f) => f.focused), 1);
+  const maxFocused = Math.max(...(d?.fields ?? []).map((f) => num(f.focused)), 1);
 
   return (
     <AnalyticsPageShell
@@ -47,6 +47,11 @@ export const AnalyticsFormsPage = () => {
       meta={listQ.data?.meta}
       filters={filters}
       onFiltersChange={setFilters}
+      isError={listQ.isError || detailsQ.isError}
+      onRetry={() => {
+        listQ.refetch();
+        detailsQ.refetch();
+      }}
       actions={<ExportButton report="forms" filters={filters} form={form || undefined} />}
     >
       <StatsSection title="Формы" description="Общая конверсия: сколько начавших дошли до отправки">
@@ -136,13 +141,13 @@ export const AnalyticsFormsPage = () => {
             ) : (
               <ol className="space-y-2.5">
                 {[...d.fields]
-                  .sort((a, b) => a.index - b.index)
+                  .sort((a, b) => num(a.index) - num(b.index))
                   .map((f) => (
                     <li key={f.field} className="space-y-1.5">
                       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-sm">
                         <span className="flex items-center gap-2 font-medium">
                           <span className="bg-muted flex size-5 items-center justify-center rounded-full text-[11px] tabular-nums">
-                            {f.index}
+                            {f.index ?? "?"}
                           </span>
                           {f.field}
                         </span>
@@ -150,7 +155,7 @@ export const AnalyticsFormsPage = () => {
                           фокус <span className="text-foreground font-semibold">{formatNumber(f.focused)}</span> ·
                           заполнено{" "}
                           <Conversion
-                            pct={f.focused > 0 ? (f.filled / f.focused) * 100 : null}
+                            pct={pctOf(f.filled, f.focused)}
                             numerator={f.filled}
                             denominator={f.focused}
                             className="text-foreground font-medium"
@@ -160,7 +165,7 @@ export const AnalyticsFormsPage = () => {
                             {formatNumber(f.abandoned_here)}
                           </span>{" "}
                           · {formatMs(f.avg_fill_ms)}
-                          {f.errors > 0 && (
+                          {num(f.errors) > 0 && (
                             <>
                               {" · "}
                               <span className="font-medium text-red-600 dark:text-red-400">
@@ -173,7 +178,7 @@ export const AnalyticsFormsPage = () => {
                       <div className="bg-muted h-2.5 w-full overflow-hidden rounded-full">
                         <div
                           className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500"
-                          style={{ width: `${Math.max(2, (f.focused / maxFocused) * 100)}%` }}
+                          style={{ width: `${Math.max(2, (num(f.focused) / maxFocused) * 100)}%` }}
                         />
                       </div>
                     </li>

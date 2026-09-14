@@ -8,7 +8,7 @@ import { StatCard } from "@/components/shared/StatCard";
 import { DistributionList, StatsSection } from "@/components/shared/stats/StatsSections";
 import { useAnalyticsChats } from "@/hooks/analyticsHooks";
 import { useAnalyticsFilters } from "@/hooks/useAnalyticsFilters";
-import { chatSourceLabel, formatSeconds } from "@/lib/analytics";
+import { chatSourceLabel, formatPct, formatSeconds, num } from "@/lib/analytics";
 import { formatNumber } from "@/lib/utils";
 
 // ============================================================
@@ -17,7 +17,7 @@ import { formatNumber } from "@/lib/utils";
 
 export const AnalyticsChatsPage = () => {
   const { filters, setFilters, query } = useAnalyticsFilters();
-  const { data, isLoading } = useAnalyticsChats(query);
+  const { data, isLoading, isError, refetch } = useAnalyticsChats(query);
   const s = data?.data;
 
   const sources = Object.entries(s?.by_source ?? {}).map(([label, count]) => ({
@@ -34,6 +34,8 @@ export const AnalyticsChatsPage = () => {
       filters={filters}
       onFiltersChange={setFilters}
       withRole={false}
+      isError={isError}
+      onRetry={refetch}
     >
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard title="Создано чатов" value={s?.chats_created ?? null} icon={MessageCircle} loading={isLoading} />
@@ -42,7 +44,7 @@ export const AnalyticsChatsPage = () => {
         <StatCard title="Сообщений" value={s?.messages_sent ?? null} icon={Send} loading={isLoading} />
         <StatCard
           title="Сообщений на чат"
-          value={s ? s.avg_messages_per_chat.toFixed(1) : null}
+          value={s?.avg_messages_per_chat != null ? num(s.avg_messages_per_chat).toFixed(1) : null}
           icon={Send}
           tone="sky"
           loading={isLoading}
@@ -56,7 +58,7 @@ export const AnalyticsChatsPage = () => {
         />
         <StatCard
           title="Чат → бронь"
-          value={s ? `${s.chat_to_booking_pct.toFixed(1)}%` : null}
+          value={s?.chat_to_booking_pct != null ? formatPct(s.chat_to_booking_pct) : null}
           subtext={s ? `${formatNumber(s.chats_created)} чатов за период` : undefined}
           icon={Ticket}
           tone="emerald"
@@ -77,7 +79,7 @@ export const AnalyticsChatsPage = () => {
               <p className="text-3xl font-semibold tabular-nums">
                 <Conversion
                   pct={s.chat_to_booking_pct}
-                  numerator={Math.round((s.chats_created * s.chat_to_booking_pct) / 100)}
+                  numerator={Math.round((num(s.chats_created) * num(s.chat_to_booking_pct)) / 100)}
                   denominator={s.chats_created}
                   label="Чаты с бронью"
                 />
@@ -85,7 +87,7 @@ export const AnalyticsChatsPage = () => {
               <div className="bg-muted h-2.5 w-full overflow-hidden rounded-full">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500"
-                  style={{ width: `${Math.min(100, Math.max(2, s.chat_to_booking_pct))}%` }}
+                  style={{ width: `${Math.min(100, Math.max(2, num(s.chat_to_booking_pct)))}%` }}
                 />
               </div>
               <p className="text-muted-foreground text-xs">

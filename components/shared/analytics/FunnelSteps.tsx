@@ -5,7 +5,7 @@ import { Server } from "lucide-react";
 import { Conversion } from "@/components/shared/analytics/Metrics";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { humanizeEventName, isServerEvent } from "@/lib/analytics";
+import { humanizeEventName, isServerEvent, num } from "@/lib/analytics";
 import { cn, formatNumber } from "@/lib/utils";
 import type { AnalyticsFunnelStep } from "@/types";
 
@@ -39,22 +39,24 @@ export const FunnelSteps = ({ steps, loading, className }: Props) => {
     return <p className="text-muted-foreground text-sm">Нет данных за выбранный период</p>;
   }
 
-  const start = rows[0]?.users || 1;
+  const start = Math.max(num(rows[0]?.users), 1);
 
   return (
     <ol className={cn("space-y-2.5", className)}>
       {rows.map((s, i) => {
         const prev = i > 0 ? rows[i - 1] : null;
-        const width = Math.max(2, (s.users / start) * 100);
+        const width = Math.max(2, (num(s.users) / start) * 100);
         const server = isServerEvent(s.name);
-        const dropped = prev ? prev.users - s.users : 0;
+        const dropped = prev ? num(prev.users) - num(s.users) : 0;
+        // Бэк может не прислать номер шага — порядок в массиве всё равно верный.
+        const stepNo = s.step ?? i + 1;
 
         return (
-          <li key={`${s.step}-${s.name}`} className="space-y-1.5">
+          <li key={`${stepNo}-${s.name}`} className="space-y-1.5">
             <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
               <span className="flex min-w-0 items-center gap-2 text-sm font-medium">
                 <span className="bg-muted flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] tabular-nums">
-                  {s.step}
+                  {stepNo}
                 </span>
                 <span className="truncate">{humanizeEventName(s.name)}</span>
                 {server && (
@@ -84,7 +86,7 @@ export const FunnelSteps = ({ steps, loading, className }: Props) => {
                       pct={s.conv_from_prev}
                       numerator={s.users}
                       denominator={prev?.users}
-                      label={`Шаг ${s.step} от шага ${i}`}
+                      label={`Шаг ${stepNo} от шага ${i}`}
                       className="text-foreground font-medium"
                     />
                     {" · от старта: "}
@@ -92,7 +94,7 @@ export const FunnelSteps = ({ steps, loading, className }: Props) => {
                       pct={s.conv_from_start}
                       numerator={s.users}
                       denominator={start}
-                      label={`Шаг ${s.step} от старта`}
+                      label={`Шаг ${stepNo} от старта`}
                       className="text-foreground font-medium"
                     />
                   </>

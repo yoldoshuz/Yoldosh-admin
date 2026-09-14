@@ -32,7 +32,7 @@ export const AnalyticsTripsPage = () => {
   const [metric, setMetric] = useState<AnalyticsTopTripMetric>("views");
   const base = useBasePath();
 
-  const { data, isLoading } = useAnalyticsTopTrips({ ...query, metric, limit: 50 });
+  const { data, isLoading, isError, refetch } = useAnalyticsTopTrips({ ...query, metric, limit: 50 });
   const trips = data?.data ?? [];
 
   return (
@@ -43,6 +43,8 @@ export const AnalyticsTripsPage = () => {
       meta={data?.meta}
       filters={filters}
       onFiltersChange={setFilters}
+      isError={isError}
+      onRetry={refetch}
       actions={
         <Select value={metric} onValueChange={(v) => setMetric(v as AnalyticsTopTripMetric)}>
           <SelectTrigger className="h-9 w-[180px] text-xs">
@@ -86,47 +88,54 @@ export const AnalyticsTripsPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {trips.map((t) => (
-                  <TableRow key={t.trip_id}>
-                    <TableCell>
-                      <Link
-                        href={`/${base}/trips/${t.trip_id}`}
-                        className="font-medium text-emerald-600 hover:underline dark:text-emerald-400"
-                      >
-                        {t.from_city && t.to_city ? `${t.from_city} → ${t.to_city}` : t.trip_id}
-                      </Link>
-                      <p className="text-muted-foreground text-[11px]">
-                        {t.departure_ts ? formatDate(t.departure_ts) : ""}
-                        {t.driver_name ? ` · ${t.driver_name}` : ""}
-                      </p>
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">{formatNumber(t.card_impressions)}</TableCell>
-                    <TableCell className="text-right tabular-nums">{formatNumber(t.card_taps)}</TableCell>
-                    <TableCell className="text-right">
-                      <Conversion
-                        pct={t.ctr_pct}
-                        numerator={t.card_taps}
-                        denominator={t.card_impressions}
-                        label="Тапы из показов"
-                      />
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-right tabular-nums">
-                      {formatNumber(t.detail_views)}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-right tabular-nums">
-                      {formatNumber(t.chats_started)}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">{formatNumber(t.bookings)}</TableCell>
-                    <TableCell className="text-right">
-                      <Conversion
-                        pct={t.view_to_book_pct}
-                        numerator={t.bookings}
-                        denominator={t.detail_views}
-                        label="Брони из просмотров деталей"
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {trips.map((t, i) => {
+                  const label = t.from_city && t.to_city ? `${t.from_city} → ${t.to_city}` : (t.trip_id ?? "—");
+                  return (
+                    <TableRow key={t.trip_id ?? i}>
+                      <TableCell>
+                        {t.trip_id ? (
+                          <Link
+                            href={`/${base}/trips/${t.trip_id}`}
+                            className="font-medium text-emerald-600 hover:underline dark:text-emerald-400"
+                          >
+                            {label}
+                          </Link>
+                        ) : (
+                          <span className="font-medium">{label}</span>
+                        )}
+                        <p className="text-muted-foreground text-[11px]">
+                          {t.departure_ts ? formatDate(t.departure_ts) : ""}
+                          {t.driver_name ? ` · ${t.driver_name}` : ""}
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums">{formatNumber(t.card_impressions)}</TableCell>
+                      <TableCell className="text-right tabular-nums">{formatNumber(t.card_taps)}</TableCell>
+                      <TableCell className="text-right">
+                        <Conversion
+                          pct={t.ctr_pct}
+                          numerator={t.card_taps}
+                          denominator={t.card_impressions}
+                          label="Тапы из показов"
+                        />
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-right tabular-nums">
+                        {formatNumber(t.detail_views)}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-right tabular-nums">
+                        {formatNumber(t.chats_started)}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums">{formatNumber(t.bookings)}</TableCell>
+                      <TableCell className="text-right">
+                        <Conversion
+                          pct={t.view_to_book_pct}
+                          numerator={t.bookings}
+                          denominator={t.detail_views}
+                          label="Брони из просмотров деталей"
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>

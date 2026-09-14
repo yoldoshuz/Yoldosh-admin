@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAnalyticsNav } from "@/hooks/analyticsHooks";
 import { useAnalyticsFilters } from "@/hooks/useAnalyticsFilters";
-import { formatPct, navTabLabel } from "@/lib/analytics";
+import { formatPct, navTabLabel, num, pctOf } from "@/lib/analytics";
 import { cn, formatNumber } from "@/lib/utils";
 
 // ============================================================
@@ -28,13 +28,13 @@ const FUNNEL_STAGES = [
 
 export const AnalyticsNavPage = () => {
   const { filters, setFilters, query } = useAnalyticsFilters();
-  const { data, isLoading } = useAnalyticsNav(query);
+  const { data, isLoading, isError, refetch } = useAnalyticsNav(query);
   const [selected, setSelected] = useState<string | null>(null);
 
   const items = data?.data?.items ?? [];
   const totalSignups = data?.data?.total_signups ?? 0;
   const active = items.find((i) => i.tab === selected) ?? items[0] ?? null;
-  const stageMax = active ? active.guest_taps || 1 : 1;
+  const stageMax = Math.max(num(active?.guest_taps), 1);
 
   return (
     <AnalyticsPageShell
@@ -44,6 +44,8 @@ export const AnalyticsNavPage = () => {
       meta={data?.meta}
       filters={filters}
       onFiltersChange={setFilters}
+      isError={isError}
+      onRetry={refetch}
     >
       <StatsSection title="Вкладки таб-бара" description={`Всего регистраций за период: ${formatNumber(totalSignups)}`}>
         {isLoading ? (
@@ -124,8 +126,8 @@ export const AnalyticsNavPage = () => {
         >
           <ul className="space-y-2.5">
             {FUNNEL_STAGES.map((stage, i) => {
-              const value = active[stage.key];
-              const prev = i > 0 ? active[FUNNEL_STAGES[i - 1].key] : null;
+              const value = num(active[stage.key]);
+              const prev = i > 0 ? num(active[FUNNEL_STAGES[i - 1].key]) : null;
               return (
                 <li key={stage.key} className="space-y-1.5">
                   <div className="flex items-baseline justify-between gap-3 text-sm">
@@ -139,7 +141,7 @@ export const AnalyticsNavPage = () => {
                         <>
                           {" · "}
                           <Conversion
-                            pct={prev > 0 ? (value / prev) * 100 : null}
+                            pct={pctOf(value, prev)}
                             numerator={value}
                             denominator={prev}
                             className="text-foreground font-medium"

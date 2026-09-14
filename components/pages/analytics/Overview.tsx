@@ -30,7 +30,7 @@ const deltaPct = (current?: number, prev?: number): number | null => {
 
 export const AnalyticsOverviewPage = () => {
   const { filters, setFilters, query } = useAnalyticsFilters();
-  const { data, isLoading } = useAnalyticsOverview(query);
+  const { data, isLoading, isError, refetch } = useAnalyticsOverview(query);
 
   const prevRange = previousPeriod(filters.from, filters.to);
   const { data: prevData } = useAnalyticsOverview({ ...query, ...prevRange });
@@ -71,6 +71,8 @@ export const AnalyticsOverviewPage = () => {
       meta={data?.meta}
       filters={filters}
       onFiltersChange={setFilters}
+      isError={isError}
+      onRetry={refetch}
     >
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {cards.map((c) => (
@@ -133,9 +135,9 @@ export const AnalyticsOverviewPage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {o.top_screens.map((s) => (
-                    <TableRow key={s.screen}>
-                      <TableCell className="font-medium">{s.screen}</TableCell>
+                  {o.top_screens.map((s, i) => (
+                    <TableRow key={s.screen ?? i}>
+                      <TableCell className="font-medium">{s.screen ?? "—"}</TableCell>
                       <TableCell className="text-right tabular-nums">{formatNumber(s.views)}</TableCell>
                       <TableCell className="text-muted-foreground text-right tabular-nums">
                         {formatSeconds(s.avg_sec)}

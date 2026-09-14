@@ -80,20 +80,35 @@ export const AnalyticsSettingsPage = () => {
   const unknown = unknownQ.data?.data ?? [];
   const registry = registryQ.data?.data;
 
+  // PUT принимает любое подмножество полей. Пустое поле — это «не
+  // трогать», а не «поставить 0»: иначе не пришедший с бэка batch_size
+  // молча уехал бы в ноль и сломал отправку батчей на клиентах.
+  const numeric = (raw: string): number | undefined => {
+    const parsed = Number(raw);
+    return raw.trim() !== "" && Number.isFinite(parsed) ? parsed : undefined;
+  };
+
   const submit = () => {
     if (!form) return;
+
+    const sampling =
+      form.samplingMode === "global"
+        ? numeric(form.samplingGlobal)
+        : Object.fromEntries(
+            form.samplingPerEvent
+              .map((r) => [r.name.trim(), numeric(r.rate)] as const)
+              .filter((pair): pair is readonly [string, number] => !!pair[0] && pair[1] !== undefined)
+          );
+
     const patch: AnalyticsConfigPatch = {
       enabled: form.enabled,
-      batch_size: Number(form.batch_size),
-      flush_interval_sec: Number(form.flush_interval_sec),
-      max_queue_days: Number(form.max_queue_days),
-      sampling:
-        form.samplingMode === "global"
-          ? Number(form.samplingGlobal)
-          : Object.fromEntries(
-              form.samplingPerEvent.filter((r) => r.name.trim()).map((r) => [r.name.trim(), Number(r.rate)])
-            ),
       disabled_events: form.disabled_events,
+      ...(numeric(form.batch_size) !== undefined ? { batch_size: numeric(form.batch_size) } : {}),
+      ...(numeric(form.flush_interval_sec) !== undefined
+        ? { flush_interval_sec: numeric(form.flush_interval_sec) }
+        : {}),
+      ...(numeric(form.max_queue_days) !== undefined ? { max_queue_days: numeric(form.max_queue_days) } : {}),
+      ...(sampling !== undefined ? { sampling } : {}),
     };
     save(patch);
   };
@@ -108,6 +123,12 @@ export const AnalyticsSettingsPage = () => {
       filters={filters}
       onFiltersChange={setFilters}
       withFilters={false}
+      isError={configQ.isError || registryQ.isError || unknownQ.isError}
+      onRetry={() => {
+        configQ.refetch();
+        registryQ.refetch();
+        unknownQ.refetch();
+      }}
     >
       <Tabs defaultValue="config">
         <TabsList className="flex-wrap">
@@ -134,7 +155,7 @@ export const AnalyticsSettingsPage = () => {
 
           <StatsSection
             title="Remote-config клиента"
-            description={cfg ? `Текущая версия конфига: ${cfg.version}` : undefined}
+            description={cfg?.version != null ? `Текущая версия конфига: ${cfg.version}` : undefined}
           >
             {configQ.isLoading || !form ? (
               <div className="space-y-3">
@@ -456,7 +477,9 @@ export const AnalyticsSettingsPage = () => {
                   {registry.funnels.map((f) => (
                     <li key={f.code} className="rounded-lg border p-2.5">
                       <p className="font-mono text-xs font-semibold">{f.code}</p>
-                      <p className="text-muted-foreground mt-1 font-mono text-[11px]">{f.steps.join(" → ")}</p>
+                      <p className="text-muted-foreground mt-1 font-mono text-[11px]">
+                        {f.steps?.length ? f.steps.join(" → ") : "шаги не заданы"}
+                      </p>
                       {f.window_minutes != null && (
                         <p className="text-muted-foreground mt-1 text-[11px]">Окно: {f.window_minutes} мин</p>
                       )}
@@ -476,7 +499,9 @@ export const AnalyticsSettingsPage = () => {
                   {registry.forms.map((f) => (
                     <li key={f.form} className="rounded-lg border p-2.5">
                       <p className="font-mono text-xs font-semibold">{f.form}</p>
-                      <p className="text-muted-foreground mt-1 font-mono text-[11px]">{f.fields.join(", ")}</p>
+                      <p className="text-muted-foreground mt-1 font-mono text-[11px]">
+                        {f.fields?.length ? f.fields.join(", ") : "поля не заданы"}
+                      </p>
                     </li>
                   ))}
                 </ul>
